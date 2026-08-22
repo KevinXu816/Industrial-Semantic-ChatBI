@@ -1,6 +1,6 @@
 from app.semantic import SemanticRegistry
 from app.planner import QueryPlanner
-from app.models import SemanticIntent
+from app.models import SemanticIntent, SemanticSubject
 from app.metric_graph import MetricDependencyGraph
 
 
@@ -19,8 +19,8 @@ def test_planner_is_metric_and_ontology_driven():
     registry = SemanticRegistry()
     plan = QueryPlanner(registry).build(SemanticIntent(
         raw_question="A101最近7天单位能耗为什么升高",
-        machine_ref="A101",
-        metric="specific_energy_consumption",
+        subject=SemanticSubject(entity="Machine", reference="A101"),
+        metrics=["specific_energy_consumption"],
         time_window_days=7,
         analysis_mode="diagnostic",
         related_entities=["Machine", "AlarmEvent", "WorkOrder"],

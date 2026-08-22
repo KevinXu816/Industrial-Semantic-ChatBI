@@ -1,4 +1,38 @@
 entities:
+  Factory:
+    description: Industrial factory/site
+    identifiers: [factory_id, factory_code, factory_name]
+    properties:
+      factory_id: {type: string}
+      factory_code: {type: string}
+      factory_name: {type: string}
+    physical_mapping:
+      catalog: mysql_mes
+      schema: production
+      table: factory_master
+      columns:
+        factory_id: factory_id
+        factory_code: factory_code
+        factory_name: factory_name
+
+  ProductionLine:
+    description: Manufacturing production line
+    identifiers: [line_id, line_code, line_name]
+    properties:
+      line_id: {type: string}
+      line_code: {type: string}
+      line_name: {type: string}
+      factory_id: {type: string}
+    physical_mapping:
+      catalog: mysql_mes
+      schema: production
+      table: production_line
+      columns:
+        line_id: line_id
+        line_code: line_code
+        line_name: line_name
+        factory_id: factory_id
+
   Machine:
     description: Industrial production or utility equipment
     identifiers: [machine_id, machine_code, machine_name]
@@ -8,6 +42,7 @@ entities:
       machine_name: {type: string}
       machine_type: {type: string}
       factory_id: {type: string}
+      line_id: {type: string}
     physical_mapping:
       catalog: mysql_mes
       schema: production
@@ -18,6 +53,7 @@ entities:
         machine_name: device_name
         machine_type: device_type
         factory_id: factory_id
+        line_id: line_id
 
   EnergyObservation:
     description: Aggregated energy observations for equipment
@@ -96,6 +132,8 @@ entities:
         action: maintenance_action
 
 relationships:
+  - {from: Factory, relation: HAS_LINE, to: ProductionLine, 'on': factory_id}
+  - {from: ProductionLine, relation: HAS_MACHINE, to: Machine, 'on': line_id}
   - {from: Machine, relation: HAS_ENERGY, to: EnergyObservation, 'on': machine_id}
   - {from: Machine, relation: HAS_PRODUCTION, to: ProductionObservation, 'on': machine_id}
   - {from: Machine, relation: HAS_ALARM, to: AlarmEvent, 'on': machine_id}

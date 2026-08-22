@@ -8,7 +8,7 @@ from app.candidate_generator import generate_candidates
 def run():
     registry = SemanticRegistry()
     graph = registry.graph()
-    assert len(graph["nodes"]) >= 5
+    assert len(graph["nodes"]) >= 7
     assert graph["edges"][0]["on"] == "machine_id"
 
     intent = registry.resolve("A101空压机最近一周单位产量能耗为什么增加？")
@@ -17,8 +17,9 @@ def run():
     assert intent.analysis_mode == "diagnostic"
 
     plan = QueryPlanner(registry).build(intent)
-    assert len(plan.sql) == 5
-    assert "SELECT device_id FROM mysql_mes.production.device_master" in plan.sql[1]
+    assert len(plan.sql) >= 4
+    assert plan.subject_entity == "Machine"
+    assert "mysql_mes.production.device_master" in plan.sql[0]
     for sql in plan.sql:
         SQLGuardrail().validate(sql)
 

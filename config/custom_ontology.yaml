@@ -1,5 +1,13 @@
 entities: {}
 relationships:
+- from: Factory
+  relation: HAS_LINE
+  to: ProductionLine
+  'on': factory_id
+- from: ProductionLine
+  relation: HAS_MACHINE
+  to: Machine
+  'on': line_id
 - from: Machine
   relation: HAS_ENERGY
   to: EnergyObservation

@@ -3,8 +3,6 @@ import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
-import pymysql
-import pymysql.cursors
 
 ROOT = Path(__file__).resolve().parents[1]
 STORE = ROOT / "data" / "datasources.json"
@@ -112,6 +110,11 @@ class DataSourceStore:
 
     def _connect(self, cfg: DataSourceConfig):
         if cfg.type in ("doris", "mysql"):
+            try:
+                import pymysql
+                import pymysql.cursors
+            except ImportError as exc:
+                raise RuntimeError("PyMySQL 未安装，请 pip install PyMySQL") from exc
             return pymysql.connect(
                 host=cfg.host,
                 port=cfg.port,

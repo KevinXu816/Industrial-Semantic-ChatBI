@@ -1,5 +1,10 @@
 # Industrial Semantic ChatBI
 
+
+## V0.5 Generic Semantic Engine
+
+V0.5 upgrades the governed planner from a Machine-centric prototype to a generic subject-driven semantic engine. The new `SemanticIntent` supports `subject`, `metrics`, `dimensions`, `filters`, `time_range`, `time_grain`, and `comparison`, while keeping V0.4 fields backward-compatible. Query planning now scopes metric entities through ontology paths such as `Factory → ProductionLine → Machine → EnergyObservation`. See `docs/ARCHITECTURE_V0_5.md`.
+
 面向企业的**语义化商业智能对话系统**。通过简单配置数据源、描述实体和关系，快速将企业多系统数据转化为自然语言问答 AI，无需编写代码。
 
 ## 应用场景

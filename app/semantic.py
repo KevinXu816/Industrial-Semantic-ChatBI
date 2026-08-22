@@ -316,9 +316,13 @@ class SemanticRegistry:
         import json as _json
         system = (
             "You are an industrial semantic parser. Return JSON only. Never generate SQL. "
-            "Resolve the user's question into the supplied semantic model. "
-            "Schema: {raw_question:string,machine_ref:string|null,metric:string|null,time_window_days:int,"
-            "analysis_mode:'descriptive'|'diagnostic',related_entities:string[]}.\n"
+            "Resolve the user's question into the supplied governed semantic model. "
+            "V0.5 schema: {raw_question:string,subject:{entity:string,reference:string|null,key:string|null},"
+            "metrics:string[],dimensions:string[],filters:{entity:string|null,property:string,operator:string,value:any}[],"
+            "time_range:{type:'relative'|'absolute',value:int,unit:'hour'|'day'|'week'|'month',start:string|null,end:string|null},"
+            "time_grain:string|null,comparison:{type:'none'|'previous_period'|'baseline'},"
+            "analysis_mode:'descriptive'|'diagnostic',related_entities:string[]}. "
+            "Only use entities, properties and metrics present in the supplied model.\n"
             f"Ontology:\n{self._ontology_summary()}\nMetrics:\n{self._metrics_summary()}"
         )
         if llm_svc.is_available():
@@ -328,26 +332,44 @@ class SemanticRegistry:
             )
         else:
             from .llm_planner import OpenAICompatibleSemanticPlanner
-            planner = OpenAICompatibleSemanticPlanner()
-            return planner.resolve(question, self._ontology_summary(), self._metrics_summary())
+            return OpenAICompatibleSemanticPlanner().resolve(question, self._ontology_summary(), self._metrics_summary())
         obj = _json.loads(content)
         obj["raw_question"] = question
         return SemanticIntent.model_validate(obj)
 
     def _resolve_rules(self, question: str) -> SemanticIntent:
-        machine_ref = None
+        from .models import SemanticSubject, SemanticTimeRange, ComparisonSpec
+        q = question.lower()
+
+        # Subject entity detection is ontology-driven first, with Machine as compatibility default.
+        subject_entity = "Machine"
+        entity_keywords = {
+            "ProductionLine": ["产线", "生产线", "line"],
+            "Factory": ["工厂", "厂区", "factory"],
+            "BESS": ["储能系统", "bess"],
+            "PCS": ["pcs", "变流器"],
+            "BatteryRack": ["rack", "电池簇", "电池架"],
+            "Machine": ["设备", "空压机", "风机", "泵", "machine"],
+        }
+        available = self.ontology.get("entities", {})
+        for entity, keywords in entity_keywords.items():
+            if entity in available and any(k.lower() in q for k in keywords):
+                subject_entity = entity
+                break
+
+        # Resolve a business reference without assuming a specific entity id field.
+        subject_ref = None
         patterns = [
-            r"(?<![A-Za-z0-9])[A-Za-z]{1,5}[-_]?[0-9]{1,5}(?![A-Za-z0-9])",
-            r"[0-9]+#(?:空压机|风机|泵|设备)",
+            r"(?<![A-Za-z0-9])[A-Za-z]{1,8}[-_]?[0-9]{1,8}(?![A-Za-z0-9])",
+            r"[0-9]+#(?:空压机|风机|泵|设备|产线)",
         ]
-        for p in patterns:
-            m = re.search(p, question, re.IGNORECASE)
+        for pattern in patterns:
+            m = re.search(pattern, question, re.IGNORECASE)
             if m:
-                machine_ref = m.group(0)
+                subject_ref = m.group(0)
                 break
 
         metric = None
-        q = question.lower()
         candidates = []
         for metric_name, cfg in self.metrics["metrics"].items():
             for synonym in cfg.get("synonyms", []):
@@ -359,30 +381,40 @@ class SemanticRegistry:
             metric = "energy_consumption"
 
         days = 7
+        unit = "day"
+        value = 7
         m = re.search(r"(?:最近|近)?\s*(\d+)\s*天", question)
         if m:
-            days = max(1, min(int(m.group(1)), 365))
+            value = max(1, min(int(m.group(1)), 365)); days = value
         elif "昨天" in question or "最近24小时" in question or "24小时" in question:
-            days = 1
+            value = 1; days = 1
         elif "最近一周" in question or "本周" in question or "一周" in question:
-            days = 7
-        elif "最近一个月" in question or "近一个月" in question or "一个月" in question:
-            days = 30
+            value = 1; unit = "week"; days = 7
+        elif "最近一个月" in question or "近一个月" in question or "一个月" in question or "本月" in question:
+            value = 1; unit = "month"; days = 30
 
         diagnostic = any(k in question for k in ["为什么", "原因", "异常", "故障", "关联", "相关"])
-        related = ["Machine"]
-        if metric in ("energy_consumption", "specific_energy_consumption"):
-            related.append("EnergyObservation")
-        if metric == "specific_energy_consumption":
-            related.append("ProductionObservation")
+        comparison_type = "previous_period" if any(k in question for k in ["增加", "下降", "同比", "环比", "相比", "变化"]) else "none"
+
+        related = [subject_entity]
+        if metric:
+            from .metric_graph import MetricDependencyGraph
+            try:
+                related.extend(MetricDependencyGraph(self.metrics).entities(metric))
+            except Exception:
+                pass
         if diagnostic:
-            related += ["AlarmEvent", "WorkOrder"]
+            for entity in ("AlarmEvent", "WorkOrder"):
+                if entity in available:
+                    related.append(entity)
 
         return SemanticIntent(
             raw_question=question,
-            machine_ref=machine_ref,
-            metric=metric,
+            subject=SemanticSubject(entity=subject_entity, reference=subject_ref),
+            metrics=[metric] if metric else [],
+            time_range=SemanticTimeRange(type="relative", value=value, unit=unit),
             time_window_days=days,
+            comparison=ComparisonSpec(type=comparison_type),
             analysis_mode="diagnostic" if diagnostic else "descriptive",
             related_entities=list(dict.fromkeys(related)),
         )

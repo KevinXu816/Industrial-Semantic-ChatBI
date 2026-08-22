@@ -1,7 +1,6 @@
 import json
 import os
 import urllib.request
-from typing import Optional
 from .models import SemanticIntent
 
 
@@ -18,32 +17,25 @@ class OpenAICompatibleSemanticPlanner:
     def resolve(self, question: str, ontology_summary: str, metrics_summary: str) -> SemanticIntent:
         system = (
             "You are an industrial semantic parser. Return JSON only. Never generate SQL. "
-            "Resolve the user's question into the supplied semantic model. "
-            "Schema: {raw_question:string,machine_ref:string|null,metric:string|null,time_window_days:int," 
-            "analysis_mode:'descriptive'|'diagnostic',related_entities:string[]}.\n"
+            "Resolve the question into: raw_question, subject{entity,reference,key}, metrics[], dimensions[], filters[], "
+            "time_range{type,value,unit,start,end}, time_grain, comparison{type}, analysis_mode, related_entities[]. "
+            "Only use governed entities/properties/metrics from the supplied semantic model.\n"
             f"Ontology:\n{ontology_summary}\nMetrics:\n{metrics_summary}"
         )
         payload = {
             "model": self.model,
             "temperature": 0,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": question},
-            ],
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": question}],
             "response_format": {"type": "json_object"},
         }
         req = urllib.request.Request(
             self.url + "/chat/completions",
             data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Content-Type": "application/json",
-                **({"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}),
-            },
+            headers={"Content-Type": "application/json", **({"Authorization": f"Bearer {self.api_key}"} if self.api_key else {})},
             method="POST",
         )
         with urllib.request.urlopen(req, timeout=int(os.getenv("LLM_TIMEOUT", "30"))) as resp:
             body = json.loads(resp.read().decode("utf-8"))
-        content = body["choices"][0]["message"]["content"]
-        obj = json.loads(content)
+        obj = json.loads(body["choices"][0]["message"]["content"])
         obj["raw_question"] = question
         return SemanticIntent.model_validate(obj)

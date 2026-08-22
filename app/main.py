@@ -342,7 +342,7 @@ def chat(req: ChatRequest):
             "data_sources": [],
             "join_paths": join_paths,
         }
-        for e in intent.related_entities:
+        for e in plan.required_entities:
             try:
                 evidence["data_sources"].append(registry.table_ref(e))
             except (KeyError, TypeError):
@@ -365,9 +365,9 @@ def _assess_confidence(intent, question: str) -> dict:
     """Assess confidence in the semantic resolution."""
     score = 1.0
     reasons = []
-    if not intent.machine_ref:
-        score -= 0.3
-        reasons.append("未识别到具体设备编号")
+    if not intent.subject or not intent.subject.reference:
+        score -= 0.2
+        reasons.append("未识别到具体业务主体引用；将按主体类型进行范围查询")
     if not intent.metric:
         score -= 0.3
         reasons.append("未匹配到已注册指标")

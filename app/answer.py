@@ -18,8 +18,8 @@ class AnswerComposer:
         )
         user_msg = (
             f"用户问题：{intent.raw_question}\n"
-            f"语义解析：设备={intent.machine_ref}, 指标={intent.metric}, "
-            f"时间窗口={intent.time_window_days}天, 模式={intent.analysis_mode}\n"
+            f"语义解析：主体={intent.subject.entity if intent.subject else None}:{intent.subject.reference if intent.subject else None}, "
+            f"指标={intent.metric}, 时间窗口={intent.time_window_days}天, 模式={intent.analysis_mode}\n"
             f"查询结果：{json.dumps(data, ensure_ascii=False, default=str)[:3000]}"
         )
         try:
@@ -44,7 +44,7 @@ class AnswerComposer:
                 reasons.append("历史工单记录显示过滤器压差已上升，但当时仅检查、未更换")
             reason_text = "；".join(reasons)
             return (
-                f"{intent.machine_ref} 最近一周单位产量能耗约为 {metric['current_specific_energy']} {metric['unit']}，"
+                f"{(intent.subject.reference if intent.subject else intent.machine_ref)} 最近一周单位产量能耗约为 {metric['current_specific_energy']} {metric['unit']}，"
                 f"相对基线 {metric['baseline_specific_energy']} {metric['unit']} 上升 {metric['change_pct']}%。"
                 f"结合告警和维修事件，最值得优先验证的原因是过滤器阻力增加导致压缩机负载上升。{reason_text}。"
                 "建议现场先检查过滤器压差、吸气阻力和排气温度，再与正常工况下的加载率/卸载率对比。"
