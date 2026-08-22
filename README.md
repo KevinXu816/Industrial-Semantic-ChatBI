@@ -74,7 +74,7 @@
 - UI 上一键测试连接
 
 ### 🗄️ 数据源管理
-- 支持 Apache Doris、MySQL、PostgreSQL
+- 支持 Apache Doris、MySQL、PostgreSQL、EXCEL、API
 - UI 配置连接参数、测试连通性
 - 对数据源执行元数据扫描
 - **数据预览** — 预览任意表的前 N 行数据

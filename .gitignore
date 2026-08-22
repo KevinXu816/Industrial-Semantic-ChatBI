@@ -1,6 +1,6 @@
 # IDE / Workspace
 /shelf/
-/workspace.xml
+workspace.xml
 
 # Python cache
 __pycache__/
