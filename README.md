@@ -323,10 +323,6 @@ PYTHONPATH=. python tests/smoke_test.py
 
 ![Entity](docs/images/entity.png)
 
-### Entity
-
-![Entity](docs/images/entity.png)
-
 ### Relation
 
 ![Relation](docs/images/relation.png)
