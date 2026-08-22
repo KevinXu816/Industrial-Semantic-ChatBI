@@ -59,4 +59,4 @@ def test_rca_similarity(tmp_path):
 def test_v12_api_version_and_workflow():
     from app.main import app
     client=TestClient(app)
-    assert client.get('/health').json()['version']=='2.7.0'
+    assert client.get('/health').json()['version']=='2.9.0'

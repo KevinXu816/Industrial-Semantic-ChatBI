@@ -1,18 +1,17 @@
 # Industrial Semantic Intelligence Platform
 
-> **V2.6 Enterprise Authentication & SSO** — OIDC/JWT authentication, Keycloak/Microsoft Entra-compatible claim mapping, authenticated Principal resolution, anti-impersonation scope enforcement, auth audit, and session-aware UI. The UI version is sourced from `/health` and displays **V2.6.0** consistently.
+> **V2.9 Observability & SRE Control Plane** — W3C trace context, HTTP latency/error metrics, dependency health, SLOs, alert rules/incidents, Prometheus exposition, and an SRE operations UI. The UI version is sourced from `/health` and displays **V2.9.0** consistently.
 
-## V2.6 highlights
+## V2.9 highlights
 
-- Authentication modes: `disabled` (default), `dev`, `jwt`, and `oidc`.
-- OIDC discovery/JWKS validation via optional `auth` extra (`PyJWT[crypto]`).
-- Configurable claims map authenticated identities to V2.5 Tenant/Org/Site/Asset/Connector scopes; dotted claims such as `realm_access.roles` are supported.
-- Scoped APIs trust the verified Token Principal, not a caller-supplied `principal_id`; same-tenant `tenant_admin` delegation is explicit.
-- Enterprise identity administration requires `tenant_admin` whenever authentication is enabled.
-- `/auth/config`, `/auth/me`, `/auth/audit`, `/auth/reload` and dev-token contract added.
-- The Identity UI shows SSO mode and supports a session-only Bearer token for enterprise pilot validation.
+- Unified `EnterpriseAuditEvent`: actor, tenant/site scope, resource, action, decision, status, before/after, provenance, correlation ID and timestamp.
+- HTTP `X-Correlation-ID` propagation plus semantic-query child events for traceable request chains.
+- Idempotent adapters normalize Authentication, Access, Secret, Runtime Query, Connector and DLQ history into the audit center.
+- Built-in violation generation for denied/failed governed operations plus custom compliance match policies.
+- Audit search, correlation trace, JSON/CSV export and configurable retention with dry-run enforcement.
+- **审计与合规** UI for event search, policy/violation overview and retention configuration.
 
-Production example: `AUTH_MODE=oidc`, `OIDC_ISSUER=https://<idp>/...`, `OIDC_CLIENT_ID=...`, `OIDC_AUDIENCE=...`. For production browser login, prefer Authorization Code + PKCE or an authentication-aware reverse proxy; the built-in token field is intended for pilot/operations validation.
+V2.7 Secret/Credential Management, V2.6 Authentication/SSO, and V2.5 Multi-Tenant Governance remain fully compatible.
 
 ## V2.5 Enterprise Identity & Multi-Tenant Governance
 
@@ -652,3 +651,12 @@ AUTH_JWT_SECRET_REF=secret://file/auth_jwt_secret
 ```
 
 Datasource and LLM configuration now support `credential_ref` / `api_key_ref`. The Secret Registry stores references and governance metadata only; secret values are resolved at runtime and are never returned by Secret APIs. See `docs/ARCHITECTURE_V2_7.md`.
+
+
+## V2.8 Audit, Compliance & Policy Center
+
+V2.8 adds a unified enterprise audit center with correlation tracing, legacy audit normalization, compliance policies/violations, retention governance and JSON/CSV export. Use `/audit/summary`, `/audit/events`, `/audit/traces/{correlation_id}`, `/compliance/*` and the **审计与合规** UI page.
+
+## V2.9 Observability & SRE Control Plane
+
+V2.9 adds runtime observability without conflating it with V2.8 compliance audit. Every HTTP request receives W3C-compatible trace context and can be queried through `/observability/traces/{trace_id}`. SRE APIs expose HTTP p95/error/availability, dependency health, configurable SLOs and alert incidents. Prometheus-format metrics are published at `/observability/prometheus`; `/metrics` remains the governed business Metric Registry. See `docs/ARCHITECTURE_V2_9.md`.

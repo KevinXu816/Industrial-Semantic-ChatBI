@@ -1,17 +1,25 @@
-# IDE / Workspace
-/shelf/
-workspace.xml
-.idea/
-.superpowers/
-
-/docs/superpowers/
-
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.superpowers/
 
-# macOS
+# IDE / OS
+.idea/
+.vscode/
 .DS_Store
+__MACOSX/
 
-# Local user-managed templates
-/data/industry_templates.json
+# Runtime/local state
+.env
+*.log
+
+# V0.7 governance runtime state
+data/query_lineage.json
+data/semantic_versions.json
+data/semantic_snapshots/
+
+# Runtime persistence
+data/repository/

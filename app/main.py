@@ -76,6 +76,8 @@ from .edge_agent import EdgeAgentRegistry
 from .enterprise_identity import EnterpriseIdentityStore, EnterpriseScopeEngine, AccessDenied, IdentityError, default_tenant_id
 from .authentication import AuthenticationService, AuthenticationError
 from .secrets import SecretRegistry, SecretManager, reject_inline_secrets
+from .audit_center import AuditCenter
+from .sre_observability import TelemetryStore, DependencyHealthService, parse_traceparent, traceparent, new_trace_id, new_span_id
 from .version import APP_VERSION, APP_NAME
 
 app = FastAPI(title=APP_NAME, version=APP_VERSION)
@@ -99,6 +101,9 @@ operating_baseline_engine = OperatingBaselineEngine()
 rca_feedback_store = RCAFeedbackStore()
 rca_calibrator = RCARankingCalibrator(rca_feedback_store)
 repository = get_repository()
+audit_center = AuditCenter(repository)
+telemetry = TelemetryStore(repository)
+dependency_health = DependencyHealthService(telemetry)
 secret_registry = SecretRegistry(repository)
 secret_manager = SecretManager(secret_registry)
 rca_case_store = RCACaseStore(repository)
@@ -145,6 +150,12 @@ connector_batches = ConnectorBatchProcessor(connectors, integration_runtime, edg
 enterprise_identity = EnterpriseIdentityStore(repository)
 enterprise_scope = EnterpriseScopeEngine(enterprise_identity)
 auth_service = AuthenticationService(enterprise_identity)
+# Normalize existing V2.x audit/history stores into the unified V2.8 view.
+# Import is idempotent and legacy stores remain intact for backward compatibility.
+try:
+    audit_center.import_legacy(limit_each=1000)
+except Exception:
+    pass
 # Bootstrap the bundled governed knowledge only when the persistent store is empty.
 _seed_knowledge = Path(__file__).resolve().parents[1] / "data" / "knowledge_base.json"
 if knowledge_store.stats()["documents"] == 0 and _seed_knowledge.exists():
@@ -208,17 +219,54 @@ _AUTH_PUBLIC_PATHS = {"/", "/health", "/auth/config", "/auth/dev/token", "/docs"
 
 @app.middleware("http")
 async def enterprise_authentication_middleware(request: Request, call_next):
+    import time, uuid
     path = request.url.path
+    correlation_id = request.headers.get("x-correlation-id") or "COR-" + uuid.uuid4().hex[:20].upper()
+    incoming_trace = parse_traceparent(request.headers.get("traceparent", ""))
+    trace_id = incoming_trace.get("trace_id") or new_trace_id()
+    parent_span_id = incoming_trace.get("parent_span_id") or ""
+    span_id = new_span_id()
+    request.state.correlation_id = correlation_id
+    request.state.trace_id = trace_id
+    request.state.span_id = span_id
+    started = time.perf_counter()
+    started_at = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()
     if auth_service.config.mode == "disabled" or path in _AUTH_PUBLIC_PATHS or any(path.startswith(x) for x in _AUTH_PUBLIC_PREFIXES):
         request.state.auth = {"authenticated": False, "mode": auth_service.config.mode, "principal": None, "claims": {}}
-        return await call_next(request)
-    try:
-        auth = auth_service.authenticate(request.headers.get("authorization", ""))
-        request.state.auth = auth
-        return await call_next(request)
-    except AuthenticationError as exc:
-        auth_service._audit("", False, str(exc), {})
-        return JSONResponse(status_code=401, content={"detail": str(exc)})
+        response = await call_next(request)
+    else:
+        try:
+            auth = auth_service.authenticate(request.headers.get("authorization", ""))
+            request.state.auth = auth
+            response = await call_next(request)
+        except AuthenticationError as exc:
+            auth_service._audit("", False, str(exc), {})
+            audit_center.emit(category="authentication", action="authenticate", actor="anonymous", decision="deny", status="failure",
+                              correlation_id=correlation_id, resource_type="api", resource_id=path, detail={"reason":str(exc)}, source="auth_middleware")
+            response = JSONResponse(status_code=401, content={"detail": str(exc)})
+    duration_ms = round((time.perf_counter()-started)*1000,2)
+    response.headers["X-Correlation-ID"] = correlation_id
+    response.headers["X-Trace-ID"] = trace_id
+    response.headers["traceparent"] = traceparent(trace_id, span_id)
+    status_code = int(getattr(response, "status_code", 200))
+    auth = getattr(request.state, "auth", None) or {}
+    principal = auth.get("principal") or {}
+    telemetry.record_span({
+        "trace_id": trace_id, "span_id": span_id, "parent_span_id": parent_span_id, "correlation_id": correlation_id,
+        "name": f"{request.method} {path}", "service": "industrial-semantic-api", "kind": "server",
+        "status": "error" if status_code >= 500 else "ok", "started_at": started_at,
+        "ended_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(), "duration_ms": duration_ms,
+        "attributes": {"http.method": request.method, "http.route": path, "http.target": str(request.url.path),
+                       "http.status_code": status_code, "actor": str(principal.get("principal_id") or "anonymous"),
+                       "tenant_id": str(principal.get("tenant_id") or default_tenant_id())}
+    })
+    if not any(path.startswith(x) for x in _AUTH_PUBLIC_PREFIXES) and path not in {"/health"}:
+        audit_center.emit(category="api", action=request.method, actor=str(principal.get("principal_id") or "anonymous"),
+                          tenant_id=str(principal.get("tenant_id") or default_tenant_id()), org_id=str(principal.get("org_id") or ""),
+                          resource_type="http_endpoint", resource_id=path, decision="deny" if status_code in {401,403} else "allow",
+                          status="failure" if status_code >= 400 else "success", correlation_id=correlation_id,
+                          detail={"status_code":status_code,"duration_ms":duration_ms,"trace_id":trace_id,"span_id":span_id}, source="http_middleware")
+    return response
 
 @app.get("/")
 def root():
@@ -227,7 +275,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": APP_VERSION, "persistence": repository.health(), "knowledge": knowledge_retriever.health(), "knowledge_graph": {"nodes": len(industrial_graph.nodes()), "edges": len(industrial_graph.edges())}, "assets": asset_registry.stats(), "authentication": auth_service.health(), "secrets": secret_manager.health()}
+    return {"status": "ok", "version": APP_VERSION, "persistence": repository.health(), "knowledge": knowledge_retriever.health(), "knowledge_graph": {"nodes": len(industrial_graph.nodes()), "edges": len(industrial_graph.edges())}, "assets": asset_registry.stats(), "authentication": auth_service.health(), "secrets": secret_manager.health(), "observability": {"status": "ok", "trace_context": "w3c", "slo": telemetry.evaluate_slos()}}
 
 
 # --- LLM configuration ---
@@ -485,7 +533,7 @@ def build_plan(req: ChatRequest):
 
 
 @app.post("/chat")
-def chat(req: ChatRequest):
+def chat(req: ChatRequest, request: Request):
     import time as _time
     t0 = _time.time()
     try:
@@ -563,6 +611,13 @@ def chat(req: ChatRequest):
             "normalized_cost": (plan.governance or {}).get("estimated_cost"),
             "semantic_version": (plan.lineage or {}).get("semantic_digest"),
         })
+        audit_center.emit(category="semantic_query", action="execute", actor=req.user or "anonymous",
+                          tenant_id=str((req.attributes or {}).get("tenant_id") or default_tenant_id()),
+                          resource_type="semantic_query", resource_id=str((plan.lineage or {}).get("query_id") or sid),
+                          decision="allow", status="success", correlation_id=getattr(request.state,"correlation_id",""),
+                          detail={"question":req.question,"metrics":intent.metrics,"entities":plan.required_entities,
+                                  "catalogs":plan.physical_plan.get("catalogs",[]),"duration_ms":round(duration_ms,2)},
+                          provenance={"semantic_digest":(plan.lineage or {}).get("semantic_digest")}, source="chat")
         query_cache.set(req.question, result, context=cache_context)
         return result
     except Exception as e:
@@ -570,6 +625,11 @@ def chat(req: ChatRequest):
         query_stats.record(req.question, False, duration_ms, error=str(e))
         runtime_query_store.record({"question": req.question, "user": req.user, "roles": req.roles, "success": False,
                                     "duration_ms": round(duration_ms, 2), "error": str(e)})
+        audit_center.emit(category="semantic_query", action="execute", actor=req.user or "anonymous",
+                          tenant_id=str((req.attributes or {}).get("tenant_id") or default_tenant_id()),
+                          resource_type="semantic_query", resource_id=getattr(request.state,"correlation_id",""),
+                          decision="deny", status="failure", correlation_id=getattr(request.state,"correlation_id",""),
+                          detail={"question":req.question,"duration_ms":round(duration_ms,2),"error":str(e)}, source="chat")
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -1696,6 +1756,75 @@ def secret_audit(request: Request, limit: int = 200):
     if auth_service.config.mode != "disabled": _require_tenant_admin(request)
     return {"audit":secret_registry.audits(limit=limit)}
 
+# --- V2.8 Audit, Compliance & Policy Center ---
+
+@app.get("/audit/summary")
+def audit_summary(request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return audit_center.summary()
+
+@app.get("/audit/events")
+def audit_events(request: Request, actor: str = "", tenant_id: str = "", category: str = "", action: str = "",
+                 decision: str = "", status: str = "", resource_type: str = "", resource_id: str = "",
+                 correlation_id: str = "", since: str = "", until: str = "", limit: int = 200):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return {"events": audit_center.search(actor=actor,tenant_id=tenant_id,category=category,action=action,decision=decision,status=status,
+        resource_type=resource_type,resource_id=resource_id,correlation_id=correlation_id,since=since,until=until,limit=limit)}
+
+@app.get("/audit/traces/{correlation_id}")
+def audit_trace(correlation_id: str, request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return {"correlation_id":correlation_id,"events":audit_center.trace(correlation_id)}
+
+@app.post("/audit/legacy/import")
+def audit_import_legacy(request: Request, payload: dict = Body(default={})):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return audit_center.import_legacy(limit_each=int(payload.get("limit_each",1000)))
+
+@app.get("/compliance/policies")
+def compliance_policies(request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return {"policies":audit_center.policies()}
+
+@app.post("/compliance/policies")
+def compliance_add_policy(request: Request, payload: dict = Body(...)):
+    principal=_require_tenant_admin(request) if auth_service.config.mode != "disabled" else {"principal_id":"compliance_admin"}
+    return audit_center.add_policy(payload,actor=str(principal.get("principal_id") or "compliance_admin"))
+
+@app.get("/compliance/violations")
+def compliance_violations(request: Request, status: str = "", severity: str = "", limit: int = 500):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return {"violations":audit_center.violations(status=status,severity=severity,limit=limit)}
+
+@app.post("/compliance/violations/{violation_id}/resolve")
+def compliance_resolve_violation(violation_id: str, request: Request, payload: dict = Body(default={})):
+    principal=_require_tenant_admin(request) if auth_service.config.mode != "disabled" else {"principal_id":"compliance_admin"}
+    try: return audit_center.resolve_violation(violation_id,actor=str(principal.get("principal_id") or "compliance_admin"),comment=str(payload.get("comment") or ""))
+    except KeyError: raise HTTPException(status_code=404, detail="violation not found")
+
+@app.get("/compliance/retention")
+def compliance_retention(request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return audit_center.retention()
+
+@app.put("/compliance/retention")
+def compliance_set_retention(request: Request, payload: dict = Body(...)):
+    principal=_require_tenant_admin(request) if auth_service.config.mode != "disabled" else {"principal_id":"compliance_admin"}
+    return audit_center.set_retention(int(payload.get("retention_days",365)),actor=str(principal.get("principal_id") or "compliance_admin"))
+
+@app.post("/compliance/retention/enforce")
+def compliance_enforce_retention(request: Request, payload: dict = Body(default={})):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return audit_center.enforce_retention(dry_run=bool(payload.get("dry_run",True)))
+
+@app.get("/audit/export")
+def audit_export(request: Request, format: str = "json", category: str = "", tenant_id: str = ""):
+    from fastapi.responses import PlainTextResponse
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    content=audit_center.export(fmt=format,category=category,tenant_id=tenant_id)
+    media="text/csv" if format.lower()=="csv" else "application/json"
+    return PlainTextResponse(content,media_type=media)
+
 @app.get("/operations/health")
 def operations_health():
     return {
@@ -1723,10 +1852,117 @@ def operations_health():
         "integration_runtime": integration_runtime.monitoring(),
         "connectors": connectors.summary(),
         "secrets": secret_manager.health(),
+        "audit_compliance": audit_center.summary(),
         "edge_agents": edge_agents.health(),
         "enterprise_identity": enterprise_identity.summary(),
         "authentication": auth_service.health(),
+        "observability_sre": telemetry.summary(),
     }
+
+
+# --- V2.9 Observability & SRE Control Plane ---
+def _require_sre_admin(request: Request):
+    if auth_service.config.mode == "disabled": return {"principal_id": "sre_admin", "roles": ["tenant_admin"]}
+    return _require_tenant_admin(request)
+
+@app.get("/observability/summary")
+def observability_summary(request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return telemetry.summary()
+
+@app.get("/observability/metrics")
+def observability_metrics(request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return telemetry.http_metrics()
+
+@app.get("/observability/traces")
+def observability_traces(request: Request, trace_id: str = "", status: str = "", limit: int = 200):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return {"spans": telemetry.spans(trace_id=trace_id, status=status, limit=limit)}
+
+@app.get("/observability/traces/{trace_id}")
+def observability_trace(trace_id: str, request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return telemetry.trace(trace_id)
+
+@app.post("/observability/spans")
+def observability_record_span(request: Request, payload: dict = Body(default={})): 
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    payload.setdefault("correlation_id", getattr(request.state, "correlation_id", ""))
+    return telemetry.record_span(payload)
+
+@app.post("/observability/dependencies/check")
+def observability_dependency_check(request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    def doris_probe():
+        import os, time
+        if os.getenv("EXECUTION_MODE", "mock").lower() != "doris":
+            return {"status":"disabled","mode":"mock"}
+        executor=get_executor(); started=time.perf_counter()
+        conn=executor.pymysql.connect(**executor.cfg)
+        try:
+            with conn.cursor() as cur: cur.execute("SELECT 1"); cur.fetchone()
+            return {"status":"ok","mode":"doris","latency_ms":round((time.perf_counter()-started)*1000,2)}
+        finally: conn.close()
+    probes = {
+        "persistence": repository.health,
+        "knowledge": knowledge_retriever.health,
+        "doris": doris_probe,
+        "authentication": auth_service.health,
+        "secrets": secret_manager.health,
+        "edge_agents": lambda: {"status":"ok", **edge_agents.health()},
+        "connectors": lambda: {"status":"ok", **connectors.summary()},
+        "integration_runtime": lambda: {"status":"ok", **integration_runtime.monitoring()},
+    }
+    return dependency_health.check(probes)
+
+@app.get("/observability/dependencies")
+def observability_dependencies(request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return {"dependencies": telemetry.dependencies()}
+
+@app.get("/sre/slos")
+def sre_slos(request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return telemetry.evaluate_slos()
+
+@app.post("/sre/slos")
+def sre_put_slo(request: Request, payload: dict = Body(default={})):
+    principal=_require_sre_admin(request)
+    try: return telemetry.put_slo(payload, actor=str(principal.get("principal_id") or "sre_admin"))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/sre/alert-rules")
+def sre_alert_rules(request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return {"rules": telemetry.alert_rules()}
+
+@app.post("/sre/alert-rules")
+def sre_put_alert_rule(request: Request, payload: dict = Body(default={})):
+    principal=_require_sre_admin(request)
+    try: return telemetry.put_alert_rule(payload, actor=str(principal.get("principal_id") or "sre_admin"))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/sre/alerts/evaluate")
+def sre_evaluate_alerts(request: Request):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return telemetry.evaluate_alerts()
+
+@app.get("/sre/alerts")
+def sre_alerts(request: Request, status: str = "", limit: int = 200):
+    if auth_service.config.mode != "disabled": _require_sre_admin(request)
+    return {"alerts": telemetry.alerts(status=status, limit=limit)}
+
+@app.post("/sre/alerts/{alert_id}/resolve")
+def sre_resolve_alert(alert_id: str, request: Request):
+    principal=_require_sre_admin(request)
+    try: return telemetry.resolve_alert(alert_id, actor=str(principal.get("principal_id") or "sre_admin"))
+    except KeyError: raise HTTPException(status_code=404, detail="alert not found")
+
+@app.get("/observability/prometheus")
+def prometheus_metrics():
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(telemetry.prometheus(), media_type="text/plain; version=0.0.4")
 
 
 @app.post("/cost/explain")

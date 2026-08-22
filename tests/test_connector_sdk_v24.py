@@ -55,7 +55,7 @@ def test_connector_binding_mismatch_is_blocked(tmp_path):
 def test_v24_api_contract():
     from app.main import app
     client=TestClient(app)
-    assert client.get('/health').json()['version']=='2.7.0'
+    assert client.get('/health').json()['version']=='2.9.0'
     contract=client.get('/connectors/contract')
     assert contract.status_code==200
     assert 'influxdb' in contract.json()['connector']['connector_types']

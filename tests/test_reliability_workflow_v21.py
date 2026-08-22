@@ -5,7 +5,7 @@ client = TestClient(app)
 
 
 def test_v21_health_version_and_asset_time_window():
-    assert client.get('/health').json()['version'] == '2.7.0'
+    assert client.get('/health').json()['version'] == '2.9.0'
     aid='V21-ASSET-WINDOW'
     asset_registry.upsert_asset({'asset_id':aid,'name':'V21 Test','asset_type':'compressor'}, actor='test')
     fmea_store.create({'fmea_id':'V21-FMEA-WINDOW','asset':aid,'component':'Filter','failure_mode':'filter_restriction','cause_code':'filter_restriction','cause':'dust','effect':'energy rise','detection_method':'filter_dp','severity':8,'occurrence':5,'detectability':5,'recommended_action':'inspect filter','status':'approved'}, actor='test')
