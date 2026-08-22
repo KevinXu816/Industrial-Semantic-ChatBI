@@ -369,6 +369,11 @@ python -m tests.smoke_test
 
 ![Metric](docs/images/metric.png)
 
+### Template
+
+![Template](docs/images/template.png)
+
+
 ## 作者
 
 | | |
