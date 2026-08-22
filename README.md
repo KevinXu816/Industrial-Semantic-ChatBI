@@ -309,6 +309,32 @@ data/
 PYTHONPATH=. python tests/smoke_test.py
 ```
 
+## Screenshot 系统截图
+
+### System
+
+![System](docs/images/system.png)
+
+### ChatBI
+
+![ChatBI](docs/images/chat.png)
+
+### Entity
+
+![Entity](docs/images/entity.png)
+
+### Entity
+
+![Entity](docs/images/entity.png)
+
+### Relation
+
+![Relation](docs/images/relation.png)
+
+### Metric
+
+![Metric](docs/images/metric.png)
+
 ## 作者
 
 | | |
