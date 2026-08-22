@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图形化关系编辑 - ChatBI</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f9fc; color: #333; overflow: hidden; height: 100vh; }
+.toolbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #fff; color: #333; display: flex; align-items: center; padding: 0 20px; gap: 12px; border-bottom: 1px solid #e0e0e0; z-index: 100; }
+.toolbar h2 { font-size: 16px; font-weight: 600; }
+.toolbar .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
+.toolbar .btn-back { background: #f0f0f0; color: #333; }
+.toolbar .btn-back:hover { background: #e0e0e0; }
+.toolbar .btn-save { background: #7c83ff; color: #fff; }
+.toolbar .btn-save:hover { background: #6a70e0; }
+.toolbar .btn-add { background: #4caf50; color: #fff; }
+.toolbar .btn-add:hover { background: #43a047; }
+.toolbar .spacer { flex: 1; }
+.toolbar .hint { font-size: 12px; color: #888; }
+
+.canvas-area { position: fixed; top: 56px; left: 0; right: 0; bottom: 0; background: #f8f9fc; }
+svg { display: block; width: 100%; height: 100%; }
+
+.node { cursor: grab; }
+.node:active { cursor: grabbing; }
+.node rect { rx: 12; ry: 12; stroke-width: 2; transition: filter .2s; }
+.node:hover rect { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+.node text.label { font-size: 14px; font-weight: 600; fill: #333; text-anchor: middle; pointer-events: none; }
+.node text.desc { font-size: 11px; fill: #777; text-anchor: middle; pointer-events: none; }
+.node .icon { font-size: 20px; text-anchor: middle; pointer-events: none; }
+
+.edge-line { stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+.edge-label { font-size: 11px; font-weight: 600; fill: #fff; text-anchor: middle; pointer-events: none; }
+.edge-label-bg { fill: rgba(50,50,50,0.75); rx: 4; ry: 4; }
+.edge-on { font-size: 10px; fill: #aaa; text-anchor: middle; pointer-events: none; }
+.edge-hit { stroke: transparent; stroke-width: 16; fill: none; cursor: pointer; }
+.edge-hit:hover + .edge-line { stroke-width: 4; }
+
+.edge-delete { display: none; cursor: pointer; }
+.edge-group:hover .edge-delete { display: block; }
+
+/* Connection mode */
+.node.connect-source rect { stroke-dasharray: 6 3; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { stroke-opacity: 1; } 50% { stroke-opacity: 0.5; } }
+.node.connect-target { cursor: crosshair; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; }
+.modal { background: #fff; color: #333; border-radius: 12px; padding: 24px; width: 400px; max-width: 90vw; }
+.modal h3 { margin-bottom: 16px; font-size: 16px; }
+.modal label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 12px; }
+.modal input, .modal select { width: 100%; padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; }
+.modal .actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+.modal .actions .btn { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.modal .actions .btn-primary { background: #7c83ff; color: #fff; }
+.modal .actions .btn-cancel { background: #f0f0f0; color: #333; }
+
+.rel-options { max-height: 220px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; }
+.rel-option { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+.rel-option:last-child { border-bottom: none; }
+.rel-option:hover { background: #f5f7ff; }
+.rel-option.selected { background: #e8eaff; border-left: 3px solid #7c83ff; }
+.rel-opt-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.rel-opt-desc { font-size: 12px; color: #888; }
+
+.legend { position: fixed; bottom: 16px; left: 16px; background: rgba(255,255,255,0.95); border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #555; border: 1px solid #e0e0e0; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.legend-line { width: 24px; height: 3px; border-radius: 2px; }
+
+.status-msg { position: fixed; bottom: 16px; right: 16px; background: #4caf50; color: #fff; padding: 8px 16px; border-radius: 6px; font-size: 13px; display: none; }
+
+/* Context Menu */
+.context-menu { position: fixed; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 300; min-width: 140px; padding: 4px 0; }
+.context-menu-item { padding: 10px 16px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #333; }
+.context-menu-item:hover { background: #f5f7ff; }
+.context-menu-item.danger { color: #c62828; }
+.context-menu-item.danger:hover { background: #fce4ec; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="btn btn-back" onclick="window.close(); window.location='/';">← 返回</button>
+  <h2>图形化关系编辑</h2>
+  <span class="hint">拖动节点调整位置 | 点击"添加关系"后依次点击两个节点建立连线</span>
+  <span class="spacer"></span>
+  <button class="btn btn-add" id="btn-connect" onclick="toggleConnectMode()">＋ 添加关系</button>
+  <button class="btn btn-save" onclick="saveAllRelations()">💾 保存</button>
+</div>
+
+<div class="canvas-area">
+  <svg id="graph-svg">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#999" />
+      </marker>
+      <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#42a5f5" />
+      </marker>
+      <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ff9800" />
+      </marker>
+      <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#66bb6a" />
+      </marker>
+      <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ef5350" />
+      </marker>
+      <marker id="arrowhead-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ab47bc" />
+      </marker>
+    </defs>
+    <g id="edges-layer"></g>
+    <g id="nodes-layer"></g>
+  </svg>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-line" style="background:#42a5f5"></div>HAS_ENERGY</div>
+  <div class="legend-item"><div class="legend-line" style="background:#66bb6a"></div>HAS_PRODUCTION</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ef5350"></div>HAS_ALARM</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ab47bc"></div>HAS_WORK_ORDER</div>
+  <div class="legend-item"><div class="legend-line" style="background:#ff9800"></div>其他关系</div>
+</div>
+
+<div class="status-msg" id="status-msg"></div>
+
+<script>
+const API = window.location.origin;
+const COLORS = {
+  'Machine': { fill: '#e3f2fd', stroke: '#1976d2', icon: '⚙️' },
+  'EnergyObservation': { fill: '#fff3e0', stroke: '#f57c00', icon: '⚡' },
+  'ProductionObservation': { fill: '#e8f5e9', stroke: '#388e3c', icon: '📦' },
+  'AlarmEvent': { fill: '#fce4ec', stroke: '#c62828', icon: '🚨' },
+  'WorkOrder': { fill: '#f3e5f5', stroke: '#7b1fa2', icon: '🔧' },
+};
+const DEFAULT_COLOR = { fill: '#f5f5f5', stroke: '#616161', icon: '📋' };
+const REL_COLORS = {
+  'HAS_ENERGY': '#42a5f5',
+  'HAS_PRODUCTION': '#66bb6a',
+  'HAS_ALARM': '#ef5350',
+  'HAS_WORK_ORDER': '#ab47bc',
+};
+const DEFAULT_REL_COLOR = '#ff9800';
+
+let nodes = [];
+let edges = [];
+let nodePositions = {};
+let connectMode = false;
+let connectSource = null;
+let dragNode = null;
+let dragOffset = { x: 0, y: 0 };
+let dragStartPos = { x: 0, y: 0 };
+let didDrag = false;
+
+async function init() {
+  const statusEl = document.getElementById('status-msg');
+  statusEl.style.display = 'block';
+  statusEl.textContent = '加载中...';
+  try {
+    const resp = await fetch(API + '/semantic/graph');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const graph = await resp.json();
+    nodes = graph.nodes || [];
+    edges = graph.edges || [];
+    statusEl.textContent = '已加载 ' + nodes.length + ' 个实体, ' + edges.length + ' 条关系';
+    const saved = localStorage.getItem('graph-node-positions');
+    if (saved) {
+      try {
+        const pos = JSON.parse(saved);
+        const nodeIds = nodes.map(n => n.id);
+        if (nodeIds.length && nodeIds.every(id => pos[id])) {
+          nodePositions = pos;
+        }
+      } catch (e) { /* ignore */ }
+    }
+    layoutNodes();
+    render();
+    setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+  } catch (e) {
+    statusEl.style.background = '#ef5350';
+    statusEl.textContent = '加载失败：' + e.message;
+  }
+}
+
+function layoutNodes() {
+  const cx = window.innerWidth / 2;
+  const cy = (window.innerHeight - 56) / 2;
+  const count = nodes.length || 1;
+  nodes.forEach((n, i) => {
+    if (!nodePositions[n.id]) {
+      const angle = (2 * Math.PI * i) / count - Math.PI / 2;
+      const radius = Math.min(cx, cy) * 0.5;
+      nodePositions[n.id] = { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+    }
+  });
+  localStorage.setItem('graph-node-positions', JSON.stringify(nodePositions));
+}
+
+function render() {
+  const edgesLayer = document.getElementById('edges-layer');
+  const nodesLayer = document.getElementById('nodes-layer');
+  const W = 160, H = 70;
+
+  // Render edges
+  let edgesHtml = '';
+  edges.forEach((e, i) => {
+    const f = nodePositions[e.from];
+    const t = nodePositions[e.to];
+    if (!f || !t) return;
+    const color = REL_COLORS[e.relation] || DEFAULT_REL_COLOR;
+    const markerMap = { 'HAS_ENERGY': 'blue', 'HAS_PRODUCTION': 'green', 'HAS_ALARM': 'red', 'HAS_WORK_ORDER': 'purple' };
+    const markerId = 'arrowhead-' + (markerMap[e.relation] || 'orange');
+    const mx = (f.x + t.x) / 2, my = (f.y + t.y) / 2;
+    const ang = Math.atan2(t.y - f.y, t.x - f.x);
+    const sx = f.x + Math.cos(ang) * (W/2 + 5);
+    const sy = f.y + Math.sin(ang) * (H/2 + 5);
+    const ex = t.x - Math.cos(ang) * (W/2 + 12);
+    const ey = t.y - Math.sin(ang) * (H/2 + 12);
+    edgesHtml += '<g class="edge-group" data-idx="' + i + '">'
+      + '<line class="edge-hit" x1="'+sx+'" y1="'+sy+'" x2="'+ex+'" y2="'+ey+'" />'
+      + '<line class="edge-line" x1="'+sx+'" y1="'+sy+'" x2="'+ex+'" y2="'+ey+'" stroke="'+color+'" marker-end="url(#'+markerId+')" />'
+      + '<rect class="edge-label-bg" x="'+(mx - e.relation.length*3.5 - 6)+'" y="'+(my-9)+'" width="'+(e.relation.length*7+12)+'" height="18" />'
+      + '<text class="edge-label" x="'+mx+'" y="'+(my+4)+'">'+e.relation+'</text>'
+      + (e.on ? '<text class="edge-on" x="'+mx+'" y="'+(my+18)+'">on: '+e.on+'</text>' : '')
+      + '</g>';
+  });
+
+  // Render nodes
+  let nodesHtml = '';
+  nodes.forEach((n, idx) => {
+    const pos = nodePositions[n.id];
+    if (!pos) return;
+    const color = COLORS[n.id] || DEFAULT_COLOR;
+    const cls = 'node' + (connectMode && connectSource === n.id ? ' connect-source' : '') + (connectMode && connectSource && connectSource !== n.id ? ' connect-target' : '');
+    nodesHtml += '<g class="'+cls+'" data-id="'+n.id+'" transform="translate('+(pos.x-W/2)+','+(pos.y-H/2)+')">'
+      + '<rect width="'+W+'" height="'+H+'" fill="'+color.fill+'" stroke="'+color.stroke+'" rx="12" ry="12" stroke-width="2" />'
+      + '<text class="icon" x="'+(W/2)+'" y="24">'+color.icon+'</text>'
+      + '<text class="label" x="'+(W/2)+'" y="45">'+n.id+'</text>'
+      + '<text class="desc" x="'+(W/2)+'" y="62">'+(n.description||'').slice(0,14)+'</text>'
+      + '</g>';
+  });
+
+  // Use a temporary SVG to parse and transplant content
+  const tmp = document.createElement('div');
+  tmp.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + edgesHtml + '</svg>';
+  const tmpEdges = tmp.querySelector('svg');
+  edgesLayer.textContent = '';
+  while (tmpEdges.firstChild) edgesLayer.appendChild(tmpEdges.firstChild);
+
+  tmp.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + nodesHtml + '</svg>';
+  const tmpNodes = tmp.querySelector('svg');
+  nodesLayer.textContent = '';
+  while (tmpNodes.firstChild) nodesLayer.appendChild(tmpNodes.firstChild);
+
+  // Bind events on nodes
+  nodesLayer.querySelectorAll('.node').forEach(g => {
+    const id = g.dataset.id;
+    g.addEventListener('mousedown', e => onNodeMouseDown(e, id));
+    g.addEventListener('click', e => onNodeClick(e, id));
+  });
+  // Right-click context menu on edges
+  edgesLayer.querySelectorAll('.edge-group').forEach(g => {
+    const i = parseInt(g.dataset.idx);
+    g.style.cursor = 'pointer';
+    g.addEventListener('contextmenu', e => { e.preventDefault(); showEdgeContextMenu(e, i); });
+  });
+}
+
+function onNodeMouseDown(e, id) {
+  if (connectMode) return;
+  e.preventDefault();
+  dragNode = id;
+  didDrag = false;
+  dragStartPos = { x: e.clientX, y: e.clientY };
+  const pos = nodePositions[id];
+  dragOffset = { x: e.clientX - pos.x, y: e.clientY - (pos.y + 56) };
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', onDragEnd);
+}
+
+function onDrag(e) {
+  if (!dragNode) return;
+  const dx = e.clientX - dragStartPos.x;
+  const dy = e.clientY - dragStartPos.y;
+  if (!didDrag && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+  didDrag = true;
+  nodePositions[dragNode] = { x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y - 56 };
+  render();
+}
+
+function onDragEnd() {
+  if (didDrag) {
+    localStorage.setItem('graph-node-positions', JSON.stringify(nodePositions));
+  }
+  dragNode = null;
+  didDrag = false;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', onDragEnd);
+}
+
+function onNodeClick(e, id) {
+  if (!connectMode) return;
+  if (!connectSource) {
+    connectSource = id;
+    render();
+    showStatus('已选择起始节点：' + id + '，请点击目标节点');
+  } else if (connectSource !== id) {
+    showRelationModal(connectSource, id);
+    exitConnectMode();
+  }
+}
+
+function startConnectMode() {
+  connectMode = true;
+  connectSource = null;
+  const btn = document.getElementById('btn-connect');
+  btn.textContent = '❌ 取消连线';
+  btn.className = 'btn btn-back';
+  showStatus('连线模式：请点击起始节点');
+  render();
+}
+
+function exitConnectMode() {
+  connectMode = false;
+  connectSource = null;
+  const btn = document.getElementById('btn-connect');
+  btn.textContent = '＋ 添加关系';
+  btn.className = 'btn btn-add';
+  hideStatus();
+  render();
+}
+
+function toggleConnectMode() {
+  if (connectMode) exitConnectMode();
+  else startConnectMode();
+}
+
+function showRelationModal(from, to) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'rel-modal';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>添加关系</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:14px;">
+        <strong style="color:#1976d2">${from}</strong>
+        <span style="color:#888">→</span>
+        <strong style="color:#1976d2">${to}</strong>
+      </div>
+      <label>关系类型（点击选择或自定义输入）</label>
+      <div class="rel-options" id="rel-options">
+        <div class="rel-option" data-value="HAS_ENERGY" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#42a5f5">HAS_ENERGY</div>
+          <div class="rel-opt-desc">拥有能耗数据 — 表示该实体有关联的能源消耗记录</div>
+        </div>
+        <div class="rel-option" data-value="HAS_PRODUCTION" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#66bb6a">HAS_PRODUCTION</div>
+          <div class="rel-opt-desc">拥有生产数据 — 表示该实体有关联的产量/产出记录</div>
+        </div>
+        <div class="rel-option" data-value="HAS_ALARM" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#ef5350">HAS_ALARM</div>
+          <div class="rel-opt-desc">拥有告警记录 — 表示该实体有关联的报警/故障事件</div>
+        </div>
+        <div class="rel-option" data-value="HAS_WORK_ORDER" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#ab47bc">HAS_WORK_ORDER</div>
+          <div class="rel-opt-desc">拥有工单 — 表示该实体有关联的维修/保养工单</div>
+        </div>
+        <div class="rel-option" data-value="HAS_QUALITY" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#ff9800">HAS_QUALITY</div>
+          <div class="rel-opt-desc">拥有质检数据 — 表示该实体有关联的质量检测记录</div>
+        </div>
+        <div class="rel-option" data-value="BELONGS_TO" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#78909c">BELONGS_TO</div>
+          <div class="rel-opt-desc">从属于 — 表示该实体归属于另一个实体（如设备属于车间）</div>
+        </div>
+        <div class="rel-option" data-value="RELATED_TO" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#999">RELATED_TO</div>
+          <div class="rel-opt-desc">关联 — 通用关联关系，无特定方向含义</div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <input id="modal-rel" placeholder="或在此自定义输入关系类型，如 HAS_INVENTORY" style="width:100%" />
+      </div>
+      <label style="margin-top:12px">关联字段（可选，两个实体通过哪个字段关联）</label>
+      <input id="modal-on" placeholder="例如：machine_id" />
+      <div class="actions">
+        <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmAddRelation('${from}','${to}')">确认添加</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('modal-rel').focus(), 100);
+}
+
+function selectRelOption(el) {
+  document.querySelectorAll('#rel-options .rel-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('modal-rel').value = el.dataset.value;
+}
+
+function closeModal() {
+  const m = document.getElementById('rel-modal');
+  if (m) m.remove();
+}
+
+function confirmAddRelation(from, to) {
+  const relation = document.getElementById('modal-rel').value.trim();
+  const on = document.getElementById('modal-on').value.trim();
+  if (!relation) { alert('请填写关系类型'); return; }
+  edges.push({ from, relation, to, on });
+  closeModal();
+  render();
+  showStatus('✓ 关系已添加（点击"保存"提交到服务器）');
+  setTimeout(hideStatus, 3000);
+}
+
+function showEdgeContextMenu(e, index) {
+  hideEdgeContextMenu();
+  const edge = edges[index];
+  const menu = document.createElement('div');
+  menu.className = 'context-menu';
+  menu.id = 'edge-context-menu';
+  menu.style.left = e.clientX + 'px';
+  menu.style.top = e.clientY + 'px';
+  menu.innerHTML = `
+    <div class="context-menu-item" onclick="editEdge(${index})">✏️ 修改关系</div>
+    <div class="context-menu-item danger" onclick="deleteEdgeFromMenu(${index})">🗑️ 删除关系</div>
+  `;
+  document.body.appendChild(menu);
+  setTimeout(() => document.addEventListener('click', hideEdgeContextMenu, { once: true }), 10);
+}
+
+function hideEdgeContextMenu() {
+  const m = document.getElementById('edge-context-menu');
+  if (m) m.remove();
+}
+
+function deleteEdgeFromMenu(index) {
+  hideEdgeContextMenu();
+  deleteEdge(index);
+}
+
+function editEdge(index) {
+  hideEdgeContextMenu();
+  const edge = edges[index];
+  showEditRelationModal(index, edge.from, edge.to, edge.relation, edge.on);
+}
+
+function showEditRelationModal(index, from, to, currentRel, currentOn) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'rel-modal';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>修改关系</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:14px;">
+        <strong style="color:#1976d2">${from}</strong>
+        <span style="color:#888">→</span>
+        <strong style="color:#1976d2">${to}</strong>
+      </div>
+      <label>关系类型（点击选择或自定义输入）</label>
+      <div class="rel-options" id="rel-options">
+        <div class="rel-option ${currentRel==='HAS_ENERGY'?'selected':''}" data-value="HAS_ENERGY" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#42a5f5">HAS_ENERGY</div>
+          <div class="rel-opt-desc">拥有能耗数据 — 表示该实体有关联的能源消耗记录</div>
+        </div>
+        <div class="rel-option ${currentRel==='HAS_PRODUCTION'?'selected':''}" data-value="HAS_PRODUCTION" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#66bb6a">HAS_PRODUCTION</div>
+          <div class="rel-opt-desc">拥有生产数据 — 表示该实体有关联的产量/产出记录</div>
+        </div>
+        <div class="rel-option ${currentRel==='HAS_ALARM'?'selected':''}" data-value="HAS_ALARM" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#ef5350">HAS_ALARM</div>
+          <div class="rel-opt-desc">拥有告警记录 — 表示该实体有关联的报警/故障事件</div>
+        </div>
+        <div class="rel-option ${currentRel==='HAS_WORK_ORDER'?'selected':''}" data-value="HAS_WORK_ORDER" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#ab47bc">HAS_WORK_ORDER</div>
+          <div class="rel-opt-desc">拥有工单 — 表示该实体有关联的维修/保养工单</div>
+        </div>
+        <div class="rel-option ${currentRel==='HAS_QUALITY'?'selected':''}" data-value="HAS_QUALITY" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#ff9800">HAS_QUALITY</div>
+          <div class="rel-opt-desc">拥有质检数据 — 表示该实体有关联的质量检测记录</div>
+        </div>
+        <div class="rel-option ${currentRel==='BELONGS_TO'?'selected':''}" data-value="BELONGS_TO" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#78909c">BELONGS_TO</div>
+          <div class="rel-opt-desc">从属于 — 表示该实体归属于另一个实体（如设备属于车间）</div>
+        </div>
+        <div class="rel-option ${currentRel==='RELATED_TO'?'selected':''}" data-value="RELATED_TO" onclick="selectRelOption(this)">
+          <div class="rel-opt-name" style="color:#999">RELATED_TO</div>
+          <div class="rel-opt-desc">关联 — 通用关联关系，无特定方向含义</div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <input id="modal-rel" value="${currentRel}" placeholder="或在此自定义输入关系类型" style="width:100%" />
+      </div>
+      <label style="margin-top:12px">关联字段（可选）</label>
+      <input id="modal-on" value="${currentOn || ''}" placeholder="例如：machine_id" />
+      <div class="actions">
+        <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="confirmEditRelation(${index},'${from}','${to}')">确认修改</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function confirmEditRelation(index, from, to) {
+  const relation = document.getElementById('modal-rel').value.trim();
+  const on = document.getElementById('modal-on').value.trim();
+  if (!relation) { alert('请填写关系类型'); return; }
+  edges[index] = { from, relation, to, on };
+  closeModal();
+  render();
+  showStatus('✓ 关系已修改（点击"保存"提交到服务器）');
+  setTimeout(hideStatus, 3000);
+}
+
+function deleteEdge(index) {
+  edges.splice(index, 1);
+  render();
+  showStatus('✓ 关系已删除（点击"保存"提交到服务器）');
+  setTimeout(hideStatus, 3000);
+}
+
+async function saveAllRelations() {
+  try {
+    await fetch(API + '/ontology/relationships', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(edges),
+    }).then(r => { if (!r.ok) throw new Error('保存失败'); return r.json(); });
+    showStatus('✓ 所有关系已保存');
+    setTimeout(hideStatus, 3000);
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+function showStatus(msg) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideStatus() {
+  document.getElementById('status-msg').style.display = 'none';
+}
+
+// Handle window resize
+window.addEventListener('resize', () => { layoutNodes(); render(); });
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+entities:
+  Machine:
+    description: Industrial production or utility equipment
+    identifiers: [machine_id, machine_code, machine_name]
+    properties:
+      machine_id: {type: string}
+      machine_code: {type: string}
+      machine_name: {type: string}
+      machine_type: {type: string}
+      factory_id: {type: string}
+    physical_mapping:
+      catalog: mysql_mes
+      schema: production
+      table: device_master
+      columns:
+        machine_id: device_id
+        machine_code: device_code
+        machine_name: device_name
+        machine_type: device_type
+        factory_id: factory_id
+
+  EnergyObservation:
+    description: Aggregated energy observations for equipment
+    identifiers: [machine_id, ts]
+    properties:
+      machine_id: {type: string}
+      ts: {type: datetime}
+      active_power_kw: {type: number, unit: kW}
+      energy_kwh: {type: number, unit: kWh}
+    physical_mapping:
+      catalog: internal
+      schema: industrial_ai
+      table: energy_5min
+      columns:
+        machine_id: machine_id
+        ts: ts
+        active_power_kw: active_power_kw
+        energy_kwh: energy_kwh
+
+  ProductionObservation:
+    description: Hourly production output
+    identifiers: [machine_id, ts]
+    properties:
+      machine_id: {type: string}
+      ts: {type: datetime}
+      output_qty: {type: number, unit: piece}
+    physical_mapping:
+      catalog: mysql_mes
+      schema: production
+      table: production_hourly
+      columns:
+        machine_id: device_id
+        ts: stat_time
+        output_qty: good_qty
+
+  AlarmEvent:
+    description: Equipment alarm event
+    identifiers: [alarm_id]
+    properties:
+      alarm_id: {type: string}
+      machine_id: {type: string}
+      alarm_code: {type: string}
+      alarm_name: {type: string}
+      event_time: {type: datetime}
+      severity: {type: string}
+    physical_mapping:
+      catalog: pg_cmms
+      schema: public
+      table: alarm_event
+      columns:
+        alarm_id: id
+        machine_id: device_id
+        alarm_code: alarm_code
+        alarm_name: alarm_name
+        event_time: event_time
+        severity: severity
+
+  WorkOrder:
+    description: Maintenance work order
+    identifiers: [work_order_id]
+    properties:
+      work_order_id: {type: string}
+      machine_id: {type: string}
+      created_at: {type: datetime}
+      fault_description: {type: string}
+      action: {type: string}
+    physical_mapping:
+      catalog: pg_cmms
+      schema: public
+      table: work_order
+      columns:
+        work_order_id: id
+        machine_id: device_id
+        created_at: created_at
+        fault_description: fault_desc
+        action: maintenance_action
+
+relationships:
+  - {from: Machine, relation: HAS_ENERGY, to: EnergyObservation, 'on': machine_id}
+  - {from: Machine, relation: HAS_PRODUCTION, to: ProductionObservation, 'on': machine_id}
+  - {from: Machine, relation: HAS_ALARM, to: AlarmEvent, 'on': machine_id}
+  - {from: Machine, relation: HAS_WORK_ORDER, to: WorkOrder, 'on': machine_id}

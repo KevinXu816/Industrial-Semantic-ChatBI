@@ -1,0 +1,31 @@
+metrics:
+  energy_consumption:
+    description: Total electrical energy consumed by a machine
+    entity: EnergyObservation
+    expression: SUM(energy_kwh)
+    unit: kWh
+    time_field: ts
+    synonyms: [能耗, 耗电, 电量]
+
+  production_output:
+    description: Total good production quantity
+    entity: ProductionObservation
+    expression: SUM(output_qty)
+    unit: piece
+    time_field: ts
+    synonyms: [产量, 良品产量]
+
+  specific_energy_consumption:
+    description: Energy consumed per unit production output
+    expression: energy_consumption / NULLIF(production_output, 0)
+    unit: kWh/piece
+    dependencies: [energy_consumption, production_output]
+    synonyms: [单位产量能耗, 单耗, 单位能耗]
+
+  alarm_count:
+    description: Number of alarm events
+    entity: AlarmEvent
+    expression: COUNT(*)
+    unit: count
+    time_field: event_time
+    synonyms: [报警次数, 告警次数]

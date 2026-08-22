@@ -1,0 +1,159 @@
+entities:
+  EnergyObservation:
+    description: Auto-discovered candidate for internal.industrial_ai.energy_5min
+    source_candidate: internal.industrial_ai.energy_5min
+    identifiers:
+    - machine_id
+    properties:
+      machine_id:
+        type: string
+      ts:
+        type: datetime
+      active_power_kw:
+        type: number
+      energy_kwh:
+        type: number
+    physical_mapping:
+      catalog: internal
+      schema: industrial_ai
+      table: energy_5min
+      columns:
+        machine_id: machine_id
+        ts: ts
+        active_power_kw: active_power_kw
+        energy_kwh: energy_kwh
+  Machine:
+    description: Auto-discovered candidate for mysql_mes.production.device_master
+    source_candidate: mysql_mes.production.device_master
+    identifiers:
+    - machine_id
+    properties:
+      machine_id:
+        type: string
+      machine_code:
+        type: string
+      machine_name:
+        type: string
+      machine_type:
+        type: string
+      factory_id:
+        type: string
+    physical_mapping:
+      catalog: mysql_mes
+      schema: production
+      table: device_master
+      columns:
+        machine_id: device_id
+        machine_code: device_code
+        machine_name: device_name
+        machine_type: device_type
+        factory_id: factory_id
+  ProductionObservation:
+    description: Auto-discovered candidate for mysql_mes.production.production_hourly
+    source_candidate: mysql_mes.production.production_hourly
+    identifiers:
+    - machine_id
+    properties:
+      machine_id:
+        type: string
+      ts:
+        type: datetime
+      output_qty:
+        type: number
+      total_qty:
+        type: number
+    physical_mapping:
+      catalog: mysql_mes
+      schema: production
+      table: production_hourly
+      columns:
+        machine_id: device_id
+        ts: stat_time
+        output_qty: good_qty
+        total_qty: total_qty
+  AlarmEvent:
+    description: Auto-discovered candidate for pg_cmms.public.alarm_event
+    source_candidate: pg_cmms.public.alarm_event
+    identifiers:
+    - machine_id
+    properties:
+      id:
+        type: number
+      machine_id:
+        type: string
+      alarm_code:
+        type: string
+      alarm_name:
+        type: string
+      event_time:
+        type: datetime
+      severity:
+        type: string
+    physical_mapping:
+      catalog: pg_cmms
+      schema: public
+      table: alarm_event
+      columns:
+        id: id
+        machine_id: device_id
+        alarm_code: alarm_code
+        alarm_name: alarm_name
+        event_time: event_time
+        severity: severity
+  WorkOrder:
+    description: Auto-discovered candidate for pg_cmms.public.work_order
+    source_candidate: pg_cmms.public.work_order
+    identifiers:
+    - machine_id
+    properties:
+      id:
+        type: number
+      machine_id:
+        type: string
+      created_at:
+        type: datetime
+      fault_description:
+        type: string
+      action:
+        type: string
+    physical_mapping:
+      catalog: pg_cmms
+      schema: public
+      table: work_order
+      columns:
+        id: id
+        machine_id: device_id
+        created_at: created_at
+        fault_description: fault_desc
+        action: maintenance_action
+  QualityInspection:
+    description: 质量检测记录
+    source_candidate: mysql_mes.quality.inspection_record
+    identifiers:
+    - machine_id
+    properties:
+      machine_id:
+        type: string
+    physical_mapping:
+      catalog: mysql_mes
+      schema: quality
+      table: inspection_record
+      columns:
+        machine_id: device_id
+relationships:
+- from: Machine
+  relation: HAS_ENERGY
+  to: EnergyObservation
+  'on': machine_id
+- from: Machine
+  relation: HAS_PRODUCTION
+  to: ProductionObservation
+  'on': machine_id
+- from: Machine
+  relation: HAS_ALARM
+  to: AlarmEvent
+  'on': machine_id
+- from: Machine
+  relation: HAS_WORK_ORDER
+  to: WorkOrder
+  'on': machine_id

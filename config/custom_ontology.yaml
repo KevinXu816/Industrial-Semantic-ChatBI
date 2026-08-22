@@ -1,0 +1,18 @@
+entities: {}
+relationships:
+- from: Machine
+  relation: HAS_ENERGY
+  to: EnergyObservation
+  'on': machine_id
+- from: Machine
+  relation: HAS_PRODUCTION
+  to: ProductionObservation
+  'on': machine_id
+- from: Machine
+  relation: HAS_ALARM
+  to: AlarmEvent
+  'on': machine_id
+- from: Machine
+  relation: HAS_WORK_ORDER
+  to: WorkOrder
+  'on': machine_id

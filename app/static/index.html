@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrial Semantic ChatBI</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; color: #333; }
+.layout { display: flex; height: 100vh; }
+.sidebar { width: 220px; background: #1a1a2e; color: #eee; padding: 0; flex-shrink: 0; display: flex; flex-direction: column; }
+.sidebar h2 { padding: 20px 16px 12px; font-size: 15px; color: #7c83ff; letter-spacing: 1px; }
+.sidebar .logo { padding: 20px 16px; font-size: 18px; font-weight: 700; border-bottom: 1px solid #2a2a4a; }
+.sidebar nav a { display: block; padding: 12px 16px; color: #bbb; text-decoration: none; font-size: 14px; transition: background .15s; }
+.sidebar nav a:hover, .sidebar nav a.active { background: #2a2a4a; color: #fff; }
+.sidebar nav a.active { border-left: 3px solid #7c83ff; }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { background: #fff; padding: 12px 24px; border-bottom: 1px solid #e0e0e0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+.topbar .badge { background: #e8f5e9; color: #2e7d32; font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Chat */
+.chat-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 120px); }
+.messages { flex: 1; overflow-y: auto; padding: 16px 0; }
+.msg { margin-bottom: 16px; display: flex; gap: 10px; }
+.msg.user { flex-direction: row-reverse; }
+.msg .bubble { max-width: 75%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+.msg.user .bubble { background: #7c83ff; color: #fff; border-bottom-right-radius: 4px; }
+.msg.bot .bubble { background: #fff; border: 1px solid #e0e0e0; border-bottom-left-radius: 4px; }
+.msg .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.msg.user .avatar { background: #7c83ff; color: #fff; }
+.msg.bot .avatar { background: #e0e0e0; color: #555; }
+.chat-input { display: flex; gap: 8px; padding: 12px 0; }
+.chat-input input { flex: 1; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px; outline: none; }
+.chat-input input:focus { border-color: #7c83ff; }
+.chat-input button { padding: 12px 24px; background: #7c83ff; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.chat-input button:hover { background: #6a70e0; }
+.chat-input button:disabled { background: #bbb; cursor: not-allowed; }
+.sample-questions { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; }
+.sample-q { padding: 6px 12px; background: #fff; border: 1px solid #d0d0d0; border-radius: 16px; font-size: 13px; cursor: pointer; transition: all .15s; }
+.sample-q:hover { border-color: #7c83ff; color: #7c83ff; }
+
+/* Feedback buttons */
+.feedback-btns { display: inline-flex; gap: 8px; margin-top: 4px; }
+.fb-btn { background: none; border: 1px solid #e0e0e0; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 14px; transition: all .15s; }
+.fb-btn:hover { border-color: #7c83ff; background: #f5f7ff; }
+
+/* Suggestions */
+.suggestions-box { position: absolute; bottom: 100%; left: 0; right: 80px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 10; display: none; }
+.suggestions-box:not(:empty) { display: block; }
+.suggest-item { padding: 10px 16px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f5f5f5; }
+.suggest-item:hover { background: #f5f7ff; color: #7c83ff; }
+.suggest-item:last-child { border-bottom: none; }
+
+/* Cards */
+.card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; border: 1px solid #e0e0e0; }
+.card h3 { margin-bottom: 12px; font-size: 16px; }
+.card pre { background: #f5f5f5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: background .15s; }
+.btn-primary { background: #7c83ff; color: #fff; }
+.btn-primary:hover { background: #6a70e0; }
+.btn-success { background: #4caf50; color: #fff; }
+.btn-success:hover { background: #43a047; }
+.btn-danger { background: #ef5350; color: #fff; }
+.btn-danger:hover { background: #e53935; }
+.btn-outline { background: transparent; border: 1px solid #d0d0d0; color: #555; }
+.btn-outline:hover { border-color: #7c83ff; color: #7c83ff; }
+
+/* Graph */
+.graph-view { display: flex; flex-wrap: wrap; gap: 20px; }
+.entity-card { background: #fff; border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; width: 320px; position: relative; transition: border-color .2s, box-shadow .2s; }
+.entity-card:hover { border-color: #7c83ff; box-shadow: 0 4px 12px rgba(124,131,255,0.15); }
+.entity-card .entity-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
+.entity-card h4 { color: #333; font-size: 16px; margin-bottom: 4px; }
+.entity-card .entity-type-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; }
+.entity-card .table-name { font-size: 12px; color: #888; margin-bottom: 10px; font-family: monospace; background: #f5f7fa; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+.entity-card .props-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.entity-card .props-table th { text-align: left; font-size: 11px; color: #888; padding: 4px 6px; border-bottom: 1px solid #eee; font-weight: 500; }
+.entity-card .props-table td { font-size: 12px; padding: 4px 6px; border-bottom: 1px solid #f5f5f5; }
+.entity-card .props-table td.logical { color: #333; font-weight: 500; }
+.entity-card .props-table td.physical { color: #888; font-family: monospace; }
+.entity-card .props-table td.arrow { color: #bbb; text-align: center; width: 24px; }
+.entity-card .card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; opacity: 0; transition: opacity .2s; }
+.entity-card:hover .card-actions { opacity: 1; }
+.entity-card .card-actions button { padding: 4px 10px; font-size: 12px; border-radius: 4px; }
+
+.graph-relations { margin-top: 24px; }
+.graph-relations h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.rel-visual { display: flex; flex-direction: column; gap: 8px; }
+.rel-card { display: flex; align-items: center; gap: 0; padding: 12px 16px; background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; transition: border-color .2s; }
+.rel-card:hover { border-color: #7c83ff; }
+.rel-card .rel-entity { background: #f0f4ff; color: #3f51b5; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; }
+.rel-card .rel-arrow { display: flex; align-items: center; margin: 0 8px; color: #999; }
+.rel-card .rel-arrow .rel-label { background: #fff3e0; color: #e65100; font-size: 11px; padding: 3px 10px; border-radius: 12px; white-space: nowrap; font-weight: 500; }
+.rel-card .rel-arrow svg { width: 24px; height: 12px; }
+.rel-card .rel-on { font-size: 11px; color: #999; margin-left: 12px; }
+.rel-card .rel-delete { margin-left: auto; opacity: 0; transition: opacity .2s; }
+.rel-card:hover .rel-delete { opacity: 1; }
+
+.graph-help { background: #f8f9ff; border: 1px solid #e8eaff; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: #555; line-height: 1.8; }
+.graph-help strong { color: #7c83ff; }
+
+/* Entity form improvements */
+.entity-form-enhanced { background: #fff; border: 2px solid #7c83ff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(124,131,255,0.1); }
+.entity-form-enhanced h3 { color: #7c83ff; margin-bottom: 4px; }
+.entity-form-enhanced .form-hint { font-size: 12px; color: #888; margin-bottom: 16px; }
+.entity-form-enhanced .section-label { font-size: 12px; font-weight: 600; color: #7c83ff; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+.column-list { margin-top: 8px; }
+.column-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+.column-row input { flex: 1; padding: 6px 10px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; }
+.column-row select { padding: 6px 10px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; width: 100px; }
+.column-row .remove-col { width: 28px; height: 28px; border: none; background: #fce4ec; color: #c62828; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.add-col-btn { font-size: 13px; color: #7c83ff; cursor: pointer; padding: 6px 0; display: inline-flex; align-items: center; gap: 4px; }
+
+/* Candidates */
+.candidate-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.candidate-item .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.candidate-item .entity-name { font-weight: 600; color: #7c83ff; }
+.candidate-item .confidence { font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+.confidence-high { background: #e8f5e9; color: #2e7d32; }
+.confidence-mid { background: #fff3e0; color: #ef6c00; }
+.confidence-low { background: #fce4ec; color: #c62828; }
+.status-badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; }
+.status-pending { background: #fff3e0; color: #ef6c00; }
+.status-approved { background: #e8f5e9; color: #2e7d32; }
+.status-rejected { background: #fce4ec; color: #c62828; }
+.candidate-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* Candidate Tabs */
+.candidate-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 2px solid #e0e0e0; }
+.candidate-tabs .tab { padding: 10px 20px; border: none; background: none; font-size: 14px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+.candidate-tabs .tab:hover { color: #333; }
+.candidate-tabs .tab.active { color: #7c83ff; border-bottom-color: #7c83ff; font-weight: 600; }
+.candidate-tabs .tab span { font-size: 12px; background: #f0f0f0; padding: 1px 6px; border-radius: 8px; margin-left: 4px; }
+.candidate-tabs .tab.active span { background: #e8eaff; color: #7c83ff; }
+
+/* Metrics */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.metric-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; position: relative; }
+.metric-card h4 { color: #333; margin-bottom: 4px; }
+.metric-card .desc { font-size: 13px; color: #777; margin-bottom: 8px; }
+.metric-card .expr { font-family: monospace; font-size: 13px; background: #f5f5f5; padding: 4px 8px; border-radius: 4px; }
+.metric-card .synonyms { margin-top: 8px; }
+.metric-card .synonyms span { display: inline-block; background: #e8eaf6; color: #3f51b5; padding: 2px 8px; border-radius: 4px; margin: 2px; font-size: 12px; }
+.metric-card .card-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; }
+.metric-card .card-actions button { padding: 4px 8px; font-size: 12px; }
+
+/* Metric Form */
+.metric-form { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+.metric-form h3 { margin-bottom: 16px; }
+.form-row { display: flex; gap: 12px; margin-bottom: 12px; }
+.form-row label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; }
+.form-row input, .form-row select { width: 100%; padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 13px; outline: none; }
+.form-row input:focus { border-color: #7c83ff; }
+.form-field { flex: 1; }
+.form-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+.loading { text-align: center; padding: 40px; color: #888; }
+.error-msg { color: #c62828; background: #fce4ec; padding: 12px; border-radius: 6px; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <div class="logo">🏭 ChatBI</div>
+    <h2>功能</h2>
+    <nav>
+      <a href="#chat" class="active" data-panel="chat">💬 智能问答</a>
+      <a href="#llm" data-panel="llm">🤖 大模型配置</a>
+      <a href="#datasources" data-panel="datasources">🗄️ 数据源管理</a>
+      <a href="#graph" data-panel="graph">🔗 语义图谱</a>
+      <a href="#metrics" data-panel="metrics">📊 指标注册表</a>
+      <a href="#scan" data-panel="scan">🔍 元数据扫描</a>
+      <a href="#candidates" data-panel="candidates">📋 候选模型审核</a>
+      <a href="#admin" data-panel="admin">⚙️ 系统管理</a>
+    </nav>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <span id="page-title">智能问答</span>
+      <span class="badge" id="status-badge">● 已连接</span>
+    </div>
+    <div class="content">
+
+      <!-- Chat Panel -->
+      <div class="panel active" id="panel-chat">
+        <div class="chat-container">
+          <div class="sample-questions" id="samples"></div>
+          <div class="messages" id="messages">
+            <div class="msg bot">
+              <div class="avatar">AI</div>
+              <div class="bubble">你好！我是工业语义 ChatBI 助手。你可以问我设备能耗、产量、告警等问题，例如点击下方示例。</div>
+            </div>
+          </div>
+          <div style="position:relative">
+            <div id="suggestions-box" class="suggestions-box"></div>
+            <div class="chat-input">
+              <input type="text" id="question-input" placeholder="输入问题，例如：A101空压机最近一周单位产量能耗为什么增加？" oninput="onQuestionInput(event)" />
+              <button id="send-btn" onclick="sendChat()">发送</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LLM Config Panel -->
+      <div class="panel" id="panel-llm">
+        <div class="card">
+          <h3>大模型服务配置（OpenAI 兼容接口）</h3>
+          <p style="margin-bottom:16px;font-size:14px;color:#666;">配置后，语义解析和对话回答将由大模型驱动，提供更智能的分析能力。支持任何 OpenAI 兼容 API（如 OpenAI、Azure OpenAI、Ollama、vLLM、DeepSeek 等）。</p>
+          <div class="form-row">
+            <div class="form-field"><label>API 地址 *</label><input id="llm-url" placeholder="http://localhost:11434/v1 或 https://api.openai.com/v1" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>API Key（可选）</label><input id="llm-key" type="password" placeholder="sk-..." /></div>
+            <div class="form-field"><label>模型名称 *</label><input id="llm-model" placeholder="gpt-4o / deepseek-chat / qwen2.5" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Temperature</label><input id="llm-temp" type="number" step="0.1" min="0" max="2" placeholder="0.3" /></div>
+            <div class="form-field"><label>超时（秒）</label><input id="llm-timeout" type="number" placeholder="30" /></div>
+            <div class="form-field"><label>启用</label><select id="llm-enabled"><option value="true">是</option><option value="false">否</option></select></div>
+          </div>
+          <div class="form-actions" style="margin-top:12px">
+            <button class="btn btn-primary" onclick="saveLlmConfig()">保存配置</button>
+            <button class="btn btn-outline" onclick="testLlm()">测试连接</button>
+          </div>
+          <div id="llm-status" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- Datasources Panel -->
+      <div class="panel" id="panel-datasources">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>数据源管理</h3>
+          <button class="btn btn-primary" onclick="showDsForm()">+ 新建数据源</button>
+        </div>
+        <div id="ds-form-area"></div>
+        <div id="datasources-content"><div class="loading">加载中...</div></div>
+      </div>
+
+      <!-- Graph Panel -->
+      <div class="panel" id="panel-graph">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="font-size:18px;">语义图谱 <span style="font-size:13px;color:#888;font-weight:400">（管理数据实体和关系）</span></h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showEntityForm()">＋ 添加实体</button>
+            <button class="btn btn-outline" onclick="showRelForm()">＋ 添加关系</button>
+            <button class="btn btn-primary" style="background:#ff9800" onclick="window.open('/static/graph-editor.html','_blank')">🖊️ 图形化编辑关系</button>
+            <button class="btn btn-outline" onclick="loadGraph()">↻ 刷新</button>
+          </div>
+        </div>
+        <div class="graph-help">
+          <strong>什么是语义图谱？</strong> 语义图谱定义了您的数据的"业务含义"。每个<strong>实体</strong>代表一类业务对象（如设备、能耗记录），并映射到真实数据库表。<strong>关系</strong>描述实体之间如何关联。系统根据这些定义自动生成查询。
+        </div>
+        <div id="entity-form-area"></div>
+        <div id="rel-form-area"></div>
+        <div id="graph-content"><div class="loading">加载中...</div></div>
+      </div>
+
+      <!-- Metrics Panel -->
+      <div class="panel" id="panel-metrics">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>指标注册表</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showMetricForm()">+ 新建指标</button>
+            <button class="btn btn-outline" onclick="loadMetrics()">刷新</button>
+          </div>
+        </div>
+        <div id="metric-form-area"></div>
+        <div id="metrics-content"><div class="loading">加载中...</div></div>
+      </div>
+
+      <!-- Scan Panel -->
+      <div class="panel" id="panel-scan">
+        <div class="card">
+          <h3>元数据扫描</h3>
+          <p style="margin-bottom:12px;font-size:14px;color:#666;">扫描数据源元数据，自动生成候选语义模型。当前为 Mock 模式。</p>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="runScan()">自动扫描</button>
+            <button class="btn btn-outline" onclick="showManualCandidateForm()">+ 手动添加模型</button>
+          </div>
+        </div>
+        <div id="manual-candidate-form-area"></div>
+        <div id="scan-result"></div>
+      </div>
+
+      <!-- Candidates Panel -->
+      <div class="panel" id="panel-candidates">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>候选语义模型</h3>
+          <button class="btn btn-outline" onclick="loadCandidates()">刷新</button>
+        </div>
+        <div class="candidate-tabs" id="candidate-tabs">
+          <button class="tab active" data-tab="pending" onclick="switchCandidateTab('pending')">待审核 <span id="tab-count-pending"></span></button>
+          <button class="tab" data-tab="approved" onclick="switchCandidateTab('approved')">已通过 <span id="tab-count-approved"></span></button>
+          <button class="tab" data-tab="rejected" onclick="switchCandidateTab('rejected')">已驳回 <span id="tab-count-rejected"></span></button>
+        </div>
+        <div id="candidates-content"><div class="loading">加载中...</div></div>
+      </div>
+
+      <!-- Admin Panel -->
+      <div class="panel" id="panel-admin">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>系统管理</h3>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="exportConfig()">📤 导出配置</button>
+            <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">📥 导入配置</button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importConfig(event)" />
+          </div>
+        </div>
+        <div id="admin-overview"><div class="loading">加载中...</div></div>
+        <div id="admin-failures" style="margin-top:20px"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const titles = { chat: '智能问答', llm: '大模型配置', datasources: '数据源管理', graph: '语义图谱', metrics: '指标注册表', scan: '元数据扫描', candidates: '候选模型审核', admin: '系统管理' };
+const samples = [
+  'A101空压机最近一周单位产量能耗为什么增加？',
+  '3#风机昨天能耗多少？',
+  'B202设备最近一个月产量趋势',
+  'A101空压机近7天告警情况',
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+  const samplesEl = document.getElementById('samples');
+  samples.forEach(q => {
+    const el = document.createElement('span');
+    el.className = 'sample-q';
+    el.textContent = q;
+    el.onclick = () => { document.getElementById('question-input').value = q; sendChat(); };
+    samplesEl.appendChild(el);
+  });
+
+  document.querySelectorAll('.sidebar nav a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const panel = a.dataset.panel;
+      document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+      a.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + panel).classList.add('active');
+      document.getElementById('page-title').textContent = titles[panel];
+      if (panel === 'llm') loadLlmConfig();
+      if (panel === 'datasources') loadDatasources();
+      if (panel === 'graph') loadGraph();
+      if (panel === 'metrics') loadMetrics();
+      if (panel === 'candidates') loadCandidates();
+      if (panel === 'admin') loadAdmin();
+    });
+  });
+
+  document.getElementById('question-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+});
+
+async function apiFetch(url, opts) {
+  const res = await fetch(API + url, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || '请求失败');
+  }
+  return res.json();
+}
+
+function addMessage(role, html) {
+  const messagesEl = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="avatar">${role === 'user' ? '我' : 'AI'}</div><div class="bubble">${html}</div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return div;
+}
+
+let _chatSessionId = null;
+let _msgIndex = 0;
+
+async function sendChat() {
+  const input = document.getElementById('question-input');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  addMessage('user', escapeHtml(q));
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('suggestions-box').innerHTML = '';
+
+  try {
+    const body = { question: q };
+    if (_chatSessionId) body.session_id = _chatSessionId;
+    const data = await apiFetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (data.session_id) _chatSessionId = data.session_id;
+    _msgIndex++;
+
+    let html = `<strong>${escapeHtml(data.answer)}</strong>`;
+    html += `\n\n📌 语义解析：`;
+    html += `\n设备: ${data.intent.machine_ref || '未指定'} | 指标: ${data.intent.metric || '未指定'} | 时间窗口: ${data.intent.time_window_days}天 | 模式: ${data.intent.analysis_mode}`;
+
+    // Chart for trend data
+    if (data.data && data.data.energy_trend) {
+      html += '\n\n📊 趋势图：';
+      html += renderMiniChart(data.data.energy_trend, 'energy_kwh', 'day');
+    }
+
+    if (data.plan.sql.length) {
+      html += `\n\n<details><summary style="cursor:pointer;color:#7c83ff">📝 查看 SQL 计划 (${data.plan.sql.length} 条)</summary>`;
+      data.plan.sql.forEach((sql, i) => { html += `\n${i + 1}. ${escapeHtml(sql)}`; });
+      html += '</details>';
+    }
+    if (data.plan.notes.length) {
+      html += `\n\n📎 ${data.plan.notes.map(escapeHtml).join('；')}`;
+    }
+
+    // Feedback buttons
+    const mi = _msgIndex;
+    html += `\n\n<div class="feedback-btns" data-idx="${mi}">
+      <button class="fb-btn" onclick="sendFeedback(${mi},'up',this)" title="有帮助">👍</button>
+      <button class="fb-btn" onclick="sendFeedback(${mi},'down',this)" title="没帮助">👎</button>
+    </div>`;
+
+    addMessage('bot', html);
+  } catch (e) {
+    addMessage('bot', `<span style="color:#c62828">错误：${escapeHtml(e.message)}</span>`);
+  }
+  document.getElementById('send-btn').disabled = false;
+}
+
+function renderMiniChart(data, valueKey, labelKey) {
+  if (!data || !data.length) return '';
+  const values = data.map(d => d[valueKey] || 0);
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const range = max - min || 1;
+  const w = 280, h = 60, padding = 4;
+  const stepX = (w - padding * 2) / (values.length - 1 || 1);
+  const points = values.map((v, i) => `${padding + i * stepX},${h - padding - ((v - min) / range) * (h - padding * 2)}`).join(' ');
+  let svg = `<svg width="${w}" height="${h + 20}" style="display:block;margin:4px 0;background:#f8f9fc;border-radius:6px">`;
+  svg += `<polyline points="${points}" fill="none" stroke="#7c83ff" stroke-width="2" />`;
+  // Dots
+  values.forEach((v, i) => {
+    const x = padding + i * stepX;
+    const y = h - padding - ((v - min) / range) * (h - padding * 2);
+    svg += `<circle cx="${x}" cy="${y}" r="3" fill="#7c83ff" />`;
+  });
+  // Labels
+  data.forEach((d, i) => {
+    const x = padding + i * stepX;
+    svg += `<text x="${x}" y="${h + 14}" font-size="9" fill="#888" text-anchor="middle">${d[labelKey] || ''}</text>`;
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+async function sendFeedback(msgIdx, rating, btn) {
+  if (!_chatSessionId) return;
+  try {
+    await apiFetch('/chat/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: _chatSessionId, message_index: msgIdx, rating }),
+    });
+    const parent = btn.parentElement;
+    parent.innerHTML = rating === 'up' ? '<span style="color:#4caf50">👍 感谢反馈</span>' : '<span style="color:#888">👎 已记录，我们会改进</span>';
+  } catch (e) { /* ignore */ }
+}
+
+// Suggestions on input
+let _suggestTimer = null;
+function onQuestionInput(e) {
+  clearTimeout(_suggestTimer);
+  const q = e.target.value.trim();
+  if (q.length < 2) { document.getElementById('suggestions-box').innerHTML = ''; return; }
+  _suggestTimer = setTimeout(async () => {
+    try {
+      const res = await apiFetch('/suggestions?q=' + encodeURIComponent(q));
+      const box = document.getElementById('suggestions-box');
+      if (res.suggestions && res.suggestions.length) {
+        box.innerHTML = res.suggestions.map(s => `<div class="suggest-item" onclick="useSuggestion(this)">${escapeHtml(s)}</div>`).join('');
+      } else { box.innerHTML = ''; }
+    } catch (e) { /* ignore */ }
+  }, 300);
+}
+
+function useSuggestion(el) {
+  document.getElementById('question-input').value = el.textContent;
+  document.getElementById('suggestions-box').innerHTML = '';
+  sendChat();
+}
+
+// --- LLM Config ---
+async function loadLlmConfig() {
+  try {
+    const cfg = await apiFetch('/llm/config');
+    document.getElementById('llm-url').value = cfg.api_url || '';
+    document.getElementById('llm-key').value = cfg.api_key === '***' ? '' : (cfg.api_key || '');
+    document.getElementById('llm-model').value = cfg.model || '';
+    document.getElementById('llm-temp').value = cfg.temperature ?? 0.3;
+    document.getElementById('llm-timeout').value = cfg.timeout ?? 30;
+    document.getElementById('llm-enabled').value = cfg.enabled ? 'true' : 'false';
+    document.getElementById('llm-status').innerHTML = cfg.enabled
+      ? '<span style="color:#2e7d32">● 已启用 — 语义解析和对话回答将使用大模型</span>'
+      : '<span style="color:#888">○ 未启用 — 使用规则引擎和模板回答</span>';
+  } catch (e) { /* first load, no config yet */ }
+}
+
+async function saveLlmConfig() {
+  const api_url = document.getElementById('llm-url').value.trim();
+  const model = document.getElementById('llm-model').value.trim();
+  if (!api_url || !model) { alert('API 地址和模型名称不能为空'); return; }
+  const keyVal = document.getElementById('llm-key').value;
+  const body = {
+    api_url,
+    api_key: keyVal || '',
+    model,
+    temperature: parseFloat(document.getElementById('llm-temp').value) || 0.3,
+    timeout: parseInt(document.getElementById('llm-timeout').value) || 30,
+    enabled: document.getElementById('llm-enabled').value === 'true',
+  };
+  try {
+    await apiFetch('/llm/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    document.getElementById('llm-status').innerHTML = '<span style="color:#2e7d32">✓ 配置已保存</span>';
+    setTimeout(() => loadLlmConfig(), 500);
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+async function testLlm() {
+  document.getElementById('llm-status').innerHTML = '<span style="color:#888">测试中...</span>';
+  try {
+    const res = await apiFetch('/llm/test', { method: 'POST' });
+    document.getElementById('llm-status').innerHTML = res.success
+      ? `<span style="color:#2e7d32">✓ ${escapeHtml(res.message)}</span>`
+      : `<span style="color:#c62828">✗ ${escapeHtml(res.message)}</span>`;
+  } catch (e) {
+    document.getElementById('llm-status').innerHTML = `<span style="color:#c62828">✗ ${escapeHtml(e.message)}</span>`;
+  }
+}
+
+// --- Datasource Management ---
+const DS_TYPES = [
+  { value: 'doris', label: 'Apache Doris', defaultPort: 9030, group: 'database' },
+  { value: 'mysql', label: 'MySQL', defaultPort: 3306, group: 'database' },
+  { value: 'postgresql', label: 'PostgreSQL', defaultPort: 5432, group: 'database' },
+  { value: 'api', label: 'API 接口 (REST/JSON)', defaultPort: 0, group: 'api' },
+  { value: 'excel', label: 'Excel / CSV 文件', defaultPort: 0, group: 'file' },
+];
+
+async function loadDatasources() {
+  const el = document.getElementById('datasources-content');
+  el.innerHTML = '<div class="loading">加载中...</div>';
+  try {
+    const list = await apiFetch('/datasources');
+    if (!list.length) {
+      el.innerHTML = '<div style="color:#888;padding:20px">暂无数据源，点击"新建数据源"添加。</div>';
+      return;
+    }
+    let html = '';
+    list.forEach(ds => {
+      const typeInfo = DS_TYPES.find(t => t.value === ds.type) || { label: ds.type };
+      html += `<div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <strong>${escapeHtml(ds.name)}</strong>
+          <span class="status-badge ${ds.enabled ? 'status-approved' : 'status-rejected'}">${ds.enabled ? '启用' : '禁用'}</span>
+          <span style="font-size:12px;color:#888;margin-left:8px">${escapeHtml(typeInfo.label)} | ${escapeHtml(ds.host)}:${ds.port}${ds.database ? '/' + escapeHtml(ds.database) : ''}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline" onclick="testDs('${escapeAttr(ds.id)}')">测试</button>
+          <button class="btn btn-primary" onclick="scanDs('${escapeAttr(ds.id)}')">扫描</button>
+          <button class="btn btn-outline" onclick="showDsForm('${escapeAttr(ds.id)}')">编辑</button>
+          <button class="btn btn-danger" onclick="deleteDs('${escapeAttr(ds.id)}')">删除</button>
+        </div>
+      </div>`;
+    });
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function showDsForm(editId) {
+  let id = '', name = '', type = 'mysql', host = '', port = '', user = '', password = '', database = '', api_url = '', api_method = 'GET', api_headers = '', file_path = '';
+  if (editId) {
+    try {
+      const list = await apiFetch('/datasources');
+      const ds = list.find(d => d.id === editId);
+      if (ds) { id = ds.id; name = ds.name; type = ds.type; host = ds.host||''; port = ds.port||''; user = ds.user||''; password = ds.password||''; database = ds.database||''; api_url = ds.api_url||''; api_method = ds.api_method||'GET'; api_headers = ds.api_headers ? Object.entries(ds.api_headers).map(([k,v])=>k+':'+v).join(', ') : ''; file_path = ds.file_path||''; }
+    } catch (e) { /* ignore */ }
+  }
+  const typeOptions = DS_TYPES.map(t => `<option value="${t.value}" ${t.value === type ? 'selected' : ''}>${t.label}</option>`).join('');
+  const info = DS_TYPES.find(t => t.value === type);
+  const isDb = !info || info.group === 'database';
+  const isApi = info && info.group === 'api';
+  const isFile = info && info.group === 'file';
+  document.getElementById('ds-form-area').innerHTML = `
+    <div class="metric-form">
+      <h3>${editId ? '编辑数据源' : '新建数据源'}</h3>
+      <div class="form-row">
+        <div class="form-field"><label>数据源名称 *</label><input id="ds-name" value="${escapeAttr(name)}" placeholder="生产系统MySQL" /></div>
+        <div class="form-field"><label>类型 *</label><select id="ds-type" onchange="onDsTypeChange('${escapeAttr(editId)}')">${typeOptions}</select></div>
+      </div>
+      <div id="ds-fields-db" style="display:${isDb?'block':'none'}">
+        <div class="form-row">
+          <div class="form-field"><label>主机地址 *</label><input id="ds-host" value="${escapeAttr(host)}" placeholder="192.168.1.100" /></div>
+          <div class="form-field"><label>端口 *</label><input id="ds-port" type="number" value="${port || ''}" placeholder="${info?.defaultPort || 3306}" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>用户名 *</label><input id="ds-user" value="${escapeAttr(user)}" placeholder="root" /></div>
+          <div class="form-field"><label>密码</label><input id="ds-password" type="password" value="${escapeAttr(password)}" placeholder="••••••" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>数据库名（可选）</label><input id="ds-database" value="${escapeAttr(database)}" placeholder="production" /></div>
+        </div>
+      </div>
+      <div id="ds-fields-api" style="display:${isApi?'block':'none'}">
+        <div class="form-row">
+          <div class="form-field"><label>API URL *</label><input id="ds-api-url" value="${escapeAttr(api_url)}" placeholder="https://api.example.com/data/devices" /></div>
+          <div class="form-field" style="max-width:120px"><label>请求方法</label><select id="ds-api-method"><option ${api_method==='GET'?'selected':''}>GET</option><option ${api_method==='POST'?'selected':''}>POST</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>请求头（格式：Key:Value, 逗号分隔）</label><input id="ds-api-headers" value="${escapeAttr(api_headers)}" placeholder="Authorization:Bearer token123, Accept:application/json" /></div>
+        </div>
+        <div style="font-size:12px;color:#888;margin-bottom:8px">💡 系统将调用此 API，从 JSON 响应自动推断字段结构</div>
+      </div>
+      <div id="ds-fields-file" style="display:${isFile?'block':'none'}">
+        <div class="form-row">
+          <div class="form-field"><label>文件路径 *（相对于 data/uploads/ 或绝对路径）</label><input id="ds-file-path" value="${escapeAttr(file_path)}" placeholder="production_data.xlsx 或 /path/to/file.csv" /></div>
+        </div>
+        <div style="font-size:12px;color:#888;margin-bottom:8px">💡 支持 .csv / .xlsx / .xls 格式。请将文件放入项目 data/uploads/ 目录下，或填写绝对路径</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveDs('${escapeAttr(editId || '')}')">保存</button>
+        <button class="btn btn-outline" onclick="document.getElementById('ds-form-area').innerHTML=''">取消</button>
+      </div>
+    </div>`;
+}
+
+function onDsTypeChange(editId) {
+  const type = document.getElementById('ds-type').value;
+  const info = DS_TYPES.find(t => t.value === type);
+  const isDb = !info || info.group === 'database';
+  const isApi = info && info.group === 'api';
+  const isFile = info && info.group === 'file';
+  document.getElementById('ds-fields-db').style.display = isDb ? 'block' : 'none';
+  document.getElementById('ds-fields-api').style.display = isApi ? 'block' : 'none';
+  document.getElementById('ds-fields-file').style.display = isFile ? 'block' : 'none';
+}
+
+async function saveDs(editId) {
+  const name = document.getElementById('ds-name').value.trim();
+  const type = document.getElementById('ds-type').value;
+  if (!name) { alert('数据源名称不能为空'); return; }
+  const info = DS_TYPES.find(t => t.value === type);
+  const id = editId || name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  let body = { id, name, type, enabled: true };
+
+  if (!info || info.group === 'database') {
+    const host = document.getElementById('ds-host').value.trim();
+    const user = document.getElementById('ds-user').value.trim();
+    if (!host || !user) { alert('数据库类型需要填写主机地址和用户名'); return; }
+    body.host = host;
+    body.port = parseInt(document.getElementById('ds-port').value || info?.defaultPort || 3306);
+    body.user = user;
+    body.password = document.getElementById('ds-password').value;
+    body.database = document.getElementById('ds-database').value.trim() || null;
+  } else if (info.group === 'api') {
+    const apiUrl = document.getElementById('ds-api-url').value.trim();
+    if (!apiUrl) { alert('请填写 API URL'); return; }
+    body.api_url = apiUrl;
+    body.api_method = document.getElementById('ds-api-method').value;
+    const headersRaw = document.getElementById('ds-api-headers').value.trim();
+    if (headersRaw) {
+      const headers = {};
+      headersRaw.split(/[,，]/).forEach(pair => { const [k,...v] = pair.split(':'); if (k && v.length) headers[k.trim()] = v.join(':').trim(); });
+      body.api_headers = headers;
+    }
+  } else if (info.group === 'file') {
+    const filePath = document.getElementById('ds-file-path').value.trim();
+    if (!filePath) { alert('请填写文件路径'); return; }
+    body.file_path = filePath;
+  }
+
+  try {
+    const method = editId ? 'PUT' : 'POST';
+    const url = editId ? `/datasources/${encodeURIComponent(editId)}` : '/datasources';
+    await apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    document.getElementById('ds-form-area').innerHTML = '';
+    loadDatasources();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+async function testDs(id) {
+  try {
+    const res = await apiFetch(`/datasources/${encodeURIComponent(id)}/test`, { method: 'POST' });
+    alert(res.success ? '✓ ' + res.message : '✗ ' + res.message);
+  } catch (e) {
+    alert('测试失败：' + e.message);
+  }
+}
+
+async function scanDs(id) {
+  try {
+    const res = await apiFetch(`/datasources/${encodeURIComponent(id)}/scan`, { method: 'POST' });
+    alert(`扫描完成！发现 ${res.candidates_count} 个候选模型，前往"候选模型审核"查看。`);
+    loadDatasources();
+  } catch (e) {
+    alert('扫描失败：' + e.message);
+  }
+}
+
+async function deleteDs(id) {
+  if (!confirm('确认删除此数据源？')) return;
+  try {
+    await apiFetch(`/datasources/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    loadDatasources();
+  } catch (e) {
+    alert('删除失败：' + e.message);
+  }
+}
+
+async function loadGraph() {
+  const el = document.getElementById('graph-content');
+  el.innerHTML = '<div class="loading">加载中...</div>';
+  try {
+    const data = await apiFetch('/semantic/graph');
+    window._graphData = data;
+    const ENTITY_COLORS = {
+      'Machine': { bg: '#e3f2fd', border: '#1976d2', icon: '⚙️' },
+      'EnergyObservation': { bg: '#fff3e0', border: '#f57c00', icon: '⚡' },
+      'ProductionObservation': { bg: '#e8f5e9', border: '#388e3c', icon: '📦' },
+      'AlarmEvent': { bg: '#fce4ec', border: '#c62828', icon: '🚨' },
+      'WorkOrder': { bg: '#f3e5f5', border: '#7b1fa2', icon: '🔧' },
+    };
+    const defaultColor = { bg: '#f5f5f5', border: '#9e9e9e', icon: '📋' };
+
+    let html = '<div class="graph-view">';
+    data.nodes.forEach(n => {
+      const color = ENTITY_COLORS[n.id] || defaultColor;
+      const ont = window._ontologyCache && window._ontologyCache.entities ? window._ontologyCache.entities[n.id] : null;
+      const columns = ont && ont.physical_mapping ? ont.physical_mapping.columns || {} : {};
+      const propEntries = n.properties.map(p => ({ logical: p, physical: columns[p] || '—' }));
+
+      html += `<div class="entity-card" style="border-color:${color.border}">
+        <div class="card-actions">
+          <button class="btn btn-outline" onclick="showEntityForm('${escapeAttr(n.id)}')">✏️ 编辑</button>
+        </div>
+        <div class="entity-icon" style="background:${color.bg};color:${color.border}">${color.icon}</div>
+        <h4>${escapeHtml(n.id)}</h4>
+        <div style="font-size:13px;color:#666;margin-bottom:8px">${escapeHtml(n.description || '暂无描述')}</div>
+        <div class="table-name">📁 ${escapeHtml(n.physical_table)}</div>
+        ${propEntries.length ? `<table class="props-table">
+          <tr><th>业务字段</th><th></th><th>数据库列</th></tr>
+          ${propEntries.slice(0, 6).map(p => `<tr><td class="logical">${escapeHtml(p.logical)}</td><td class="arrow">→</td><td class="physical">${escapeHtml(p.physical)}</td></tr>`).join('')}
+          ${propEntries.length > 6 ? `<tr><td colspan="3" style="color:#888;font-size:11px">...还有 ${propEntries.length - 6} 个字段</td></tr>` : ''}
+        </table>` : '<div style="font-size:12px;color:#bbb;margin-top:8px">暂无字段映射</div>'}
+      </div>`;
+    });
+    html += '</div>';
+
+    if (data.edges && data.edges.length) {
+      html += `<div class="graph-relations">
+        <h3>🔗 实体关系 <span style="font-size:13px;color:#888;font-weight:400">(${data.edges.length} 条)</span></h3>
+        <div class="rel-visual">`;
+      data.edges.forEach((e, i) => {
+        html += `<div class="rel-card">
+          <span class="rel-entity">${escapeHtml(e.from)}</span>
+          <span class="rel-arrow">
+            <svg viewBox="0 0 24 12"><path d="M0 6h18m0 0l-4-4m4 4l-4 4" stroke="#999" fill="none" stroke-width="1.5"/></svg>
+          </span>
+          <span class="rel-arrow"><span class="rel-label">${escapeHtml(e.relation)}</span></span>
+          <span class="rel-arrow">
+            <svg viewBox="0 0 24 12"><path d="M0 6h18m0 0l-4-4m4 4l-4 4" stroke="#999" fill="none" stroke-width="1.5"/></svg>
+          </span>
+          <span class="rel-entity">${escapeHtml(e.to)}</span>
+          ${e.on ? `<span class="rel-on">关联字段: ${escapeHtml(e.on)}</span>` : ''}
+          <button class="btn btn-danger rel-delete" style="padding:4px 8px;font-size:11px" onclick="deleteRelation(${i})">删除</button>
+        </div>`;
+      });
+      html += '</div></div>';
+    } else {
+      html += '<div style="margin-top:24px;padding:20px;text-align:center;color:#888;background:#f9f9f9;border-radius:8px;">暂无关系。点击上方"添加关系"建立实体之间的关联。</div>';
+    }
+
+    el.innerHTML = html;
+    // Cache ontology for column display
+    apiFetch('/ontology').then(ont => { window._ontologyCache = ont; }).catch(() => {});
+  } catch (e) {
+    el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`;
+  }
+}
+
+let _entityColumnCount = 0;
+
+async function showEntityForm(editName) {
+  let name = '', desc = '', catalog = '', schema = '', table = '';
+  let columns = [];
+  if (editName) {
+    try {
+      const ont = await apiFetch('/ontology');
+      const cfg = (ont.entities || {})[editName];
+      if (cfg) {
+        name = editName;
+        desc = cfg.description || '';
+        const pm = cfg.physical_mapping || {};
+        catalog = pm.catalog || '';
+        schema = pm.schema || '';
+        table = pm.table || '';
+        columns = Object.entries(pm.columns || {}).map(([k, v]) => ({ logical: k, physical: v, type: (cfg.properties && cfg.properties[k] && cfg.properties[k].type) || 'string' }));
+      }
+    } catch (e) { /* ignore */ }
+  }
+  if (!columns.length) columns = [{ logical: '', physical: '', type: 'string' }];
+  _entityColumnCount = columns.length;
+
+  const colRows = columns.map((c, i) => _renderColRow(i, c.logical, c.physical, c.type)).join('');
+
+  document.getElementById('entity-form-area').innerHTML = `
+    <div class="entity-form-enhanced">
+      <h3>${editName ? '✏️ 编辑实体' : '＋ 新建实体'}</h3>
+      <div class="form-hint">${editName ? '修改实体定义和字段映射' : '定义一个新的业务实体，并将其映射到数据库表'}</div>
+
+      <div class="section-label" style="border-top:none;margin-top:0">基本信息</div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>实体名称 *（英文，如 Machine、AlarmEvent）</label>
+          <input id="ef-name" value="${escapeAttr(name)}" placeholder="例如：QualityInspection" ${editName ? 'readonly style="background:#f5f5f5"' : ''} />
+        </div>
+        <div class="form-field">
+          <label>中文描述（便于理解用途）</label>
+          <input id="ef-desc" value="${escapeAttr(desc)}" placeholder="例如：质量检测记录" />
+        </div>
+      </div>
+
+      <div class="section-label">数据库位置</div>
+      <div class="form-row">
+        <div class="form-field"><label>数据源名称（Catalog）</label><input id="ef-catalog" value="${escapeAttr(catalog)}" placeholder="例如：mysql_mes" /></div>
+        <div class="form-field"><label>数据库/Schema</label><input id="ef-schema" value="${escapeAttr(schema)}" placeholder="例如：production" /></div>
+        <div class="form-field"><label>表名 *</label><input id="ef-table" value="${escapeAttr(table)}" placeholder="例如：device_master" /></div>
+      </div>
+
+      <div class="section-label">字段映射 <span style="font-weight:normal;color:#888">（业务字段名 ↔ 数据库列名）</span></div>
+      <div class="column-list" id="ef-columns-list">
+        <div style="display:flex;gap:8px;margin-bottom:4px;padding:0 4px">
+          <span style="flex:1;font-size:11px;color:#888">业务字段名</span>
+          <span style="flex:1;font-size:11px;color:#888">数据库列名</span>
+          <span style="width:100px;font-size:11px;color:#888">数据类型</span>
+          <span style="width:28px"></span>
+        </div>
+        ${colRows}
+      </div>
+      <span class="add-col-btn" onclick="addColumnRow()">＋ 添加字段</span>
+
+      <div class="form-actions" style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0">
+        <button class="btn btn-primary" style="padding:10px 24px" onclick="saveEntity('${escapeAttr(editName || '')}')">💾 保存实体</button>
+        <button class="btn btn-outline" style="padding:10px 24px" onclick="document.getElementById('entity-form-area').innerHTML=''">取消</button>
+      </div>
+    </div>`;
+}
+
+function _renderColRow(index, logical, physical, type) {
+  return `<div class="column-row" id="col-row-${index}">
+    <input placeholder="例如：machine_id" value="${escapeAttr(logical)}" class="col-logical" />
+    <input placeholder="例如：device_id" value="${escapeAttr(physical)}" class="col-physical" />
+    <select class="col-type">
+      <option value="string" ${type === 'string' ? 'selected' : ''}>文本</option>
+      <option value="number" ${type === 'number' ? 'selected' : ''}>数字</option>
+      <option value="datetime" ${type === 'datetime' ? 'selected' : ''}>日期时间</option>
+      <option value="boolean" ${type === 'boolean' ? 'selected' : ''}>布尔</option>
+    </select>
+    <button class="remove-col" onclick="this.parentElement.remove()">×</button>
+  </div>`;
+}
+
+function addColumnRow() {
+  const list = document.getElementById('ef-columns-list');
+  const div = document.createElement('div');
+  div.innerHTML = _renderColRow(_entityColumnCount++, '', '', 'string');
+  list.appendChild(div.firstElementChild);
+}
+
+async function saveEntity(editName) {
+  const name = document.getElementById('ef-name').value.trim();
+  const table = document.getElementById('ef-table').value.trim();
+  if (!name || !table) { alert('请填写实体名称和表名'); return; }
+  const rows = document.querySelectorAll('#ef-columns-list .column-row');
+  const columns = {};
+  const properties = {};
+  rows.forEach(row => {
+    const logical = row.querySelector('.col-logical').value.trim();
+    const physical = row.querySelector('.col-physical').value.trim();
+    const type = row.querySelector('.col-type').value;
+    if (logical && physical) { columns[logical] = physical; properties[logical] = { type }; }
+  });
+  const cfg = {
+    description: document.getElementById('ef-desc').value.trim(),
+    properties,
+    physical_mapping: {
+      catalog: document.getElementById('ef-catalog').value.trim(),
+      schema: document.getElementById('ef-schema').value.trim(),
+      table,
+      columns,
+    },
+  };
+  try {
+    await apiFetch(`/ontology/entities/${encodeURIComponent(name)}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg),
+    });
+    document.getElementById('entity-form-area').innerHTML = '';
+    loadGraph();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+async function showRelForm() {
+  // Get existing entities for dropdown
+  let entities = [];
+  try {
+    const graph = await apiFetch('/semantic/graph');
+    entities = (graph.nodes || []).map(n => n.id);
+  } catch (e) { /* ignore */ }
+  const opts = entities.map(e => `<option value="${escapeAttr(e)}">${escapeHtml(e)}</option>`).join('');
+
+  document.getElementById('rel-form-area').innerHTML = `
+    <div class="entity-form-enhanced">
+      <h3>＋ 添加关系</h3>
+      <div class="form-hint">定义两个实体之间的关联关系（例如：设备"拥有"能耗记录）</div>
+      <div class="form-row" style="align-items:flex-end">
+        <div class="form-field">
+          <label>起始实体（From）</label>
+          <select id="rf-from"><option value="">请选择...</option>${opts}</select>
+        </div>
+        <div class="form-field">
+          <label>关系类型（如 HAS_ENERGY）</label>
+          <input id="rf-rel" placeholder="例如：HAS_ENERGY" />
+        </div>
+        <div class="form-field">
+          <label>目标实体（To）</label>
+          <select id="rf-to"><option value="">请选择...</option>${opts}</select>
+        </div>
+        <div class="form-field">
+          <label>关联字段</label>
+          <input id="rf-on" placeholder="例如：machine_id" />
+        </div>
+      </div>
+      <div style="font-size:12px;color:#888;margin:8px 0">💡 提示：关系类型通常用大写+下划线命名，如 HAS_ENERGY、HAS_ALARM、BELONGS_TO</div>
+      <div class="form-actions">
+        <button class="btn btn-primary" style="padding:10px 24px" onclick="saveNewRelation()">💾 保存关系</button>
+        <button class="btn btn-outline" style="padding:10px 24px" onclick="document.getElementById('rel-form-area').innerHTML=''">取消</button>
+      </div>
+    </div>`;
+}
+
+async function saveNewRelation() {
+  const from = document.getElementById('rf-from').value.trim();
+  const relation = document.getElementById('rf-rel').value.trim();
+  const to = document.getElementById('rf-to').value.trim();
+  const on = document.getElementById('rf-on').value.trim();
+  if (!from || !relation || !to) { alert('请选择起始实体、填写关系类型、选择目标实体'); return; }
+  try {
+    const graph = await apiFetch('/semantic/graph');
+    const edges = graph.edges || [];
+    edges.push({ from, relation, to, on });
+    await apiFetch('/ontology/relationships', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(edges),
+    });
+    document.getElementById('rel-form-area').innerHTML = '';
+    loadGraph();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+async function deleteRelation(index) {
+  if (!confirm('确认删除此关系？删除后可重新添加。')) return;
+  try {
+    const graph = await apiFetch('/semantic/graph');
+    const edges = graph.edges || [];
+    edges.splice(index, 1);
+    await apiFetch('/ontology/relationships', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(edges),
+    });
+    loadGraph();
+  } catch (e) {
+    alert('删除失败：' + e.message);
+  }
+}
+
+async function loadMetrics() {
+  const el = document.getElementById('metrics-content');
+  el.innerHTML = '<div class="loading">加载中...</div>';
+  try {
+    const data = await apiFetch('/metrics');
+    const metrics = data.metrics || {};
+    if (!Object.keys(metrics).length) {
+      el.innerHTML = '<div style="color:#888;padding:20px">暂无指标。点击"新建指标"添加。</div>';
+      return;
+    }
+    let html = '<div class="metrics-grid">';
+    for (const [name, cfg] of Object.entries(metrics)) {
+      html += `<div class="metric-card">
+        <div class="card-actions">
+          <button class="btn btn-outline" onclick="showMetricForm('${escapeAttr(name)}')">编辑</button>
+          <button class="btn btn-danger" onclick="deleteMetric('${escapeAttr(name)}')">删除</button>
+        </div>
+        <h4>${escapeHtml(name)}</h4>
+        <div class="desc">${escapeHtml(cfg.description || '')}</div>
+        <div class="expr">${escapeHtml(cfg.expression || '')} ${cfg.unit ? '(' + escapeHtml(cfg.unit) + ')' : ''}</div>
+        ${cfg.entity ? '<div style="font-size:12px;color:#888;margin-top:4px">实体: ' + escapeHtml(cfg.entity) + '</div>' : ''}
+        ${cfg.synonyms && cfg.synonyms.length ? '<div class="synonyms">' + cfg.synonyms.map(s => `<span>${escapeHtml(s)}</span>`).join('') + '</div>' : ''}
+      </div>`;
+    }
+    html += '</div>';
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`;
+  }
+}
+
+let _editingMetric = null;
+
+async function showMetricForm(editName) {
+  _editingMetric = null;
+  let name = '', desc = '', expr = '', unit = '', entity = '', synonyms = '', timeField = '';
+  if (editName) {
+    try {
+      const data = await apiFetch('/metrics');
+      const cfg = (data.metrics || {})[editName];
+      if (cfg) {
+        _editingMetric = editName;
+        name = editName;
+        desc = cfg.description || '';
+        expr = cfg.expression || '';
+        unit = cfg.unit || '';
+        entity = cfg.entity || '';
+        synonyms = (cfg.synonyms || []).join('、');
+        timeField = cfg.time_field || '';
+      }
+    } catch (e) { /* ignore */ }
+  }
+  document.getElementById('metric-form-area').innerHTML = `
+    <div class="metric-form">
+      <h3>${_editingMetric ? '编辑指标' : '新建指标'}</h3>
+      <div class="form-row">
+        <div class="form-field"><label>指标名称 *</label><input id="mf-name" value="${escapeAttr(name)}" placeholder="energy_consumption" /></div>
+        <div class="form-field"><label>描述</label><input id="mf-desc" value="${escapeAttr(desc)}" placeholder="设备总能耗" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>表达式 *</label><input id="mf-expr" value="${escapeAttr(expr)}" placeholder="SUM(energy_kwh)" /></div>
+        <div class="form-field"><label>单位</label><input id="mf-unit" value="${escapeAttr(unit)}" placeholder="kWh" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>关联实体</label><input id="mf-entity" value="${escapeAttr(entity)}" placeholder="EnergyObservation" /></div>
+        <div class="form-field"><label>时间字段</label><input id="mf-timefield" value="${escapeAttr(timeField)}" placeholder="ts" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>同义词（用顿号分隔）</label><input id="mf-synonyms" value="${escapeAttr(synonyms)}" placeholder="能耗、耗电、电量" /></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveMetric()">保存</button>
+        <button class="btn btn-outline" onclick="document.getElementById('metric-form-area').innerHTML=''">取消</button>
+      </div>
+    </div>`;
+}
+
+async function saveMetric() {
+  const name = document.getElementById('mf-name').value.trim();
+  const expression = document.getElementById('mf-expr').value.trim();
+  if (!name || !expression) { alert('指标名称和表达式不能为空'); return; }
+  const synonymsRaw = document.getElementById('mf-synonyms').value.trim();
+  const body = {
+    name,
+    description: document.getElementById('mf-desc').value.trim(),
+    expression,
+    unit: document.getElementById('mf-unit').value.trim() || null,
+    entity: document.getElementById('mf-entity').value.trim() || null,
+    time_field: document.getElementById('mf-timefield').value.trim() || null,
+    synonyms: synonymsRaw ? synonymsRaw.split(/[、,，]/).map(s => s.trim()).filter(Boolean) : [],
+  };
+  try {
+    if (_editingMetric) {
+      await apiFetch(`/metrics/${encodeURIComponent(_editingMetric)}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      });
+    } else {
+      await apiFetch('/metrics', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      });
+    }
+    document.getElementById('metric-form-area').innerHTML = '';
+    loadMetrics();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+async function deleteMetric(name) {
+  if (!confirm(`确认删除指标 "${name}"？\n注意：只有自定义指标可以删除。`)) return;
+  try {
+    await apiFetch(`/metrics/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    loadMetrics();
+  } catch (e) {
+    alert('删除失败：' + e.message);
+  }
+}
+
+function escapeAttr(s) { return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
+
+// --- Admin Panel ---
+async function loadAdmin() {
+  const el = document.getElementById('admin-overview');
+  el.innerHTML = '<div class="loading">加载中...</div>';
+  try {
+    const data = await apiFetch('/admin/overview');
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:20px">';
+    html += statCard('实体数量', data.entities, '🔗');
+    html += statCard('指标数量', data.metrics, '📊');
+    html += statCard('数据源', data.datasources, '🗄️');
+    html += statCard('大模型', data.llm_enabled ? '已启用' : '未启用', '🤖');
+    html += statCard('总查询数', data.queries.total_queries, '💬');
+    html += statCard('成功率', (data.queries.success_rate * 100).toFixed(1) + '%', '✅');
+    html += statCard('平均耗时', data.queries.avg_duration_ms + 'ms', '⚡');
+    html += statCard('用户满意度', (data.feedback.satisfaction_rate * 100).toFixed(0) + '%', '👍');
+    html += '</div>';
+
+    if (data.queries.recent_failures && data.queries.recent_failures.length) {
+      html += '<div class="card"><h3>最近失败的查询</h3><div style="margin-top:12px">';
+      data.queries.recent_failures.slice(-10).forEach(f => {
+        html += `<div style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px">
+          <span style="color:#c62828">✗</span> ${escapeHtml(f.question)}
+          <span style="color:#888;margin-left:8px;font-size:11px">${escapeHtml(f.error).slice(0,60)}</span>
+        </div>`;
+      });
+      html += '</div></div>';
+    }
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function statCard(label, value, icon) {
+  return `<div class="card" style="text-align:center;padding:16px">
+    <div style="font-size:24px;margin-bottom:4px">${icon}</div>
+    <div style="font-size:22px;font-weight:700;color:#333">${value}</div>
+    <div style="font-size:12px;color:#888;margin-top:4px">${label}</div>
+  </div>`;
+}
+
+async function exportConfig() {
+  try {
+    const data = await apiFetch('/admin/export');
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chatbi-config-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) { alert('导出失败：' + e.message); }
+}
+
+async function importConfig(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const config = JSON.parse(text);
+    if (!confirm(`确认导入配置？这将覆盖当前的本体、指标等设置。`)) return;
+    const res = await apiFetch('/admin/import', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config),
+    });
+    alert(`导入成功！共导入 ${res.count} 项：${res.imported.join('、')}`);
+    loadAdmin();
+  } catch (e) { alert('导入失败：' + e.message); }
+  event.target.value = '';
+}
+
+async function runScan() {
+  const el = document.getElementById('scan-result');
+  el.innerHTML = '<div class="loading">扫描中...</div>';
+  try {
+    const data = await apiFetch('/metadata/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ save_candidates: true }),
+    });
+    let html = '<div class="card"><h3>扫描结果</h3>';
+    html += `<p style="margin:8px 0;font-size:14px;color:#666;">数据源: ${data.snapshot.source} | 发现 ${data.candidates.length} 个候选模型</p>`;
+    data.snapshot.catalogs.forEach(cat => {
+      html += `<div style="margin:8px 0"><strong>📂 ${cat.name}</strong> (${cat.type})`;
+      cat.databases.forEach(db => {
+        html += `<div style="margin-left:16px">📁 ${db.name}`;
+        db.tables.forEach(t => {
+          html += `<div style="margin-left:32px;font-size:13px">📄 ${t.name} (${t.columns.length} 列)</div>`;
+        });
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function showManualCandidateForm() {
+  document.getElementById('manual-candidate-form-area').innerHTML = `
+    <div class="metric-form">
+      <h3>手动添加候选语义模型</h3>
+      <div class="form-row">
+        <div class="form-field"><label>实体类型 *</label><input id="mc-entity" placeholder="QualityInspection" /></div>
+        <div class="form-field"><label>描述</label><input id="mc-desc" placeholder="质量检测表" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>Catalog *</label><input id="mc-catalog" placeholder="mysql_mes" /></div>
+        <div class="form-field"><label>Schema *</label><input id="mc-schema" placeholder="quality" /></div>
+        <div class="form-field"><label>物理表名 *</label><input id="mc-table" placeholder="inspection_record" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>列映射（逻辑名:物理列:类型, 逗号分隔）</label><input id="mc-columns" placeholder="machine_id:device_id:string, ts:check_time:datetime, result:check_result:string" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>关联关系（from:relation:to:on, 逗号分隔, 可选）</label><input id="mc-rels" placeholder="Machine:HAS_QUALITY:QualityInspection:machine_id" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label>指标（名称:表达式:单位, 逗号分隔, 可选）</label><input id="mc-metrics" placeholder="defect_rate:COUNT(*):count" /></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveManualCandidate()">保存候选</button>
+        <button class="btn btn-outline" onclick="document.getElementById('manual-candidate-form-area').innerHTML=''">取消</button>
+      </div>
+    </div>`;
+}
+
+async function saveManualCandidate() {
+  const entity = document.getElementById('mc-entity').value.trim();
+  const catalog = document.getElementById('mc-catalog').value.trim();
+  const schema = document.getElementById('mc-schema').value.trim();
+  const table = document.getElementById('mc-table').value.trim();
+  if (!entity || !catalog || !schema || !table) { alert('实体类型、Catalog、Schema、物理表名均必填'); return; }
+
+  const id = `${catalog}.${schema}.${table}`;
+  const columnsRaw = document.getElementById('mc-columns').value.trim();
+  const properties = [];
+  if (columnsRaw) {
+    columnsRaw.split(/[,，]/).forEach(item => {
+      const parts = item.trim().split(':').map(s => s.trim());
+      if (parts.length >= 2) {
+        properties.push({ logical_name: parts[0], physical_column: parts[1], data_type: parts[2] || 'string' });
+      }
+    });
+  }
+
+  const relsRaw = document.getElementById('mc-rels').value.trim();
+  const relationships = [];
+  if (relsRaw) {
+    relsRaw.split(/[,，]/).forEach(item => {
+      const parts = item.trim().split(':').map(s => s.trim());
+      if (parts.length >= 3) {
+        relationships.push({ from_entity: parts[0], relation: parts[1], to_entity: parts[2], on: parts[3] || '', confidence: 0.95 });
+      }
+    });
+  }
+
+  const metricsRaw = document.getElementById('mc-metrics').value.trim();
+  const metrics = [];
+  if (metricsRaw) {
+    metricsRaw.split(/[,，]/).forEach(item => {
+      const parts = item.trim().split(':').map(s => s.trim());
+      if (parts.length >= 2) {
+        metrics.push({ name: parts[0], expression: parts[1], unit: parts[2] || null, confidence: 0.95 });
+      }
+    });
+  }
+
+  const body = {
+    id,
+    entity,
+    description: document.getElementById('mc-desc').value.trim() || `Manual candidate for ${id}`,
+    confidence: 0.95,
+    physical_mapping: { catalog, schema, table },
+    properties,
+    relationships,
+    metrics,
+    status: 'pending',
+    evidence: ['source=manual'],
+  };
+
+  try {
+    await apiFetch('/semantic/candidates', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    });
+    document.getElementById('manual-candidate-form-area').innerHTML = '';
+    document.getElementById('scan-result').innerHTML = '<div class="card" style="color:#2e7d32">✓ 候选模型已添加，前往"候选模型审核"页面查看和审核。</div>';
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+let _allCandidates = [];
+let _currentCandidateTab = 'pending';
+
+function switchCandidateTab(tab) {
+  _currentCandidateTab = tab;
+  document.querySelectorAll('#candidate-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  renderCandidateList();
+}
+
+async function loadCandidates() {
+  const el = document.getElementById('candidates-content');
+  el.innerHTML = '<div class="loading">加载中...</div>';
+  try {
+    const raw = await apiFetch('/semantic/candidates');
+    _allCandidates = Array.isArray(raw) ? raw : Object.values(raw);
+    updateCandidateCounts();
+    renderCandidateList();
+  } catch (e) {
+    el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function updateCandidateCounts() {
+  const counts = { pending: 0, approved: 0, rejected: 0 };
+  _allCandidates.forEach(c => { if (counts[c.status] !== undefined) counts[c.status]++; });
+  document.getElementById('tab-count-pending').textContent = counts.pending || '';
+  document.getElementById('tab-count-approved').textContent = counts.approved || '';
+  document.getElementById('tab-count-rejected').textContent = counts.rejected || '';
+}
+
+function renderCandidateList() {
+  const el = document.getElementById('candidates-content');
+  const filtered = _allCandidates.filter(c => c.status === _currentCandidateTab);
+  if (!filtered.length) {
+    const msgs = { pending: '暂无待审核模型', approved: '暂无已通过模型', rejected: '暂无已驳回模型' };
+    el.innerHTML = `<div style="color:#888;padding:20px;text-align:center">${msgs[_currentCandidateTab]}</div>`;
+    return;
+  }
+  let html = '';
+  filtered.forEach(c => {
+    const confClass = c.confidence >= 0.8 ? 'confidence-high' : c.confidence >= 0.5 ? 'confidence-mid' : 'confidence-low';
+    const statusClass = 'status-' + c.status;
+    const statusLabel = { pending: '待审核', approved: '已通过', rejected: '已驳回' }[c.status] || c.status;
+    html += `<div class="candidate-item">
+      <div class="header">
+        <div>
+          <span class="entity-name">${escapeHtml(c.entity)}</span>
+          <span class="confidence ${confClass}">${(c.confidence * 100).toFixed(0)}%</span>
+          <span class="status-badge ${statusClass}">${statusLabel}</span>
+        </div>
+        <span style="font-size:12px;color:#888">${escapeHtml(c.id)}</span>
+      </div>
+      <div style="font-size:13px;color:#666;margin-bottom:8px">${escapeHtml(c.description)}</div>
+      <div style="font-size:13px">
+        ${(c.properties||[]).map(p => `<span style="display:inline-block;background:#f0f0f0;padding:2px 6px;border-radius:4px;margin:2px;font-size:12px">${escapeHtml(p.logical_name)} → ${escapeHtml(p.physical_column)}</span>`).join('')}
+      </div>
+      ${c.review_note ? `<div style="font-size:12px;color:#888;margin-top:6px">📝 ${escapeHtml(c.review_note)}</div>` : ''}
+      ${c.status === 'pending' ? `<div class="candidate-actions">
+        <button class="btn btn-success" onclick="reviewCandidate('${escapeAttr(c.id)}','approved')">✓ 批准</button>
+        <button class="btn btn-danger" onclick="reviewCandidate('${escapeAttr(c.id)}','rejected')">✗ 驳回</button>
+      </div>` : ''}
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+async function reviewCandidate(id, status) {
+  try {
+    await apiFetch(`/semantic/candidates/${id}/review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, note: status === 'approved' ? '通过审核' : '不符合要求' }),
+    });
+    loadCandidates();
+  } catch (e) {
+    alert('审核失败：' + e.message);
+  }
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

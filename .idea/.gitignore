@@ -1,0 +1,10 @@
+# IDE / Workspace
+/shelf/
+/workspace.xml
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store

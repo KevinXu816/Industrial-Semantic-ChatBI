@@ -1,0 +1,298 @@
+{
+  "internal.industrial_ai.energy_5min": {
+    "id": "internal.industrial_ai.energy_5min",
+    "entity": "EnergyObservation",
+    "description": "Auto-discovered candidate for internal.industrial_ai.energy_5min",
+    "confidence": 0.96,
+    "physical_mapping": {
+      "catalog": "internal",
+      "schema": "industrial_ai",
+      "table": "energy_5min"
+    },
+    "properties": [
+      {
+        "logical_name": "machine_id",
+        "physical_column": "machine_id",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "ts",
+        "physical_column": "ts",
+        "data_type": "datetime"
+      },
+      {
+        "logical_name": "active_power_kw",
+        "physical_column": "active_power_kw",
+        "data_type": "number"
+      },
+      {
+        "logical_name": "energy_kwh",
+        "physical_column": "energy_kwh",
+        "data_type": "number"
+      }
+    ],
+    "relationships": [
+      {
+        "from_entity": "Machine",
+        "relation": "HAS_ENERGY",
+        "to_entity": "EnergyObservation",
+        "on": "machine_id",
+        "confidence": 0.92
+      }
+    ],
+    "metrics": [
+      {
+        "name": "energy_consumption",
+        "expression": "SUM(energy_kwh)",
+        "unit": "kWh",
+        "confidence": 0.95
+      }
+    ],
+    "status": "approved",
+    "evidence": [
+      "table_name=energy_5min",
+      "mapped_columns=4/4"
+    ],
+    "review_note": "通过审核"
+  },
+  "mysql_mes.production.device_master": {
+    "id": "mysql_mes.production.device_master",
+    "entity": "Machine",
+    "description": "Auto-discovered candidate for mysql_mes.production.device_master",
+    "confidence": 0.97,
+    "physical_mapping": {
+      "catalog": "mysql_mes",
+      "schema": "production",
+      "table": "device_master"
+    },
+    "properties": [
+      {
+        "logical_name": "machine_id",
+        "physical_column": "device_id",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "machine_code",
+        "physical_column": "device_code",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "machine_name",
+        "physical_column": "device_name",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "machine_type",
+        "physical_column": "device_type",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "factory_id",
+        "physical_column": "factory_id",
+        "data_type": "string"
+      }
+    ],
+    "relationships": [],
+    "metrics": [],
+    "status": "approved",
+    "evidence": [
+      "table_name=device_master",
+      "mapped_columns=5/5"
+    ],
+    "review_note": "确认设备主数据"
+  },
+  "mysql_mes.production.production_hourly": {
+    "id": "mysql_mes.production.production_hourly",
+    "entity": "ProductionObservation",
+    "description": "Auto-discovered candidate for mysql_mes.production.production_hourly",
+    "confidence": 0.95,
+    "physical_mapping": {
+      "catalog": "mysql_mes",
+      "schema": "production",
+      "table": "production_hourly"
+    },
+    "properties": [
+      {
+        "logical_name": "machine_id",
+        "physical_column": "device_id",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "ts",
+        "physical_column": "stat_time",
+        "data_type": "datetime"
+      },
+      {
+        "logical_name": "output_qty",
+        "physical_column": "good_qty",
+        "data_type": "number"
+      },
+      {
+        "logical_name": "total_qty",
+        "physical_column": "total_qty",
+        "data_type": "number"
+      }
+    ],
+    "relationships": [
+      {
+        "from_entity": "Machine",
+        "relation": "HAS_PRODUCTION",
+        "to_entity": "ProductionObservation",
+        "on": "machine_id",
+        "confidence": 0.92
+      }
+    ],
+    "metrics": [
+      {
+        "name": "production_output",
+        "expression": "SUM(output_qty)",
+        "unit": "piece",
+        "confidence": 0.95
+      }
+    ],
+    "status": "approved",
+    "evidence": [
+      "table_name=production_hourly",
+      "mapped_columns=3/4"
+    ],
+    "review_note": "通过审核"
+  },
+  "pg_cmms.public.alarm_event": {
+    "id": "pg_cmms.public.alarm_event",
+    "entity": "AlarmEvent",
+    "description": "Auto-discovered candidate for pg_cmms.public.alarm_event",
+    "confidence": 0.97,
+    "physical_mapping": {
+      "catalog": "pg_cmms",
+      "schema": "public",
+      "table": "alarm_event"
+    },
+    "properties": [
+      {
+        "logical_name": "id",
+        "physical_column": "id",
+        "data_type": "number"
+      },
+      {
+        "logical_name": "machine_id",
+        "physical_column": "device_id",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "alarm_code",
+        "physical_column": "alarm_code",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "alarm_name",
+        "physical_column": "alarm_name",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "event_time",
+        "physical_column": "event_time",
+        "data_type": "datetime"
+      },
+      {
+        "logical_name": "severity",
+        "physical_column": "severity",
+        "data_type": "string"
+      }
+    ],
+    "relationships": [
+      {
+        "from_entity": "Machine",
+        "relation": "HAS_ALARM",
+        "to_entity": "AlarmEvent",
+        "on": "machine_id",
+        "confidence": 0.92
+      }
+    ],
+    "metrics": [],
+    "status": "approved",
+    "evidence": [
+      "table_name=alarm_event",
+      "mapped_columns=5/6"
+    ],
+    "review_note": "通过审核"
+  },
+  "pg_cmms.public.work_order": {
+    "id": "pg_cmms.public.work_order",
+    "entity": "WorkOrder",
+    "description": "Auto-discovered candidate for pg_cmms.public.work_order",
+    "confidence": 0.96,
+    "physical_mapping": {
+      "catalog": "pg_cmms",
+      "schema": "public",
+      "table": "work_order"
+    },
+    "properties": [
+      {
+        "logical_name": "id",
+        "physical_column": "id",
+        "data_type": "number"
+      },
+      {
+        "logical_name": "machine_id",
+        "physical_column": "device_id",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "created_at",
+        "physical_column": "created_at",
+        "data_type": "datetime"
+      },
+      {
+        "logical_name": "fault_description",
+        "physical_column": "fault_desc",
+        "data_type": "string"
+      },
+      {
+        "logical_name": "action",
+        "physical_column": "maintenance_action",
+        "data_type": "string"
+      }
+    ],
+    "relationships": [
+      {
+        "from_entity": "Machine",
+        "relation": "HAS_WORK_ORDER",
+        "to_entity": "WorkOrder",
+        "on": "machine_id",
+        "confidence": 0.92
+      }
+    ],
+    "metrics": [],
+    "status": "approved",
+    "evidence": [
+      "table_name=work_order",
+      "mapped_columns=4/5"
+    ],
+    "review_note": "通过审核"
+  },
+  "mysql_mes.quality.inspection_record": {
+    "id": "mysql_mes.quality.inspection_record",
+    "entity": "QualityInspection",
+    "description": "质量检测记录",
+    "confidence": 0.95,
+    "physical_mapping": {
+      "catalog": "mysql_mes",
+      "schema": "quality",
+      "table": "inspection_record"
+    },
+    "properties": [
+      {
+        "logical_name": "machine_id",
+        "physical_column": "device_id",
+        "data_type": "string"
+      }
+    ],
+    "relationships": [],
+    "metrics": [],
+    "status": "approved",
+    "evidence": [
+      "source=manual"
+    ],
+    "review_note": "通过审核"
+  }
+}

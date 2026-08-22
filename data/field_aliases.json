@@ -1,0 +1,9 @@
+{
+  "aliases": {
+    "设备编号": "machine_code",
+    "资产编号": "machine_code",
+    "设备名称": "machine_name",
+    "车间": "workshop"
+  },
+  "enums": {}
+}

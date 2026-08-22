@@ -1,0 +1,8 @@
+{
+  "api_url": "",
+  "api_key": "",
+  "model": "",
+  "temperature": 0.3,
+  "timeout": 30,
+  "enabled": false
+}

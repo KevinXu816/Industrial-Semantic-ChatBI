@@ -1,0 +1,14 @@
+{
+  "prod_mysql": {
+    "id": "prod_mysql",
+    "name": "生产系统MySQL",
+    "type": "mysql",
+    "host": "192.168.1.100",
+    "port": 3306,
+    "user": "root",
+    "password": "test123",
+    "database": "production",
+    "enabled": true,
+    "extra": {}
+  }
+}
