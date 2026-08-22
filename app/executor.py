@@ -1,4 +1,5 @@
 import os
+from .secrets import resolve_bootstrap_secret
 from typing import Any, Dict, List
 
 class MockExecutor:
@@ -44,10 +45,19 @@ class DorisExecutor:
             "host": os.getenv("DORIS_HOST", "127.0.0.1"),
             "port": int(os.getenv("DORIS_PORT", "9030")),
             "user": os.getenv("DORIS_USER", "root"),
-            "password": os.getenv("DORIS_PASSWORD", ""),
+            "password": resolve_bootstrap_secret("DORIS_PASSWORD_REF", "DORIS_PASSWORD"),
             "database": os.getenv("DORIS_DATABASE", "industrial_ai"),
             "cursorclass": pymysql.cursors.DictCursor,
         }
+
+    def explain(self, sql: str):
+        conn = self.pymysql.connect(**self.cfg)
+        try:
+            with conn.cursor() as cur:
+                cur.execute("EXPLAIN " + sql)
+                return cur.fetchall()
+        finally:
+            conn.close()
 
     def execute_plan(self, sql_list: List[str]) -> Dict[str, Any]:
         out = {"results": [], "execution_mode": "doris"}

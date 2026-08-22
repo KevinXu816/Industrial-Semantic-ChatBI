@@ -6,6 +6,9 @@ class ChatRequest(BaseModel):
     question: str
     session_id: Optional[str] = None
     preview_only: bool = False
+    user: str = "anonymous"
+    roles: List[str] = Field(default_factory=lambda: ["analyst"])
+    attributes: Dict[str, Any] = Field(default_factory=dict)
 
 
 class ChatMessage(BaseModel):
@@ -50,6 +53,8 @@ class SemanticTimeRange(BaseModel):
 
 class ComparisonSpec(BaseModel):
     type: Literal["none", "previous_period", "baseline"] = "none"
+    baseline_start: Optional[str] = None
+    baseline_end: Optional[str] = None
 
 
 class SemanticIntent(BaseModel):
@@ -99,6 +104,9 @@ class QueryPlan(BaseModel):
     join_paths: Dict[str, List[Dict[str, Any]]] = Field(default_factory=dict)
     subject_entity: Optional[str] = None
     logical_plan: Dict[str, Any] = Field(default_factory=dict)
+    physical_plan: Dict[str, Any] = Field(default_factory=dict)
+    governance: Dict[str, Any] = Field(default_factory=dict)
+    lineage: Dict[str, Any] = Field(default_factory=dict)
 
 
 class ChatResponse(BaseModel):

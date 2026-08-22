@@ -1,0 +1,15 @@
+{
+  "71ff67fb949cbd1f06c6": {
+    "baseline_id": "71ff67fb949cbd1f06c6",
+    "asset": "V16-A",
+    "indicator": "V16_TEMP_MEAN_TEST",
+    "count": 4,
+    "mean": 60.0,
+    "std": 0.707107,
+    "min": 59.0,
+    "max": 61.0,
+    "updated_at": "2026-08-22T14:30:15.298309+00:00",
+    "updated_by": "reliability_engineer",
+    "metadata": {}
+  }
+}

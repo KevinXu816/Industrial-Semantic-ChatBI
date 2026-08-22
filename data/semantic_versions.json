@@ -1,0 +1,13 @@
+[
+  {
+    "version": 1,
+    "digest": "f7e787758683157f2e199313d91d9cc61b027752bda1fa0bf874c0a87e76baeb",
+    "action": "startup",
+    "actor": "system",
+    "detail": "",
+    "created_at": 1787406077.1600175,
+    "entity_count": 8,
+    "metric_count": 6,
+    "snapshot_file": "data/semantic_snapshots/f7e787758683157f2e199313d91d9cc61b027752bda1fa0bf874c0a87e76baeb.json"
+  }
+]

@@ -1,0 +1,31 @@
+roles:
+  viewer:
+    allowed_entities: ['*']
+    allowed_metrics: ['*']
+    denied_properties: []
+    max_time_window_days: 31
+    max_estimated_cost: 80
+    require_subject_reference: false
+  analyst:
+    allowed_entities: ['*']
+    allowed_metrics: ['*']
+    denied_properties: []
+    max_time_window_days: 365
+    max_estimated_cost: 250
+    require_subject_reference: false
+  semantic_admin:
+    allowed_entities: ['*']
+    allowed_metrics: ['*']
+    denied_properties: []
+    max_time_window_days: 3650
+    max_estimated_cost: 1000
+    require_subject_reference: false
+
+# Example tenant/factory scoped policy. It activates only when the caller provides
+# trusted attributes and the referenced governed property exists in the ontology.
+row_policies:
+  factory_analyst:
+    - entity: Machine
+      property: factory_id
+      operator: '='
+      value: '${factory_id}'

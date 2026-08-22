@@ -1,0 +1,98 @@
+{
+  "FMEA-AIR-001:1.0:0:607df173a94cc04c": {
+    "chunk_id": "FMEA-AIR-001:1.0:0:607df173a94cc04c",
+    "document_id": "FMEA-AIR-001",
+    "version": "1.0",
+    "chunk_index": 0,
+    "text": "过滤器堵塞会造成吸气阻力增加、压差升高、排气温度升高，并可能导致单位产量能耗恶化。",
+    "title": "空压机过滤器压差升高",
+    "type": "FMEA",
+    "failure_mode": "filter_restriction",
+    "tags": [
+      "filter_restriction",
+      "filter",
+      "pressure",
+      "energy"
+    ],
+    "status": "approved",
+    "knowledge_digest": "6476ee82a38ca1e2",
+    "citation": "FMEA-AIR-001@1.0#6476ee82a38ca1e2",
+    "provenance": "knowledge:FMEA-AIR-001:1.0:6476ee82a38ca1e2",
+    "parent_citation": "FMEA-AIR-001@1.0#6476ee82a38ca1e2",
+    "parent_provenance": "knowledge:FMEA-AIR-001:1.0:6476ee82a38ca1e2",
+    "effective_from": null,
+    "effective_to": null,
+    "source_case_id": null
+  },
+  "SOP-AIR-017:1.0:0:ec7d007944786043": {
+    "chunk_id": "SOP-AIR-017:1.0:0:ec7d007944786043",
+    "document_id": "SOP-AIR-017",
+    "version": "1.0",
+    "chunk_index": 0,
+    "text": "高排气温度应检查冷却器、环境通风、过滤器、润滑状态以及负载率。",
+    "title": "空压机高排气温度检查 SOP",
+    "type": "SOP",
+    "failure_mode": "thermal_overload",
+    "tags": [
+      "thermal_overload",
+      "temperature",
+      "filter"
+    ],
+    "status": "approved",
+    "knowledge_digest": "6567be24cb3674c9",
+    "citation": "SOP-AIR-017@1.0#6567be24cb3674c9",
+    "provenance": "knowledge:SOP-AIR-017:1.0:6567be24cb3674c9",
+    "parent_citation": "SOP-AIR-017@1.0#6567be24cb3674c9",
+    "parent_provenance": "knowledge:SOP-AIR-017:1.0:6567be24cb3674c9",
+    "effective_from": null,
+    "effective_to": null,
+    "source_case_id": null
+  },
+  "MANUAL-AIR-004:1.0:0:59a1b1bbf55a3442": {
+    "chunk_id": "MANUAL-AIR-004:1.0:0:59a1b1bbf55a3442",
+    "document_id": "MANUAL-AIR-004",
+    "version": "1.0",
+    "chunk_index": 0,
+    "text": "当产量稳定但电耗上升时，应优先检查进气压降、泄漏、设定压力、卸载时间与维护状态。",
+    "title": "空压机能效异常排查",
+    "type": "Manual",
+    "failure_mode": "filter_restriction",
+    "tags": [
+      "filter_restriction",
+      "energy",
+      "maintenance"
+    ],
+    "status": "approved",
+    "knowledge_digest": "eb7fff8eba310b2e",
+    "citation": "MANUAL-AIR-004@1.0#eb7fff8eba310b2e",
+    "provenance": "knowledge:MANUAL-AIR-004:1.0:eb7fff8eba310b2e",
+    "parent_citation": "MANUAL-AIR-004@1.0#eb7fff8eba310b2e",
+    "parent_provenance": "knowledge:MANUAL-AIR-004:1.0:eb7fff8eba310b2e",
+    "effective_from": null,
+    "effective_to": null,
+    "source_case_id": null
+  },
+  "SOP-V11-TEST:1.0:0:ebf0f063ec07ad8e": {
+    "chunk_id": "SOP-V11-TEST:1.0:0:ebf0f063ec07ad8e",
+    "document_id": "SOP-V11-TEST",
+    "version": "1.0",
+    "chunk_index": 0,
+    "text": "检查过滤器压差，必要时更换滤芯。",
+    "title": "过滤器检查流程",
+    "type": "SOP",
+    "failure_mode": null,
+    "tags": [
+      "filter",
+      "pressure"
+    ],
+    "status": "approved",
+    "knowledge_digest": "b1337bc668dcea0e",
+    "citation": "SOP-V11-TEST@1.0#b1337bc668dcea0e",
+    "provenance": "knowledge:SOP-V11-TEST:1.0:b1337bc668dcea0e",
+    "parent_citation": "SOP-V11-TEST@1.0#b1337bc668dcea0e",
+    "parent_provenance": "knowledge:SOP-V11-TEST:1.0:b1337bc668dcea0e",
+    "effective_from": null,
+    "effective_to": null,
+    "source_case_id": null
+  }
+}

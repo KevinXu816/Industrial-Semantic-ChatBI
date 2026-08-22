@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: industrial_semantic
+      POSTGRES_USER: industrial_semantic
+      POSTGRES_PASSWORD: industrial_semantic
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/postgres/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U industrial_semantic -d industrial_semantic"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  qdrant:
+    image: qdrant/qdrant:latest
+    profiles: ["qdrant"]
+    ports: ["6333:6333"]
+    volumes:
+      - qdrantdata:/qdrant/storage
+
+  app:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      PERSISTENCE_BACKEND: postgres
+      DATABASE_URL: postgresql://industrial_semantic:industrial_semantic@postgres:5432/industrial_semantic
+      DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-default}
+      AUTH_MODE: ${AUTH_MODE:-disabled}
+      AUTH_AUTO_PROVISION: ${AUTH_AUTO_PROVISION:-false}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      AUTH_JWT_SECRET_REF: ${AUTH_JWT_SECRET_REF:-}
+      SECRETS_DEFAULT_PROVIDER: ${SECRETS_DEFAULT_PROVIDER:-env}
+      SECRETS_FILE_ROOT: /run/secrets
+      EXECUTION_MODE: mock
+      KNOWLEDGE_BACKEND: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  pgdata:
+  qdrantdata:

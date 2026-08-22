@@ -1,0 +1,51 @@
+[
+  {
+    "id": "FMEA-AIR-001",
+    "type": "FMEA",
+    "title": "空压机过滤器压差升高",
+    "failure_mode": "filter_restriction",
+    "content": "过滤器堵塞会造成吸气阻力增加、压差升高、排气温度升高，并可能导致单位产量能耗恶化。",
+    "action": "检查过滤器压差并按维护标准更换滤芯。",
+    "tags": [
+      "filter_restriction",
+      "filter",
+      "pressure",
+      "energy"
+    ],
+    "version": "1.0",
+    "effective_date": "2026-01-01",
+    "status": "approved"
+  },
+  {
+    "id": "SOP-AIR-017",
+    "type": "SOP",
+    "title": "空压机高排气温度检查 SOP",
+    "failure_mode": "thermal_overload",
+    "content": "高排气温度应检查冷却器、环境通风、过滤器、润滑状态以及负载率。",
+    "action": "依次检查冷却、通风、过滤器和润滑系统。",
+    "tags": [
+      "thermal_overload",
+      "temperature",
+      "filter"
+    ],
+    "version": "1.0",
+    "effective_date": "2026-01-01",
+    "status": "approved"
+  },
+  {
+    "id": "MANUAL-AIR-004",
+    "type": "Manual",
+    "title": "空压机能效异常排查",
+    "failure_mode": "filter_restriction",
+    "content": "当产量稳定但电耗上升时，应优先检查进气压降、泄漏、设定压力、卸载时间与维护状态。",
+    "action": "对进气压降、系统泄漏和压力设定进行联合检查。",
+    "tags": [
+      "filter_restriction",
+      "energy",
+      "maintenance"
+    ],
+    "version": "1.0",
+    "effective_date": "2026-01-01",
+    "status": "approved"
+  }
+]

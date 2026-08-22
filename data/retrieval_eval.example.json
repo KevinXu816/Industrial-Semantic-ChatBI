@@ -1,0 +1,13 @@
+{
+  "top_k": 5,
+  "cases": [
+    {
+      "query": "空压机过滤器压差高导致单位能耗增加",
+      "expected_ids": ["FMEA-AIR-001"]
+    },
+    {
+      "query": "排气温度过高如何检查",
+      "expected_ids": ["SOP-AIR-017"]
+    }
+  ]
+}

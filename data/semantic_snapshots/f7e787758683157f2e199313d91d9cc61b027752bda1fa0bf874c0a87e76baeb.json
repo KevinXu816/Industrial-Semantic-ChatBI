@@ -1,0 +1,374 @@
+{
+  "ontology": {
+    "entities": {
+      "Factory": {
+        "description": "Industrial factory/site",
+        "identifiers": [
+          "factory_id",
+          "factory_code",
+          "factory_name"
+        ],
+        "properties": {
+          "factory_id": {
+            "type": "string"
+          },
+          "factory_code": {
+            "type": "string"
+          },
+          "factory_name": {
+            "type": "string"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "mysql_mes",
+          "schema": "production",
+          "table": "factory_master",
+          "columns": {
+            "factory_id": "factory_id",
+            "factory_code": "factory_code",
+            "factory_name": "factory_name"
+          }
+        }
+      },
+      "ProductionLine": {
+        "description": "Manufacturing production line",
+        "identifiers": [
+          "line_id",
+          "line_code",
+          "line_name"
+        ],
+        "properties": {
+          "line_id": {
+            "type": "string"
+          },
+          "line_code": {
+            "type": "string"
+          },
+          "line_name": {
+            "type": "string"
+          },
+          "factory_id": {
+            "type": "string"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "mysql_mes",
+          "schema": "production",
+          "table": "production_line",
+          "columns": {
+            "line_id": "line_id",
+            "line_code": "line_code",
+            "line_name": "line_name",
+            "factory_id": "factory_id"
+          }
+        }
+      },
+      "Machine": {
+        "description": "Industrial production or utility equipment",
+        "identifiers": [
+          "machine_id",
+          "machine_code",
+          "machine_name"
+        ],
+        "properties": {
+          "machine_id": {
+            "type": "string"
+          },
+          "machine_code": {
+            "type": "string"
+          },
+          "machine_name": {
+            "type": "string"
+          },
+          "machine_type": {
+            "type": "string"
+          },
+          "factory_id": {
+            "type": "string"
+          },
+          "line_id": {
+            "type": "string"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "mysql_mes",
+          "schema": "production",
+          "table": "device_master",
+          "columns": {
+            "machine_id": "device_id",
+            "machine_code": "device_code",
+            "machine_name": "device_name",
+            "machine_type": "device_type",
+            "factory_id": "factory_id",
+            "line_id": "line_id"
+          }
+        }
+      },
+      "EnergyObservation": {
+        "description": "Aggregated energy observations for equipment",
+        "identifiers": [
+          "machine_id",
+          "ts"
+        ],
+        "properties": {
+          "machine_id": {
+            "type": "string"
+          },
+          "ts": {
+            "type": "datetime"
+          },
+          "active_power_kw": {
+            "type": "number",
+            "unit": "kW"
+          },
+          "energy_kwh": {
+            "type": "number",
+            "unit": "kWh"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "internal",
+          "schema": "industrial_ai",
+          "table": "energy_5min",
+          "columns": {
+            "machine_id": "machine_id",
+            "ts": "ts",
+            "active_power_kw": "active_power_kw",
+            "energy_kwh": "energy_kwh"
+          }
+        }
+      },
+      "ProductionObservation": {
+        "description": "Hourly production output",
+        "identifiers": [
+          "machine_id",
+          "ts"
+        ],
+        "properties": {
+          "machine_id": {
+            "type": "string"
+          },
+          "ts": {
+            "type": "datetime"
+          },
+          "output_qty": {
+            "type": "number",
+            "unit": "piece"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "mysql_mes",
+          "schema": "production",
+          "table": "production_hourly",
+          "columns": {
+            "machine_id": "device_id",
+            "ts": "stat_time",
+            "output_qty": "good_qty"
+          }
+        }
+      },
+      "AlarmEvent": {
+        "description": "Equipment alarm event",
+        "identifiers": [
+          "alarm_id"
+        ],
+        "properties": {
+          "alarm_id": {
+            "type": "string"
+          },
+          "machine_id": {
+            "type": "string"
+          },
+          "alarm_code": {
+            "type": "string"
+          },
+          "alarm_name": {
+            "type": "string"
+          },
+          "event_time": {
+            "type": "datetime"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "pg_cmms",
+          "schema": "public",
+          "table": "alarm_event",
+          "columns": {
+            "alarm_id": "id",
+            "machine_id": "device_id",
+            "alarm_code": "alarm_code",
+            "alarm_name": "alarm_name",
+            "event_time": "event_time",
+            "severity": "severity"
+          }
+        }
+      },
+      "WorkOrder": {
+        "description": "Maintenance work order",
+        "identifiers": [
+          "work_order_id"
+        ],
+        "properties": {
+          "work_order_id": {
+            "type": "string"
+          },
+          "machine_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "datetime"
+          },
+          "fault_description": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "pg_cmms",
+          "schema": "public",
+          "table": "work_order",
+          "columns": {
+            "work_order_id": "id",
+            "machine_id": "device_id",
+            "created_at": "created_at",
+            "fault_description": "fault_desc",
+            "action": "maintenance_action"
+          }
+        }
+      },
+      "QualityInspection": {
+        "description": "质量检测记录",
+        "source_candidate": "mysql_mes.quality.inspection_record",
+        "identifiers": [
+          "machine_id"
+        ],
+        "properties": {
+          "machine_id": {
+            "type": "string"
+          }
+        },
+        "physical_mapping": {
+          "catalog": "mysql_mes",
+          "schema": "quality",
+          "table": "inspection_record",
+          "columns": {
+            "machine_id": "device_id"
+          }
+        }
+      }
+    },
+    "relationships": [
+      {
+        "from": "Factory",
+        "relation": "HAS_LINE",
+        "to": "ProductionLine",
+        "on": "factory_id"
+      },
+      {
+        "from": "ProductionLine",
+        "relation": "HAS_MACHINE",
+        "to": "Machine",
+        "on": "line_id"
+      },
+      {
+        "from": "Machine",
+        "relation": "HAS_ENERGY",
+        "to": "EnergyObservation",
+        "on": "machine_id"
+      },
+      {
+        "from": "Machine",
+        "relation": "HAS_PRODUCTION",
+        "to": "ProductionObservation",
+        "on": "machine_id"
+      },
+      {
+        "from": "Machine",
+        "relation": "HAS_ALARM",
+        "to": "AlarmEvent",
+        "on": "machine_id"
+      },
+      {
+        "from": "Machine",
+        "relation": "HAS_WORK_ORDER",
+        "to": "WorkOrder",
+        "on": "machine_id"
+      }
+    ]
+  },
+  "metrics": {
+    "metrics": {
+      "energy_consumption": {
+        "description": "设备总能耗",
+        "entity": "EnergyObservation",
+        "expression": "SUM(energy_kwh)",
+        "unit": "kWh",
+        "time_field": "ts",
+        "synonyms": [
+          "能耗",
+          "耗电",
+          "电量"
+        ]
+      },
+      "production_output": {
+        "description": "总产量",
+        "entity": "ProductionObservation",
+        "expression": "SUM(output_qty)",
+        "unit": "件",
+        "time_field": "ts",
+        "synonyms": [
+          "产量",
+          "产出"
+        ]
+      },
+      "specific_energy_consumption": {
+        "description": "Energy consumed per unit production output",
+        "expression": "energy_consumption / NULLIF(production_output, 0)",
+        "unit": "kWh/piece",
+        "dependencies": [
+          "energy_consumption",
+          "production_output"
+        ],
+        "synonyms": [
+          "单位产量能耗",
+          "单耗",
+          "单位能耗"
+        ]
+      },
+      "alarm_count": {
+        "description": "告警次数",
+        "entity": "AlarmEvent",
+        "expression": "COUNT(*)",
+        "unit": "次",
+        "time_field": "event_time",
+        "synonyms": [
+          "报警次数",
+          "告警数"
+        ]
+      },
+      "specific_energy": {
+        "description": "单位产量能耗",
+        "expression": "SUM(energy_kwh)/NULLIF(SUM(output_qty),0)",
+        "unit": "kWh/件",
+        "synonyms": [
+          "单耗",
+          "单位能耗"
+        ]
+      },
+      "oee": {
+        "description": "设备综合效率",
+        "expression": "availability * performance * quality",
+        "unit": "%",
+        "synonyms": [
+          "OEE",
+          "设备效率"
+        ]
+      }
+    }
+  }
+}

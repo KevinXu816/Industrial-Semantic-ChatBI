@@ -32,21 +32,28 @@ class AnswerComposer:
 
     def _compose_template(self, intent: SemanticIntent, data: Dict[str, Any]) -> str:
         if data.get("execution_mode") == "mock":
-            metric = data["metric"]
-            alarms = data.get("alarms", [])
-            wo = data.get("work_orders", [])
-            reasons = []
-            if alarms:
-                reasons.append(f"近期开启最多的异常为“{alarms[0]['alarm_name']}”，共 {alarms[0]['count']} 次")
-            if len(alarms) > 1:
-                reasons.append(f"同时出现“{alarms[1]['alarm_name']}” {alarms[1]['count']} 次")
-            if wo:
-                reasons.append("历史工单记录显示过滤器压差已上升，但当时仅检查、未更换")
-            reason_text = "；".join(reasons)
-            return (
-                f"{(intent.subject.reference if intent.subject else intent.machine_ref)} 最近一周单位产量能耗约为 {metric['current_specific_energy']} {metric['unit']}，"
-                f"相对基线 {metric['baseline_specific_energy']} {metric['unit']} 上升 {metric['change_pct']}%。"
-                f"结合告警和维修事件，最值得优先验证的原因是过滤器阻力增加导致压缩机负载上升。{reason_text}。"
-                "建议现场先检查过滤器压差、吸气阻力和排气温度，再与正常工况下的加载率/卸载率对比。"
+            metric = data.get("metric", {})
+            subject_ref = intent.subject.reference if intent.subject else intent.machine_ref
+            base = (
+                f"{subject_ref or '目标对象'} 最近分析窗口的单位产量能耗约为 "
+                f"{metric.get('current_specific_energy', 'N/A')} {metric.get('unit', '')}，"
+                f"相对基线 {metric.get('baseline_specific_energy', 'N/A')} {metric.get('unit', '')} "
+                f"变化 {metric.get('change_pct', 'N/A')}%。"
             )
-        return "Doris 查询已经执行。生产版本应将结果标准化后交给 LLM/RCA 组件完成解释，并附带查询证据。"
+            rca = data.get("rca") or {}
+            hypotheses = rca.get("hypotheses") or []
+            if hypotheses:
+                top = hypotheses[0]
+                evidence = top.get("evidence") or []
+                evidence_text = []
+                for ev in evidence[:4]:
+                    evidence_text.append(str(ev.get("statement")) if isinstance(ev, dict) else str(ev))
+                checks = "、".join(str(x) for x in (top.get("recommended_checks") or [])[:3])
+                return (
+                    base + f" RCA 当前排名第一的假设是“{top.get('cause', '未知原因')}”，"
+                    f"置信度约 {round(float(top.get('confidence', 0)) * 100)}%。"
+                    + ("主要证据包括：" + "；".join(evidence_text) + "。" if evidence_text else "")
+                    + (f"建议优先：{checks}。" if checks else "")
+                )
+            return base + "当前证据不足以形成高置信度根因假设，建议继续采集告警、工单和相关时序信号。"
+        return "Doris 查询已经执行。生产版本应将结构化结果交给受治理的 RCA/LLM 解释层，并保留查询血缘与证据来源。"

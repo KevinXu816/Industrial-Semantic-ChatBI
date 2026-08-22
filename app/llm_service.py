@@ -11,7 +11,8 @@ STORE = ROOT / "data" / "llm_config.json"
 
 class LLMConfig(BaseModel):
     api_url: str = ""
-    api_key: str = ""
+    api_key: str = ""  # legacy/dev only; prefer api_key_ref
+    api_key_ref: str = ""
     model: str = ""
     temperature: float = 0.3
     timeout: int = 30
@@ -19,7 +20,8 @@ class LLMConfig(BaseModel):
 
 
 class LLMService:
-    def __init__(self):
+    def __init__(self, secret_manager=None):
+        self.secret_manager = secret_manager
         self._lock = threading.Lock()
         STORE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -57,8 +59,13 @@ class LLMService:
             payload["response_format"] = {"type": "json_object"}
 
         headers = {"Content-Type": "application/json"}
-        if cfg.api_key:
-            headers["Authorization"] = f"Bearer {cfg.api_key}"
+        api_key = cfg.api_key
+        if cfg.api_key_ref:
+            if not self.secret_manager:
+                raise RuntimeError("api_key_ref configured but SecretManager is unavailable")
+            api_key = self.secret_manager.resolve_ref(cfg.api_key_ref, principal="llm_service", purpose="llm_api_key")
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
 
         req = urllib.request.Request(
             url,

@@ -1,0 +1,170 @@
+[
+  {
+    "id": "4e0e5164-64df-42a3-bd7b-2a6d7f7faed2",
+    "created_at": "2026-08-22T13:49:21.556370+00:00",
+    "case_id": "RCA-20260822-72C125DC",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "c03ecf98-cc93-4f0d-97aa-2d52d548bf6a",
+    "created_at": "2026-08-22T13:49:42.054145+00:00",
+    "case_id": "RCA-20260822-46E6D2EB",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "69cc5d36-d9ca-44b6-9255-74f894b0061a",
+    "created_at": "2026-08-22T13:54:43.126696+00:00",
+    "case_id": "RCA-20260822-27D443F8",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "e5be17ea-3efc-4259-ab73-ff9986f3885c",
+    "created_at": "2026-08-22T13:54:53.556236+00:00",
+    "case_id": "RCA-20260822-74A3B8D2",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "3eae58a7-e890-4cf2-b92c-7abcf0940aec",
+    "created_at": "2026-08-22T13:55:57.523326+00:00",
+    "case_id": "RCA-20260822-430899D9",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "a9c2831c-1538-4ff7-89e3-07d153c49c41",
+    "created_at": "2026-08-22T13:56:14.661268+00:00",
+    "case_id": "RCA-20260822-E8C844AF",
+    "accepted": true,
+    "predicted_cause": "filter_restriction",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "b4f49416-2701-4440-b5f9-eeb59b64ad15",
+    "created_at": "2026-08-22T14:00:36.304538+00:00",
+    "case_id": "RCA-20260822-CD4F4A1B",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "6aa5de47-cccc-4ec1-b297-ecae2bde5be2",
+    "created_at": "2026-08-22T14:01:54.429776+00:00",
+    "case_id": "RCA-20260822-DC659472",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "bbef8049-e91f-4d3f-a6d3-71f8a55f85b9",
+    "created_at": "2026-08-22T14:05:32.715066+00:00",
+    "case_id": "RCA-20260822-65D3945C",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "c92f4364-6926-4853-85c5-6c7def66efdc",
+    "created_at": "2026-08-22T14:06:15.177065+00:00",
+    "case_id": "RCA-20260822-968E1FC4",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "9a5e8abf-16e2-4366-b25a-2b6c554ffd39",
+    "created_at": "2026-08-22T14:06:59.812893+00:00",
+    "case_id": "RCA-20260822-A0ABBAC9",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "0b36d0da-bb29-4587-9f82-17ecc4267612",
+    "created_at": "2026-08-22T14:10:44.547162+00:00",
+    "case_id": "RCA-20260822-7D81A629",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "f0681e92-cd38-4783-88f3-ce78e4582239",
+    "created_at": "2026-08-22T14:11:43.834327+00:00",
+    "case_id": "RCA-20260822-05437FEE",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "5784c5ee-a313-4c30-81b0-adbb0bc4a915",
+    "created_at": "2026-08-22T14:14:32.706406+00:00",
+    "case_id": "RCA-20260822-1F7735BE",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "b2318b39-87c5-48a4-90ce-76a9044df308",
+    "created_at": "2026-08-22T14:14:48.648368+00:00",
+    "case_id": "RCA-20260822-8DD628CE",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "f9677562-15d2-4ec5-bbd5-372f65aa6ee9",
+    "created_at": "2026-08-22T14:15:30.466741+00:00",
+    "case_id": "RCA-20260822-2ACD3FB4",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "1a45fe81-4984-476a-b22e-b45f29f7578d",
+    "created_at": "2026-08-22T14:25:35.925444+00:00",
+    "case_id": "RCA-20260822-6F4978F8",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "80c303c0-bb0d-494d-9b22-3ba2df751b48",
+    "created_at": "2026-08-22T14:29:52.305973+00:00",
+    "case_id": "RCA-20260822-A03E9625",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "40ca3c62-1522-4403-a295-efcf020ca63e",
+    "created_at": "2026-08-22T14:30:15.353615+00:00",
+    "case_id": "RCA-20260822-35240F95",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "e63fa2b1-6fe5-4686-ac1b-bb2e357e1c12",
+    "created_at": "2026-08-22T14:35:48.027673+00:00",
+    "case_id": "RCA-20260822-53735865",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  },
+  {
+    "id": "a47891c8-b782-4111-b897-28bbd25d82d9",
+    "created_at": "2026-08-22T14:36:50.820842+00:00",
+    "case_id": "RCA-20260822-D44CBCBA",
+    "accepted": true,
+    "predicted_cause": "demo",
+    "reviewed_by": "engineer"
+  }
+]

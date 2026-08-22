@@ -317,7 +317,7 @@ class SemanticRegistry:
         system = (
             "You are an industrial semantic parser. Return JSON only. Never generate SQL. "
             "Resolve the user's question into the supplied governed semantic model. "
-            "V0.5 schema: {raw_question:string,subject:{entity:string,reference:string|null,key:string|null},"
+            "V0.6 schema: {raw_question:string,subject:{entity:string,reference:string|null,key:string|null},"
             "metrics:string[],dimensions:string[],filters:{entity:string|null,property:string,operator:string,value:any}[],"
             "time_range:{type:'relative'|'absolute',value:int,unit:'hour'|'day'|'week'|'month',start:string|null,end:string|null},"
             "time_grain:string|null,comparison:{type:'none'|'previous_period'|'baseline'},"
@@ -344,8 +344,8 @@ class SemanticRegistry:
         # Subject entity detection is ontology-driven first, with Machine as compatibility default.
         subject_entity = "Machine"
         entity_keywords = {
-            "ProductionLine": ["产线", "生产线", "line"],
             "Factory": ["工厂", "厂区", "factory"],
+            "ProductionLine": ["产线", "生产线", "line"],
             "BESS": ["储能系统", "bess"],
             "PCS": ["pcs", "变流器"],
             "BatteryRack": ["rack", "电池簇", "电池架"],
@@ -369,16 +369,27 @@ class SemanticRegistry:
                 subject_ref = m.group(0)
                 break
 
-        metric = None
-        candidates = []
+        metric_matches = []
         for metric_name, cfg in self.metrics["metrics"].items():
+            matched_len = 0
             for synonym in cfg.get("synonyms", []):
                 if synonym.lower() in q:
-                    candidates.append((len(synonym), metric_name))
-        if candidates:
-            metric = sorted(candidates, reverse=True)[0][1]
-        if metric is None and ("能耗" in question or "耗电" in question):
-            metric = "energy_consumption"
+                    matched_len = max(matched_len, len(synonym))
+            if matched_len:
+                metric_matches.append((matched_len, metric_name))
+        metric_names = []
+        for _, metric_name in sorted(metric_matches, reverse=True):
+            if metric_name not in metric_names:
+                metric_names.append(metric_name)
+        if not metric_names and ("能耗" in question or "耗电" in question):
+            metric_names = ["energy_consumption"]
+        metric = metric_names[0] if metric_names else None
+
+        dimensions = []
+        if "ProductionLine" in available and any(k in question for k in ["各产线", "每条产线", "按产线", "生产线分组"]):
+            dimensions.append("ProductionLine.line_name")
+        if "Machine" in available and any(k in question for k in ["各设备", "每台设备", "按设备"]):
+            dimensions.append("Machine.machine_name")
 
         days = 7
         unit = "day"
@@ -394,15 +405,22 @@ class SemanticRegistry:
             value = 1; unit = "month"; days = 30
 
         diagnostic = any(k in question for k in ["为什么", "原因", "异常", "故障", "关联", "相关"])
-        comparison_type = "previous_period" if any(k in question for k in ["增加", "下降", "同比", "环比", "相比", "变化"]) else "none"
+        comparison_type = "previous_period" if any(k in question for k in ["增加", "下降", "同比", "环比", "相比", "变化", "上期", "上月", "上一周期"]) else "none"
+        time_grain = None
+        if any(k in question for k in ["每小时", "按小时"]): time_grain = "hour"
+        elif any(k in question for k in ["每天", "按天", "按日", "每日"]): time_grain = "day"
+        elif any(k in question for k in ["每周", "按周"]): time_grain = "week"
+        elif any(k in question for k in ["每月", "按月"]): time_grain = "month"
 
         related = [subject_entity]
-        if metric:
+        if metric_names:
             from .metric_graph import MetricDependencyGraph
-            try:
-                related.extend(MetricDependencyGraph(self.metrics).entities(metric))
-            except Exception:
-                pass
+            graph = MetricDependencyGraph(self.metrics)
+            for metric_name in metric_names:
+                try:
+                    related.extend(graph.entities(metric_name))
+                except Exception:
+                    pass
         if diagnostic:
             for entity in ("AlarmEvent", "WorkOrder"):
                 if entity in available:
@@ -411,9 +429,11 @@ class SemanticRegistry:
         return SemanticIntent(
             raw_question=question,
             subject=SemanticSubject(entity=subject_entity, reference=subject_ref),
-            metrics=[metric] if metric else [],
+            metrics=metric_names,
+            dimensions=dimensions,
             time_range=SemanticTimeRange(type="relative", value=value, unit=unit),
             time_window_days=days,
+            time_grain=time_grain,
             comparison=ComparisonSpec(type=comparison_type),
             analysis_mode="diagnostic" if diagnostic else "descriptive",
             related_entities=list(dict.fromkeys(related)),

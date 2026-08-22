@@ -19,8 +19,10 @@ class QueryCache:
         self.ttl = ttl_seconds
         CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-    def _key(self, question: str) -> str:
-        return hashlib.md5(question.strip().lower().encode()).hexdigest()
+    def _key(self, question: str, context: Optional[Dict[str, Any]] = None) -> str:
+        payload = {"question": question.strip().lower(), "context": context or {}}
+        canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
     def _load(self) -> dict:
         if not CACHE_FILE.exists():
@@ -33,8 +35,8 @@ class QueryCache:
     def _save(self, data: dict):
         CACHE_FILE.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
-    def get(self, question: str) -> Optional[dict]:
-        key = self._key(question)
+    def get(self, question: str, context: Optional[Dict[str, Any]] = None) -> Optional[dict]:
+        key = self._key(question, context)
         data = self._load()
         entry = data.get(key)
         if not entry:
@@ -43,10 +45,10 @@ class QueryCache:
             return None
         return entry.get("response")
 
-    def set(self, question: str, response: dict):
+    def set(self, question: str, response: dict, context: Optional[Dict[str, Any]] = None):
         with self._lock:
             data = self._load()
-            key = self._key(question)
+            key = self._key(question, context)
             data[key] = {"question": question, "response": response, "time": time.time()}
             # Evict old entries (keep max 100)
             if len(data) > 100:

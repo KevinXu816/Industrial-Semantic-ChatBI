@@ -1,0 +1,101 @@
+{
+  "dabcb59e839b61c4": {
+    "id": "dabcb59e839b61c4",
+    "type": "FailureMode",
+    "label": "过滤器阻力增加/堵塞",
+    "properties": {
+      "cause_code": "filter_restriction"
+    },
+    "updated_at": "2026-08-22T14:05:32.509348+00:00"
+  },
+  "db4444658609e37b": {
+    "id": "db4444658609e37b",
+    "type": "Component",
+    "label": "Air Filter",
+    "properties": {},
+    "updated_at": "2026-08-22T14:05:32.509688+00:00"
+  },
+  "8f7a802c1b4c35ac": {
+    "id": "8f7a802c1b4c35ac",
+    "type": "Alarm",
+    "label": "High Differential Pressure",
+    "properties": {},
+    "updated_at": "2026-08-22T14:05:32.509997+00:00"
+  },
+  "0584b9bb3a9398f7": {
+    "id": "0584b9bb3a9398f7",
+    "type": "SensorPattern",
+    "label": "filter differential pressure rising",
+    "properties": {},
+    "updated_at": "2026-08-22T14:05:32.510406+00:00"
+  },
+  "87c6419496e18d9d": {
+    "id": "87c6419496e18d9d",
+    "type": "MaintenanceAction",
+    "label": "replace air filter",
+    "properties": {},
+    "updated_at": "2026-08-22T14:05:32.510663+00:00"
+  },
+  "a872629e2d36e011": {
+    "id": "a872629e2d36e011",
+    "type": "Knowledge",
+    "label": "过滤器检查流程",
+    "properties": {
+      "document_id": "SOP-V11-TEST",
+      "version": "1.0",
+      "citation": "SOP-V11-TEST@1.0#b1337bc668dcea0e"
+    },
+    "updated_at": "2026-08-22T15:33:38.777913+00:00"
+  },
+  "ba570853de4495d8": {
+    "id": "ba570853de4495d8",
+    "type": "Knowledge",
+    "label": "空压机能效异常排查",
+    "properties": {
+      "document_id": "MANUAL-AIR-004",
+      "version": "1.0",
+      "citation": "MANUAL-AIR-004@1.0#eb7fff8eba310b2e"
+    },
+    "updated_at": "2026-08-22T15:33:38.778633+00:00"
+  },
+  "95789f37438d50c3": {
+    "id": "95789f37438d50c3",
+    "type": "FailureMode",
+    "label": "filter_restriction",
+    "properties": {
+      "cause_code": "filter_restriction"
+    },
+    "updated_at": "2026-08-22T15:33:38.780420+00:00"
+  },
+  "8c9bef012fd784d7": {
+    "id": "8c9bef012fd784d7",
+    "type": "Knowledge",
+    "label": "空压机高排气温度检查 SOP",
+    "properties": {
+      "document_id": "SOP-AIR-017",
+      "version": "1.0",
+      "citation": "SOP-AIR-017@1.0#6567be24cb3674c9"
+    },
+    "updated_at": "2026-08-22T15:33:38.779475+00:00"
+  },
+  "36e851389c5d5ef3": {
+    "id": "36e851389c5d5ef3",
+    "type": "FailureMode",
+    "label": "thermal_overload",
+    "properties": {
+      "cause_code": "thermal_overload"
+    },
+    "updated_at": "2026-08-22T15:33:38.779722+00:00"
+  },
+  "9811cddcde82fee4": {
+    "id": "9811cddcde82fee4",
+    "type": "Knowledge",
+    "label": "空压机过滤器压差升高",
+    "properties": {
+      "document_id": "FMEA-AIR-001",
+      "version": "1.0",
+      "citation": "FMEA-AIR-001@1.0#6476ee82a38ca1e2"
+    },
+    "updated_at": "2026-08-22T15:33:38.780194+00:00"
+  }
+}

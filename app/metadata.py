@@ -1,4 +1,5 @@
 import os
+from .secrets import resolve_bootstrap_secret
 from typing import List
 from .models import MetadataCatalog, MetadataDatabase, MetadataTable, MetadataColumn, MetadataSnapshot
 
@@ -79,7 +80,7 @@ class DorisMetadataScanner:
             "host": os.getenv("DORIS_HOST", "127.0.0.1"),
             "port": int(os.getenv("DORIS_PORT", "9030")),
             "user": os.getenv("DORIS_USER", "root"),
-            "password": os.getenv("DORIS_PASSWORD", ""),
+            "password": resolve_bootstrap_secret("DORIS_PASSWORD_REF", "DORIS_PASSWORD"),
             "cursorclass": pymysql.cursors.DictCursor,
             "connect_timeout": int(os.getenv("DORIS_CONNECT_TIMEOUT", "5")),
             "read_timeout": int(os.getenv("DORIS_READ_TIMEOUT", "15")),

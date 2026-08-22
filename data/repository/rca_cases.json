@@ -1,0 +1,298 @@
+{
+  "RCA-20260822-65D3945C": {
+    "case_id": "RCA-20260822-65D3945C",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:05:32.714525+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:05:32.706371+00:00",
+    "updated_at": "2026-08-22T14:05:32.714689+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:05:32.706371+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:05:32.714689+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260822-968E1FC4": {
+    "case_id": "RCA-20260822-968E1FC4",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:06:15.176450+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:06:15.167662+00:00",
+    "updated_at": "2026-08-22T14:06:15.176675+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:06:15.167662+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:06:15.176675+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260822-A0ABBAC9": {
+    "case_id": "RCA-20260822-A0ABBAC9",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:06:59.812218+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:06:59.803962+00:00",
+    "updated_at": "2026-08-22T14:06:59.812394+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:06:59.803962+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:06:59.812394+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260822-05437FEE": {
+    "case_id": "RCA-20260822-05437FEE",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:11:43.833569+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:11:43.823026+00:00",
+    "updated_at": "2026-08-22T14:11:43.833840+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:11:43.823026+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:11:43.833840+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260822-2ACD3FB4": {
+    "case_id": "RCA-20260822-2ACD3FB4",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:15:30.466067+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:15:30.456343+00:00",
+    "updated_at": "2026-08-22T14:15:30.466305+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:15:30.456343+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:15:30.466305+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260822-6F4978F8": {
+    "case_id": "RCA-20260822-6F4978F8",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:25:35.924689+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:25:35.917015+00:00",
+    "updated_at": "2026-08-22T14:25:35.924997+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:25:35.917015+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:25:35.924997+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260822-A03E9625": {
+    "case_id": "RCA-20260822-A03E9625",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:29:52.305252+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:29:52.297350+00:00",
+    "updated_at": "2026-08-22T14:29:52.305534+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:29:52.297350+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:29:52.305534+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260822-35240F95": {
+    "case_id": "RCA-20260822-35240F95",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-22T14:30:15.352790+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-22T14:30:15.343701+00:00",
+    "updated_at": "2026-08-22T14:30:15.353068+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T14:30:15.343701+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-22T14:30:15.353068+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  }
+}

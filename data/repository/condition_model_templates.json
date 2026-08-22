@@ -1,0 +1,249 @@
+{
+  "bearing": {
+    "asset_type": "bearing",
+    "recommended_sensors": [
+      "vibration",
+      "bearing_temp"
+    ],
+    "indicators": [
+      {
+        "indicator": "vibration_rms",
+        "sensor": "vibration",
+        "feature": "rms",
+        "weight": 2.0
+      },
+      {
+        "indicator": "vibration_kurtosis",
+        "sensor": "vibration",
+        "feature": "kurtosis",
+        "weight": 1.5
+      },
+      {
+        "indicator": "vibration_crest_factor",
+        "sensor": "vibration",
+        "feature": "crest_factor",
+        "weight": 1.2
+      },
+      {
+        "indicator": "bearing_temp_mean",
+        "sensor": "bearing_temp",
+        "feature": "mean",
+        "weight": 1.5
+      }
+    ],
+    "template_id": "bearing",
+    "name": "Bearing",
+    "version": "1.0",
+    "status": "approved",
+    "source": "builtin",
+    "updated_at": "2026-08-22T14:25:35.627838+00:00"
+  },
+  "pump": {
+    "asset_type": "pump",
+    "recommended_sensors": [
+      "vibration",
+      "motor_current",
+      "suction_pressure",
+      "discharge_pressure"
+    ],
+    "indicators": [
+      {
+        "indicator": "pump_vibration_rms",
+        "sensor": "vibration",
+        "feature": "rms"
+      },
+      {
+        "indicator": "motor_current_rms",
+        "sensor": "motor_current",
+        "feature": "rms"
+      },
+      {
+        "indicator": "suction_pressure_mean",
+        "sensor": "suction_pressure",
+        "feature": "mean"
+      },
+      {
+        "indicator": "discharge_pressure_mean",
+        "sensor": "discharge_pressure",
+        "feature": "mean"
+      }
+    ],
+    "template_id": "pump",
+    "name": "Pump",
+    "version": "1.0",
+    "status": "approved",
+    "source": "builtin",
+    "updated_at": "2026-08-22T14:25:35.628128+00:00"
+  },
+  "compressor": {
+    "asset_type": "compressor",
+    "recommended_sensors": [
+      "discharge_temp",
+      "filter_dp",
+      "active_power",
+      "vibration"
+    ],
+    "indicators": [
+      {
+        "indicator": "discharge_temp_mean",
+        "sensor": "discharge_temp",
+        "feature": "mean"
+      },
+      {
+        "indicator": "filter_dp_mean",
+        "sensor": "filter_dp",
+        "feature": "mean",
+        "weight": 1.8
+      },
+      {
+        "indicator": "active_power_mean",
+        "sensor": "active_power",
+        "feature": "mean"
+      },
+      {
+        "indicator": "compressor_vibration_rms",
+        "sensor": "vibration",
+        "feature": "rms"
+      }
+    ],
+    "template_id": "compressor",
+    "name": "Compressor",
+    "version": "1.0",
+    "status": "approved",
+    "source": "builtin",
+    "updated_at": "2026-08-22T14:25:35.628497+00:00"
+  },
+  "motor": {
+    "asset_type": "motor",
+    "recommended_sensors": [
+      "motor_current",
+      "motor_temp",
+      "vibration"
+    ],
+    "indicators": [
+      {
+        "indicator": "motor_current_rms",
+        "sensor": "motor_current",
+        "feature": "rms"
+      },
+      {
+        "indicator": "motor_temp_mean",
+        "sensor": "motor_temp",
+        "feature": "mean"
+      },
+      {
+        "indicator": "motor_vibration_rms",
+        "sensor": "vibration",
+        "feature": "rms"
+      }
+    ],
+    "template_id": "motor",
+    "name": "Motor",
+    "version": "1.0",
+    "status": "approved",
+    "source": "builtin",
+    "updated_at": "2026-08-22T14:25:35.628997+00:00"
+  },
+  "fan": {
+    "asset_type": "fan",
+    "recommended_sensors": [
+      "vibration",
+      "motor_current",
+      "airflow"
+    ],
+    "indicators": [
+      {
+        "indicator": "fan_vibration_rms",
+        "sensor": "vibration",
+        "feature": "rms"
+      },
+      {
+        "indicator": "fan_current_rms",
+        "sensor": "motor_current",
+        "feature": "rms"
+      },
+      {
+        "indicator": "airflow_mean",
+        "sensor": "airflow",
+        "feature": "mean",
+        "direction": "low"
+      }
+    ],
+    "template_id": "fan",
+    "name": "Fan",
+    "version": "1.0",
+    "status": "approved",
+    "source": "builtin",
+    "updated_at": "2026-08-22T14:25:35.629362+00:00"
+  },
+  "pcs": {
+    "asset_type": "pcs",
+    "recommended_sensors": [
+      "active_power",
+      "reactive_power",
+      "dc_voltage",
+      "temperature"
+    ],
+    "indicators": [
+      {
+        "indicator": "pcs_active_power_rms",
+        "sensor": "active_power",
+        "feature": "rms"
+      },
+      {
+        "indicator": "pcs_reactive_power_rms",
+        "sensor": "reactive_power",
+        "feature": "rms"
+      },
+      {
+        "indicator": "pcs_dc_voltage_std",
+        "sensor": "dc_voltage",
+        "feature": "std"
+      },
+      {
+        "indicator": "pcs_temp_mean",
+        "sensor": "temperature",
+        "feature": "mean"
+      }
+    ],
+    "template_id": "pcs",
+    "name": "Pcs",
+    "version": "1.0",
+    "status": "approved",
+    "source": "builtin",
+    "updated_at": "2026-08-22T14:25:35.629711+00:00"
+  },
+  "battery": {
+    "asset_type": "battery",
+    "recommended_sensors": [
+      "cell_voltage",
+      "cell_temperature",
+      "soc"
+    ],
+    "indicators": [
+      {
+        "indicator": "cell_voltage_range",
+        "sensor": "cell_voltage",
+        "feature": "range",
+        "weight": 2.0
+      },
+      {
+        "indicator": "cell_temp_range",
+        "sensor": "cell_temperature",
+        "feature": "range",
+        "weight": 2.0
+      },
+      {
+        "indicator": "soc_slope",
+        "sensor": "soc",
+        "feature": "slope"
+      }
+    ],
+    "template_id": "battery",
+    "name": "Battery",
+    "version": "1.0",
+    "status": "approved",
+    "source": "builtin",
+    "updated_at": "2026-08-22T14:25:35.630080+00:00"
+  }
+}

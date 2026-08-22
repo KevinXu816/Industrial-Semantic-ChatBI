@@ -17,7 +17,7 @@ class OpenAICompatibleSemanticPlanner:
     def resolve(self, question: str, ontology_summary: str, metrics_summary: str) -> SemanticIntent:
         system = (
             "You are an industrial semantic parser. Return JSON only. Never generate SQL. "
-            "Resolve the question into: raw_question, subject{entity,reference,key}, metrics[], dimensions[], filters[], "
+            "Resolve the V0.6 analytics question into: raw_question, subject{entity,reference,key}, metrics[], dimensions[], filters[], "
             "time_range{type,value,unit,start,end}, time_grain, comparison{type}, analysis_mode, related_entities[]. "
             "Only use governed entities/properties/metrics from the supplied semantic model.\n"
             f"Ontology:\n{ontology_summary}\nMetrics:\n{metrics_summary}"

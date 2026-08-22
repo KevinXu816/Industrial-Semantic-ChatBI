@@ -15,6 +15,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 .sidebar nav a { display: block; padding: 12px 16px; color: #bbb; text-decoration: none; font-size: 14px; transition: background .15s; }
 .sidebar nav a:hover, .sidebar nav a.active { background: #2a2a4a; color: #fff; }
 .sidebar nav a.active { border-left: 3px solid #7c83ff; }
+.sidebar-version { margin-top:auto; padding:14px 16px; border-top:1px solid #2a2a4a; color:#8d93b8; font-size:11px; line-height:1.5; }
+.sidebar-version strong { color:#c9ccff; font-weight:600; }
+.topbar-version { margin-left:auto; color:#777; font-size:12px; font-weight:500; background:#f5f6fa; border:1px solid #e4e6ee; padding:3px 9px; border-radius:12px; }
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .topbar { background: #fff; padding: 12px 24px; border-bottom: 1px solid #e0e0e0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
 .topbar .badge { background: #e8f5e9; color: #2e7d32; font-size: 12px; padding: 2px 8px; border-radius: 10px; }
@@ -160,6 +163,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 
 .loading { text-align: center; padding: 40px; color: #888; }
 .error-msg { color: #c62828; background: #fce4ec; padding: 12px; border-radius: 6px; margin: 8px 0; }
+
+/* V2.0 Productization */
+.workspace-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-bottom:20px}.product-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.mini-chart{height:180px;display:flex;align-items:flex-end;gap:4px;padding:14px 8px;border-bottom:1px solid #eee}.mini-bar{flex:1;min-width:5px;background:#7c83ff;border-radius:3px 3px 0 0;opacity:.8}.timeline{position:relative;padding-left:24px}.timeline:before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:#e6e7ef}.timeline-item{position:relative;padding:0 0 16px 10px;font-size:13px}.timeline-item:before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:#7c83ff;border:2px solid #fff;box-shadow:0 0 0 1px #cdd0e7}.asset-tree ul{list-style:none;padding-left:18px}.asset-tree li{padding:4px 0;font-size:13px}.failure-row{padding:12px 0;border-bottom:1px solid #eee}.risk-meter{height:7px;background:#eee;border-radius:8px;overflow:hidden;margin-top:6px}.risk-meter span{display:block;height:100%;background:#7c83ff}.role-select{padding:7px 10px;border:1px solid #d0d0d0;border-radius:6px;background:#fff}.workflow-chip{display:inline-block;padding:3px 8px;border-radius:12px;background:#f2f3f8;font-size:11px;margin-right:5px}@media(max-width:900px){.product-grid{grid-template-columns:1fr}}
+
+/* V2.1 Reliability Workflow UX */
+.asset-nav-layout{display:grid;grid-template-columns:260px 1fr;gap:16px}.asset-nav-card{max-height:520px;overflow:auto}.tree-node{padding:5px 4px;font-size:13px;cursor:pointer;border-radius:5px}.tree-node:hover{background:#f4f5fb}.tree-children{margin-left:16px;border-left:1px solid #e5e6ef;padding-left:8px}.trend-svg{width:100%;height:210px;display:block}.trend-legend{display:flex;gap:16px;font-size:12px;color:#666;margin-top:8px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.workflow-steps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0}.workflow-step{padding:7px 10px;border-radius:16px;background:#f0f1f5;color:#777;font-size:12px}.workflow-step.done{background:#e8f5e9;color:#2e7d32}.workflow-step.current{background:#e8eaf6;color:#3f51b5;font-weight:700}.workflow-arrow{color:#aaa}.evidence-card{padding:10px 12px;border:1px solid #ececf3;border-radius:7px;margin-top:8px;background:#fafafe}.hypothesis-card{padding:12px;border:1px solid #e2e3ec;border-radius:8px;margin-top:10px}.rca-grid{display:grid;grid-template-columns:320px 1fr;gap:16px}.rca-list{max-height:620px;overflow:auto}.rca-case-row{padding:11px;border-bottom:1px solid #eee;cursor:pointer}.rca-case-row:hover{background:#f7f7fb}.range-btn.active{background:#5b63e6;color:#fff;border-color:#5b63e6}@media(max-width:1000px){.asset-nav-layout,.rca-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -168,26 +177,44 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
     <div class="logo">🏭 ChatBI</div>
     <h2>功能</h2>
     <nav>
-      <a href="#chat" class="active" data-panel="chat">💬 智能问答</a>
+      <a href="#workspace" class="active" data-panel="workspace">📍 可靠性工作台</a>
+      <a href="#chat" data-panel="chat">💬 智能问答</a>
       <a href="#llm" data-panel="llm">🤖 大模型配置</a>
       <a href="#datasources" data-panel="datasources">🗄️ 数据源管理</a>
+      <a href="#bindings" data-panel="bindings">🔌 数据绑定</a>
       <a href="#graph" data-panel="graph">🔗 语义图谱</a>
       <a href="#metrics" data-panel="metrics">📊 指标注册表</a>
       <a href="#scan" data-panel="scan">🔍 元数据扫描</a>
       <a href="#candidates" data-panel="candidates">📋 候选模型审核</a>
       <a href="#templates" data-panel="templates">🏭 行业模板</a>
+      <a href="#assets" data-panel="assets">🛠️ 资产可靠性</a>
+      <a href="#rcaworkflow" data-panel="rcaworkflow">🧭 RCA 工作流</a>
+      <a href="#modelops" data-panel="modelops">🧠 模型运维</a>
+      <a href="#identity" data-panel="identity">🪪 身份与租户</a>
       <a href="#admin" data-panel="admin">⚙️ 系统管理</a>
     </nav>
+    <div class="sidebar-version">Industrial Semantic Intelligence<br><strong id="sidebar-version">Version --</strong></div>
   </div>
   <div class="main">
     <div class="topbar">
-      <span id="page-title">智能问答</span>
+      <span id="page-title">可靠性工作台</span>
       <span class="badge" id="status-badge">● 已连接</span>
+      <span class="topbar-version" id="topbar-version">Version --</span>
     </div>
     <div class="content">
 
+      
+      <!-- V2.0 Role-based Reliability Workspace -->
+      <div class="panel active" id="panel-workspace">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div><h3>工业可靠性工作台</h3><p style="font-size:13px;color:#777;margin-top:4px">Role-aware priorities · Fleet health · RCA · Maintenance</p></div>
+          <div style="display:flex;gap:8px;align-items:center"><select id="workspace-role" class="role-select" onchange="loadWorkspace()"><option value="reliability_engineer">可靠性工程师</option><option value="maintenance_planner">维护计划员</option><option value="operator">运行人员</option></select><button class="btn btn-outline" onclick="loadWorkspace()">↻ 刷新</button></div>
+        </div>
+        <div id="workspace-content"><div class="loading">加载中...</div></div>
+      </div>
+
       <!-- Chat Panel -->
-      <div class="panel active" id="panel-chat">
+      <div class="panel" id="panel-chat">
         <div class="chat-container">
           <div class="sample-questions" id="samples"></div>
           <div class="messages" id="messages">
@@ -215,7 +242,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
             <div class="form-field"><label>API 地址 *</label><input id="llm-url" placeholder="http://localhost:11434/v1 或 https://api.openai.com/v1" /></div>
           </div>
           <div class="form-row">
-            <div class="form-field"><label>API Key（可选）</label><input id="llm-key" type="password" placeholder="sk-..." /></div>
+            <div class="form-field"><label>API Key Secret Ref（推荐）</label><input id="llm-key" placeholder="secret://env/LLM_API_KEY" /></div>
             <div class="form-field"><label>模型名称 *</label><input id="llm-model" placeholder="gpt-4o / deepseek-chat / qwen2.5" /></div>
           </div>
           <div class="form-row">
@@ -239,6 +266,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
         </div>
         <div id="ds-form-area"></div>
         <div id="datasources-content"><div class="loading">加载中...</div></div>
+      </div>
+
+      <!-- V2.2 Data Binding Studio -->
+      <div class="panel" id="panel-bindings">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+          <div><h3>工业数据绑定工作室</h3><p style="font-size:13px;color:#777;margin-top:4px">InfluxDB / Historian / MES / CMMS → Asset / Sensor / Condition / Alarm / Work Order</p></div>
+          <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="showBindingForm()">＋ 新建绑定</button><button class="btn btn-outline" onclick="loadDataBindings()">↻ 刷新</button></div>
+        </div>
+        <div class="card" style="margin-bottom:16px"><strong>治理边界</strong><p style="font-size:13px;color:#666;margin-top:6px">Preview 只做字段映射预览；只有 Approved Binding 才允许执行写入。真实 InfluxDB/Historian/MES/CMMS 拉取由 Adapter/Collector 完成，核心平台只消费标准化记录，避免把厂商协议写死在领域层。</p></div>
+        <div id="binding-form-area"></div><div id="integration-runtime-summary" class="card" style="margin-bottom:16px"><div class="loading">加载运行状态...</div></div><div id="connector-runtime-summary" class="card" style="margin-bottom:16px"><div class="loading">加载 Connector / Edge Agent 状态...</div></div><div id="connector-actions" style="display:flex;gap:8px;margin-bottom:16px"><button class="btn btn-outline" onclick="showConnectorForm()">＋ 新建 Connector</button><button class="btn btn-outline" onclick="showEdgeAgentForm()">＋ 注册 Edge Agent</button></div><div id="connector-form-area"></div><div id="connectors-content"></div><div id="bindings-content"><div class="loading">加载中...</div></div>
       </div>
 
       <!-- Graph Panel -->
@@ -323,6 +360,51 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
         <div id="template-modal-root"></div>
       </div>
 
+      <!-- Asset Reliability Cockpit Panel -->
+      <div class="panel" id="panel-assets">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+          <div><h3>资产可靠性驾驶舱</h3><p style="font-size:13px;color:#777;margin-top:4px">Plant → Line → Asset · Health/Risk Trend · Failure Mode · RCA · Maintenance</p></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input id="asset-cockpit-id" placeholder="输入 Asset ID，如 A101" style="padding:8px 10px;border:1px solid #d0d0d0;border-radius:6px"><span style="font-size:12px;color:#777">趋势范围</span><button class="btn btn-outline range-btn" data-days="7" onclick="setAssetRange(7,this)">7d</button><button class="btn btn-outline range-btn active" data-days="30" onclick="setAssetRange(30,this)">30d</button><button class="btn btn-outline range-btn" data-days="90" onclick="setAssetRange(90,this)">90d</button><button class="btn btn-primary" onclick="loadAssetCockpit()">查看资产</button><button class="btn btn-outline" onclick="createAssetQuick()">＋ 新增资产</button><button class="btn btn-outline" onclick="loadAssetHierarchy();loadAssetFleet()">↻ 刷新</button></div>
+        </div>
+        <div class="asset-nav-layout">
+          <div class="card asset-nav-card"><h3>Plant / Line / Asset</h3><div id="asset-hierarchy-browser" style="margin-top:10px"><div class="loading">加载中...</div></div></div>
+          <div><div id="asset-fleet"><div class="loading">加载中...</div></div><div id="asset-cockpit" style="margin-top:20px"></div></div>
+        </div>
+      </div>
+
+      <!-- V2.1 RCA Workflow Panel -->
+      <div class="panel" id="panel-rcaworkflow">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+          <div><h3>RCA Case 工作流</h3><p style="font-size:13px;color:#777;margin-top:4px">Open → Analyze → Evidence Review → Engineer Confirm → Maintenance → Resolved → Closed</p></div>
+          <div style="display:flex;gap:8px"><select id="rca-status-filter" class="role-select" onchange="loadRCAWorkflows()"><option value="">全部状态</option><option>open</option><option>analyzed</option><option>reviewed</option><option>resolved</option><option>closed</option></select><button class="btn btn-outline" onclick="loadRCAWorkflows()">↻ 刷新</button></div>
+        </div>
+        <div class="rca-grid"><div class="card rca-list"><h3>RCA Cases</h3><div id="rca-workflow-list" style="margin-top:8px"><div class="loading">加载中...</div></div></div><div id="rca-workflow-detail"><div class="card"><p style="color:#888">选择一个 RCA Case 查看证据、假设和处理流程。</p></div></div></div>
+      </div>
+
+      <!-- Model Operations Panel -->
+      <div class="panel" id="panel-modelops">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div><h3>模型评估与生产监控</h3><p style="font-size:13px;color:#777;margin-top:4px">Dataset Registry · Offline Evaluation · Champion/Challenger · Feature Drift</p></div>
+          <button class="btn btn-outline" onclick="loadModelOps()">↻ 刷新</button>
+        </div>
+        <div id="modelops-overview"><div class="loading">加载中...</div></div>
+      </div>
+
+      <!-- V2.5 Enterprise Identity & Multi-Tenant Governance -->
+      <div class="panel" id="panel-identity">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+          <div><h3>企业身份与租户治理</h3><p style="font-size:13px;color:#777;margin-top:4px">Tenant → Organization → Site → Principal · Asset / Connector / Edge Agent Scope</p></div>
+          <button class="btn btn-outline" onclick="loadEnterpriseIdentity()">↻ 刷新</button>
+        </div>
+        <div id="identity-overview"><div class="loading">加载中...</div></div>
+        <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h3>认证 / SSO</h3><p style="font-size:13px;color:#777;margin-top:4px">V2.7 Authentication + Secret References → Principal / Enterprise Scope</p></div><span id="auth-mode-badge" class="status-badge">加载中</span></div><div id="auth-config-summary" style="font-size:13px;color:#555;line-height:1.8;margin-top:10px"></div><div class="form-row" style="margin-top:12px"><div class="form-field" style="flex:1"><label>Bearer Token（当前浏览器会话）</label><input id="auth-token-input" type="password" placeholder="粘贴 OIDC/JWT access token；disabled 模式无需填写"></div></div><div class="form-actions"><button class="btn btn-primary" onclick="saveAuthToken()">应用 Token</button><button class="btn btn-outline" onclick="clearAuthToken()">清除</button><button class="btn btn-outline" onclick="loadAuthSession()">验证当前身份</button></div><div id="auth-session" style="margin-top:10px"></div></div>
+        <div class="product-grid" style="margin-top:16px">
+          <div class="card"><h3>新建 / 更新 Principal</h3><div class="form-row" style="margin-top:12px"><div class="form-field"><label>Principal ID</label><input id="id-principal" placeholder="engineer-f01"></div><div class="form-field"><label>名称</label><input id="id-name" placeholder="F01 Reliability Engineer"></div></div><div class="form-row"><div class="form-field"><label>Tenant</label><input id="id-tenant" value="default"></div><div class="form-field"><label>Roles（逗号分隔）</label><input id="id-roles" value="viewer" placeholder="reliability_engineer"></div></div><div class="form-row"><div class="form-field"><label>Site Scope</label><input id="id-sites" placeholder="F01,F02"></div><div class="form-field"><label>Asset Scope</label><input id="id-assets" placeholder="A101,A102"></div></div><div class="form-actions"><button class="btn btn-primary" onclick="saveEnterprisePrincipal()">保存 Principal</button></div></div>
+          <div class="card"><h3>作用域原则</h3><div style="font-size:13px;line-height:1.8;color:#555;margin-top:10px">Semantic RBAC/RLS 继续治理“可以问什么数据”；Enterprise Scope 治理“属于哪个 Tenant/Site/Asset/Connector 的资源可以访问”。旧单企业数据自动归入 <code>default</code> Tenant，保持向后兼容。</div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h3>Secret / Credential Governance</h3><p style="font-size:13px;color:#777;margin-top:4px">V2.7 只保存 Secret Reference 与元数据，平台 API 不回显 Secret 明文。</p><div id="secret-overview" style="margin-top:10px"><div class="loading">加载中...</div></div><div class="form-row" style="margin-top:12px"><div class="form-field"><label>Secret ID</label><input id="secret-id" placeholder="mes-f01-reader"></div><div class="form-field"><label>Secret Ref</label><input id="secret-ref" placeholder="secret://env/MES_F01_PASSWORD"></div></div><div class="form-row"><div class="form-field"><label>Purpose</label><input id="secret-purpose" placeholder="MES JDBC read-only credential"></div><div class="form-field"><label>Site Scope</label><input id="secret-site" placeholder="F01"></div></div><div class="form-actions"><button class="btn btn-primary" onclick="registerSecretRef()">登记 Secret Ref</button><button class="btn btn-outline" onclick="loadSecretOverview()">刷新</button></div></div><div class="card" style="margin-top:16px"><h3>Principals</h3><div id="identity-principals" style="margin-top:10px"></div></div>
+      </div>
+
       <!-- Admin Panel -->
       <div class="panel" id="panel-admin">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -343,7 +425,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 
 <script>
 const API = '';
-const titles = { chat: '智能问答', llm: '大模型配置', datasources: '数据源管理', graph: '语义图谱', metrics: '指标注册表', scan: '元数据扫描', candidates: '候选模型审核', templates: '行业模板', admin: '系统管理' };
+const titles = { workspace: '可靠性工作台', chat: '智能问答', llm: '大模型配置', datasources: '数据源管理', bindings: '数据绑定', graph: '语义图谱', metrics: '指标注册表', scan: '元数据扫描', candidates: '候选模型审核', templates: '行业模板', assets: '资产可靠性', rcaworkflow: 'RCA 工作流', modelops: '模型运维', identity: '身份与租户', admin: '系统管理' };
 const samples = [
   'A101空压机最近一周单位产量能耗为什么增加？',
   '3#风机昨天能耗多少？',
@@ -352,6 +434,9 @@ const samples = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
+  loadAppVersion();
+  loadAuthConfig();
+  loadWorkspace();
   const samplesEl = document.getElementById('samples');
   samples.forEach(q => {
     const el = document.createElement('span');
@@ -370,12 +455,18 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       document.getElementById('panel-' + panel).classList.add('active');
       document.getElementById('page-title').textContent = titles[panel];
+      if (panel === 'workspace') loadWorkspace();
       if (panel === 'llm') loadLlmConfig();
       if (panel === 'datasources') loadDatasources();
+      if (panel === 'bindings') loadDataBindings();
       if (panel === 'graph') loadGraph();
       if (panel === 'metrics') loadMetrics();
       if (panel === 'candidates') loadCandidates();
       if (panel === 'templates') loadTemplates();
+      if (panel === 'assets') { loadAssetHierarchy(); loadAssetFleet(); }
+      if (panel === 'rcaworkflow') loadRCAWorkflows();
+      if (panel === 'modelops') loadModelOps();
+      if (panel === 'identity') { loadEnterpriseIdentity(); loadAuthConfig(); loadSecretOverview(); }
       if (panel === 'admin') loadAdmin();
     });
   });
@@ -386,6 +477,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function apiFetch(url, opts) {
+  opts = opts || {};
+  opts.headers = Object.assign({}, opts.headers || {});
+  const token = sessionStorage.getItem('enterprise_access_token');
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   const res = await fetch(API + url, opts);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
@@ -527,7 +622,7 @@ async function loadLlmConfig() {
   try {
     const cfg = await apiFetch('/llm/config');
     document.getElementById('llm-url').value = cfg.api_url || '';
-    document.getElementById('llm-key').value = cfg.api_key === '***' ? '' : (cfg.api_key || '');
+    document.getElementById('llm-key').value = cfg.api_key_ref || '';
     document.getElementById('llm-model').value = cfg.model || '';
     document.getElementById('llm-temp').value = cfg.temperature ?? 0.3;
     document.getElementById('llm-timeout').value = cfg.timeout ?? 30;
@@ -545,7 +640,7 @@ async function saveLlmConfig() {
   const keyVal = document.getElementById('llm-key').value;
   const body = {
     api_url,
-    api_key: keyVal || '',
+    api_key: '', api_key_ref: keyVal || '',
     model,
     temperature: parseFloat(document.getElementById('llm-temp').value) || 0.3,
     timeout: parseInt(document.getElementById('llm-timeout').value) || 30,
@@ -614,12 +709,12 @@ async function loadDatasources() {
 }
 
 async function showDsForm(editId) {
-  let id = '', name = '', type = 'mysql', host = '', port = '', user = '', password = '', database = '', api_url = '', api_method = 'GET', api_headers = '', file_path = '';
+  let id = '', name = '', type = 'mysql', host = '', port = '', user = '', credential_ref = '', database = '', api_url = '', api_method = 'GET', api_headers = '', file_path = '';
   if (editId) {
     try {
       const list = await apiFetch('/datasources');
       const ds = list.find(d => d.id === editId);
-      if (ds) { id = ds.id; name = ds.name; type = ds.type; host = ds.host||''; port = ds.port||''; user = ds.user||''; password = ds.password||''; database = ds.database||''; api_url = ds.api_url||''; api_method = ds.api_method||'GET'; api_headers = ds.api_headers ? Object.entries(ds.api_headers).map(([k,v])=>k+':'+v).join(', ') : ''; file_path = ds.file_path||''; }
+      if (ds) { id = ds.id; name = ds.name; type = ds.type; host = ds.host||''; port = ds.port||''; user = ds.user||''; credential_ref = ds.credential_ref||''; database = ds.database||''; api_url = ds.api_url||''; api_method = ds.api_method||'GET'; api_headers = ds.api_headers ? Object.entries(ds.api_headers).map(([k,v])=>k+':'+v).join(', ') : ''; file_path = ds.file_path||''; }
     } catch (e) { /* ignore */ }
   }
   const typeOptions = DS_TYPES.map(t => `<option value="${t.value}" ${t.value === type ? 'selected' : ''}>${t.label}</option>`).join('');
@@ -641,7 +736,7 @@ async function showDsForm(editId) {
         </div>
         <div class="form-row">
           <div class="form-field"><label>用户名 *</label><input id="ds-user" value="${escapeAttr(user)}" placeholder="root" /></div>
-          <div class="form-field"><label>密码</label><input id="ds-password" type="password" value="${escapeAttr(password)}" placeholder="••••••" /></div>
+          <div class="form-field"><label>Credential Secret Ref</label><input id="ds-credential-ref" value="${escapeAttr(credential_ref)}" placeholder="secret://env/MES_DB_PASSWORD" /></div>
         </div>
         <div class="form-row">
           <div class="form-field"><label>数据库名（可选）</label><input id="ds-database" value="${escapeAttr(database)}" placeholder="production" /></div>
@@ -653,7 +748,7 @@ async function showDsForm(editId) {
           <div class="form-field" style="max-width:120px"><label>请求方法</label><select id="ds-api-method"><option ${api_method==='GET'?'selected':''}>GET</option><option ${api_method==='POST'?'selected':''}>POST</option></select></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>请求头（格式：Key:Value, 逗号分隔）</label><input id="ds-api-headers" value="${escapeAttr(api_headers)}" placeholder="Authorization:Bearer token123, Accept:application/json" /></div>
+          <div class="form-field"><label>请求头（格式：Key:Value, 逗号分隔）</label><input id="ds-api-headers" value="${escapeAttr(api_headers)}" placeholder="Authorization:secret://env/API_BEARER_TOKEN, Accept:application/json" /></div>
         </div>
         <div style="font-size:12px;color:#888;margin-bottom:8px">💡 系统将调用此 API，从 JSON 响应自动推断字段结构</div>
       </div>
@@ -696,7 +791,7 @@ async function saveDs(editId) {
     body.host = host;
     body.port = parseInt(document.getElementById('ds-port').value || info?.defaultPort || 3306);
     body.user = user;
-    body.password = document.getElementById('ds-password').value;
+    body.password = ''; body.credential_ref = document.getElementById('ds-credential-ref').value.trim();
     body.database = document.getElementById('ds-database').value.trim() || null;
   } else if (info.group === 'api') {
     const apiUrl = document.getElementById('ds-api-url').value.trim();
@@ -1162,13 +1257,235 @@ async function deleteMetric(name) {
 
 function escapeAttr(s) { return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
 
+
+async function loadAppVersion() {
+  try {
+    const h = await apiFetch('/health');
+    const text = 'V' + (h.version || '--');
+    document.getElementById('sidebar-version').textContent = text;
+    document.getElementById('topbar-version').textContent = text;
+    document.title = `Industrial Semantic ChatBI ${text}`;
+  } catch (e) {
+    document.getElementById('sidebar-version').textContent = 'Version unavailable';
+  }
+}
+
+let assetRangeDays=30;
+function setAssetRange(days,btn){assetRangeDays=days;document.querySelectorAll('.range-btn').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');const id=(document.getElementById('asset-cockpit-id')||{}).value||'';if(id.trim())loadAssetCockpit();}
+function renderTrendSVG(rows){
+  if(!rows||!rows.length) return '<p style="color:#888;font-size:13px;margin-top:10px">暂无所选时间范围内的健康历史。</p>';
+  const w=720,h=190,pad=24,n=rows.length; const xs=i=>pad+(n<=1?0:i*(w-2*pad)/(n-1)); const y=v=>h-pad-(Math.max(0,Math.min(100,Number(v||0)))*(h-2*pad)/100);
+  const health=rows.map((r,i)=>`${xs(i)},${y(r.score)}`).join(' '); const risk=rows.map((r,i)=>`${xs(i)},${y(r.risk)}`).join(' ');
+  let grid='';[0,25,50,75,100].forEach(v=>{grid+=`<line x1="${pad}" y1="${y(v)}" x2="${w-pad}" y2="${y(v)}" stroke="#ececf3" stroke-width="1"/><text x="2" y="${y(v)+4}" font-size="10" fill="#999">${v}</text>`});
+  return `<svg viewBox="0 0 ${w} ${h}" class="trend-svg" preserveAspectRatio="none">${grid}<polyline fill="none" stroke="#4f67d8" stroke-width="3" points="${health}"/><polyline fill="none" stroke="#d96b5f" stroke-width="2.5" points="${risk}"/></svg><div class="trend-legend"><span><i class="legend-dot" style="background:#4f67d8"></i>Health</span><span><i class="legend-dot" style="background:#d96b5f"></i>Dynamic Risk</span><span>${rows.length} observations · ${assetRangeDays}d</span></div>`;
+}
+function renderHierarchyNodes(nodes){return (nodes||[]).map(n=>`<div><div class="tree-node" onclick="selectAssetFromTree('${escapeAttr(n.asset_id||'')}')"><strong>${escapeHtml(n.asset_id||'-')}</strong> <span style="color:#777">${escapeHtml(n.name||'')}</span></div>${(n.children||[]).length?`<div class="tree-children">${renderHierarchyNodes(n.children)}</div>`:''}</div>`).join('')}
+async function loadAssetHierarchy(){const el=document.getElementById('asset-hierarchy-browser');if(!el)return;el.innerHTML='<div class="loading">加载中...</div>';try{const d=await apiFetch('/assets/hierarchy');el.innerHTML=(d.roots||[]).length?renderHierarchyNodes(d.roots):'<p style="color:#888;font-size:13px">暂无资产层级。</p>'}catch(e){el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`}}
+function selectAssetFromTree(asset){document.getElementById('asset-cockpit-id').value=asset;loadAssetCockpit();}
+function renderHealthChart(rows){
+  if(!rows||!rows.length) return '<p style="color:#888;font-size:13px;margin-top:10px">暂无健康历史。</p>';
+  const bars=rows.slice(-24).map(r=>{const v=Math.max(2,Math.min(100,Number(r.score||0))); return `<div class="mini-bar" title="Health ${v.toFixed(1)}" style="height:${v}%"></div>`}).join('');
+  const last=rows[rows.length-1]||{}; return `<div class="mini-chart">${bars}</div><div style="font-size:12px;color:#777;margin-top:8px">最新 Health ${last.score==null?'-':Number(last.score).toFixed(1)} · Risk ${last.risk==null?'-':Number(last.risk).toFixed(1)}</div>`;
+}
+function renderAssetTree(asset,hierarchy){
+  const kids=(hierarchy||{}).children||[]; let html='<div class="asset-tree"><ul>';
+  html+=`<li><strong>${escapeHtml((asset||{}).asset_id||'-')}</strong> ${escapeHtml((asset||{}).name||'')}</li>`;
+  if((hierarchy||{}).parent_asset_id) html+=`<li style="color:#777">↑ Parent: ${escapeHtml(hierarchy.parent_asset_id)}</li>`;
+  kids.forEach(k=>{html+=`<li>↳ ${escapeHtml(k.asset_id||'-')} ${escapeHtml(k.name||'')}</li>`}); return html+'</ul></div>';
+}
+async function loadWorkspace(){
+  const el=document.getElementById('workspace-content'); if(!el) return; el.innerHTML='<div class="loading">加载中...</div>';
+  const role=(document.getElementById('workspace-role')||{}).value||'reliability_engineer';
+  try{const d=await apiFetch('/workspace/home?role='+encodeURIComponent(role)); const s=d.summary||{}; let html='<div class="workspace-grid">';
+    html+=statCard('资产',s.assets||0,'🏭');html+=statCard('Critical',s.critical_assets||0,'🔴');html+=statCard('健康恶化',s.deteriorating_assets||0,'📉');html+=statCard('Open RCA',s.open_rca_cases||0,'🔎');html+=statCard('待办工单',s.pending_work_orders||0,'🧰');html+='</div>';
+    html+='<div class="product-grid"><div class="card"><h3>我的优先事项</h3>'; const ps=d.priorities||[]; if(!ps.length) html+='<p style="color:#888;font-size:13px;margin-top:10px">当前没有高优先级事项。</p>'; ps.forEach(p=>{html+=`<div class="failure-row" ${p.asset?`style="cursor:pointer" onclick="openAssetFromWorkspace('${escapeAttr(p.asset)}')"`:''}><strong>${escapeHtml(p.title||p.asset||'-')}</strong> <span class="workflow-chip">${escapeHtml(p.kind||'task')}</span><div style="font-size:12px;color:#777;margin-top:4px">${escapeHtml(p.asset||'')} · ${escapeHtml(p.priority||'')}</div></div>`}); html+='</div>';
+    html+='<div class="card"><h3>Fleet Top Risk</h3>'; (d.fleet||[]).slice(0,8).forEach(a=>{html+=`<div class="failure-row" style="cursor:pointer" onclick="openAssetFromWorkspace('${escapeAttr(a.asset_id)}')"><strong>${escapeHtml(a.asset_id||'-')}</strong> ${escapeHtml(a.name||'')}<div style="font-size:12px;color:#777;margin-top:4px">Health ${a.health_score==null?'-':Number(a.health_score).toFixed(1)} · Risk ${a.dynamic_risk==null?'-':Number(a.dynamic_risk).toFixed(1)} · ${escapeHtml(a.maintenance_priority||'-')}</div></div>`}); html+='</div></div>'; el.innerHTML=html;
+  }catch(e){el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`}
+}
+function openAssetFromWorkspace(asset){document.querySelectorAll('.sidebar nav a').forEach(x=>x.classList.remove('active'));const a=document.querySelector('.sidebar nav a[data-panel="assets"]');a.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-assets').classList.add('active');document.getElementById('page-title').textContent=titles.assets;document.getElementById('asset-cockpit-id').value=asset;loadAssetFleet();loadAssetCockpit();}
+
+async function createAssetQuick() {
+  const assetId=(prompt('Asset ID，例如 A101')||'').trim();
+  if(!assetId) return;
+  const name=(prompt('资产名称',assetId)||assetId).trim();
+  const assetType=(prompt('资产类型，例如 compressor / pump / motor','equipment')||'equipment').trim();
+  const parent=(prompt('Parent Asset ID（可留空）','')||'').trim();
+  try {
+    await apiFetch('/assets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({asset_id:assetId,name,asset_type:assetType,parent_asset_id:parent})});
+    document.getElementById('asset-cockpit-id').value=assetId;
+    await loadAssetFleet(); await loadAssetCockpit();
+  } catch(e){ alert('新增资产失败：'+e.message); }
+}
+
+async function loadAssetFleet() {
+  const el=document.getElementById('asset-fleet');
+  el.innerHTML='<div class="loading">加载中...</div>';
+  try {
+    const [fleet, ops]=await Promise.all([apiFetch('/reliability/fleet?limit=100'), apiFetch('/operations/health')]);
+    const assets=fleet.assets||[];
+    let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:20px">';
+    html+=statCard('平台版本','V'+ops.version,'🏷️');
+    html+=statCard('资产数量',fleet.total||0,'🏭');
+    html+=statCard('Critical',assets.filter(a=>a.health_class==='critical').length,'🔴');
+    html+=statCard('待处理 RCA',assets.reduce((n,a)=>n+(a.open_rca_cases||0),0),'🔎');
+    html+=statCard('待办工单',assets.reduce((n,a)=>n+(a.pending_work_orders||0),0),'🧰');
+    html+='</div><div class="card"><h3>资产风险排名</h3>';
+    if(!assets.length) html+='<p style="color:#888;font-size:13px;margin-top:12px">尚未建立 Asset Registry。可通过 POST /assets 导入资产主数据。</p>';
+    else {
+      html+='<div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee">资产</th><th>类型</th><th>健康分</th><th>趋势</th><th>Top Failure</th><th>动态风险</th><th>优先级</th><th>RCA</th><th>工单</th></tr></thead><tbody>';
+      assets.forEach(a=>{ html+=`<tr style="cursor:pointer" onclick="document.getElementById('asset-cockpit-id').value='${escapeAttr(a.asset_id||'')}';loadAssetCockpit()"><td style="padding:9px;border-bottom:1px solid #f0f0f0"><strong>${escapeHtml(a.asset_id||'-')}</strong><br><span style="color:#888">${escapeHtml(a.name||'')}</span></td><td style="text-align:center">${escapeHtml(a.asset_type||'-')}</td><td style="text-align:center">${a.health_score==null?'-':Number(a.health_score).toFixed(1)}</td><td style="text-align:center">${escapeHtml(a.risk_trend||'-')}</td><td style="text-align:center">${escapeHtml(a.top_failure_mode||'-')}</td><td style="text-align:center">${a.dynamic_risk==null?'-':Number(a.dynamic_risk).toFixed(1)}</td><td style="text-align:center">${escapeHtml(a.maintenance_priority||'-')}</td><td style="text-align:center">${a.open_rca_cases||0}</td><td style="text-align:center">${a.pending_work_orders||0}</td></tr>`; });
+      html+='</tbody></table></div>';
+    }
+    html+='</div>'; el.innerHTML=html;
+  } catch(e){ el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`; }
+}
+
+async function loadAssetCockpit() {
+  const asset=document.getElementById('asset-cockpit-id').value.trim();
+  if(!asset){ alert('请输入 Asset ID'); return; }
+  const el=document.getElementById('asset-cockpit'); el.innerHTML='<div class="loading">加载中...</div>';
+  try {
+    const d=await apiFetch('/assets/'+encodeURIComponent(asset)+'/cockpit?health_limit=1000&days='+assetRangeDays);
+    const h=d.health||{}, latest=h.latest||{}, top=d.top_failure_mode||{}, rul=d.rul||{}, sum=d.summary||{};
+    let html=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:start"><div><h3>${escapeHtml((d.asset||{}).name||asset)}</h3><div style="color:#888;font-size:13px;margin-top:4px">${escapeHtml(asset)} · ${escapeHtml((d.asset||{}).asset_type||'equipment')}</div></div><span class="status-badge status-approved">${escapeHtml(d.health_class||'unknown')}</span></div></div>`;
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px">';
+    html+=statCard('Asset Health',d.current_health_score==null?'-':Number(d.current_health_score).toFixed(1),'❤️');
+    html+=statCard('Dynamic Risk',sum.dynamic_risk==null?'-':Number(sum.dynamic_risk).toFixed(1),'⚠️');
+    html+=statCard('Risk Trend',d.risk_trend||'-','📈');
+    html+=statCard('RUL',rul.estimated_rul_hours==null?'N/A':Number(rul.estimated_rul_hours).toFixed(1)+'h','⏳');
+    html+=statCard('Open RCA',sum.open_rca_cases||0,'🔎');
+    html+=statCard('Pending WO',sum.pending_work_orders||0,'🧰');
+    html+='</div>';
+    html+=`<div class="card"><h3>Top Failure Mode</h3><p style="margin-top:10px"><strong>${escapeHtml(top.failure_mode||'-')}</strong> · Risk ${top.dynamic_risk_score==null?'-':top.dynamic_risk_score} · ${escapeHtml(top.maintenance_priority||'-')}</p><p style="font-size:13px;color:#666;margin-top:8px">${escapeHtml(top.inspection_recommendation||'暂无维护建议')}</p></div>`;
+    html+=`<div class="card"><h3>资产组成</h3><p style="font-size:13px;margin-top:10px">组件 ${sum.components||0} · 传感器绑定 ${sum.sensors||0} · 已批准 Failure Modes ${sum.approved_failure_modes||0}</p></div>`;
+    const hist=d.health_history||[];
+    html+='<div class="product-grid">';
+    html+='<div class="card"><h3>健康 / 风险趋势 · '+assetRangeDays+' 天</h3>'+renderTrendSVG(hist)+'</div>';
+    html+='<div class="card"><h3>资产层级</h3>'+renderAssetTree(d.asset,d.hierarchy)+'</div>';
+    html+='</div>';
+    const failures=d.failure_drilldown||[]; html+='<div class="card"><h3>Failure Mode Drill-down</h3>';
+    if(!failures.length) html+='<p style="color:#888;font-size:13px;margin-top:10px">暂无已批准 FMEA Failure Mode。</p>';
+    failures.slice(0,8).forEach(f=>{ const risk=Number(f.dynamic_risk||0); html+=`<div class="failure-row"><div style="display:flex;justify-content:space-between"><strong>${escapeHtml(f.failure_mode||f.cause_code||'-')}</strong><span>${risk?risk.toFixed(1):'-'} · ${escapeHtml(f.maintenance_priority||f.criticality||'-')}</span></div><div style="font-size:12px;color:#777;margin-top:5px">${escapeHtml(f.component||'-')} · RPN ${f.rpn==null?'-':f.rpn} · ${escapeHtml(f.effect||f.cause||'')}</div><div class="risk-meter"><span style="width:${Math.max(0,Math.min(100,risk))}%"></span></div></div>`; });
+    html+='</div>';
+    const timeline=d.timeline||[]; html+='<div class="card"><h3>可靠性时间线</h3><div class="timeline">';
+    if(!timeline.length) html+='<p style="color:#888;font-size:13px">暂无时间线事件。</p>';
+    timeline.slice(0,16).forEach(t=>{html+=`<div class="timeline-item"><strong>${escapeHtml(t.title||'-')}</strong> <span class="workflow-chip">${escapeHtml(t.type||'event')}</span><div style="color:#888;font-size:11px;margin-top:3px">${escapeHtml(t.at||'')} · ${escapeHtml(t.detail||'')}</div></div>`}); html+='</div></div>';
+    const models=d.models||[]; html+='<div class="card"><h3>生产模型</h3>';
+    if(!models.length) html+='<p style="color:#888;font-size:13px;margin-top:10px">暂无与该资产/Failure Mode 匹配的 Champion/Challenger。</p>';
+    models.forEach(m=>{ html+=`<div style="padding:9px 0;border-bottom:1px solid #eee;font-size:13px"><strong>${escapeHtml(m.slot||'-')}</strong> · Champion ${escapeHtml(m.champion||'-')} · Challenger ${escapeHtml(m.challenger||'-')}</div>`; }); html+='</div>';
+    el.innerHTML=html;
+  } catch(e){ el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`; }
+}
+
+async function loadRCAWorkflows(){
+  const list=document.getElementById('rca-workflow-list'); if(!list)return; list.innerHTML='<div class="loading">加载中...</div>';
+  const status=(document.getElementById('rca-status-filter')||{}).value||'';
+  try{const d=await apiFetch('/rca/workflows?limit=200'+(status?'&status='+encodeURIComponent(status):'')); const rows=d.cases||[]; if(!rows.length){list.innerHTML='<p style="color:#888;font-size:13px">暂无 RCA Case。</p>';return;} list.innerHTML=rows.map(r=>`<div class="rca-case-row" onclick="loadRCAWorkflowDetail('${escapeAttr(r.case_id||'')}')"><strong>${escapeHtml(r.case_id||'-')}</strong> <span class="workflow-chip">${escapeHtml(r.status||'-')}</span><div style="font-size:12px;color:#777;margin-top:4px">${escapeHtml(r.asset||'-')} · ${escapeHtml(r.title||'')}</div><div style="font-size:11px;color:#999;margin-top:3px">${escapeHtml(r.top_hypothesis||r.confirmed_root_cause||'')}</div></div>`).join('');}catch(e){list.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`}
+}
+function renderWorkflowSteps(steps){let html='<div class="workflow-steps">';(steps||[]).forEach((s,i)=>{if(i)html+='<span class="workflow-arrow">→</span>';html+=`<span class="workflow-step ${escapeAttr(s.state||'')}">${escapeHtml(s.stage||'')}</span>`});return html+'</div>'}
+async function loadRCAWorkflowDetail(caseId){
+ const el=document.getElementById('rca-workflow-detail');el.innerHTML='<div class="loading">加载中...</div>';
+ try{const d=await apiFetch('/rca/cases/'+encodeURIComponent(caseId)+'/workflow');const c=d.case||{},acts=d.actions||{};let html=`<div class="card"><div style="display:flex;justify-content:space-between;gap:12px"><div><h3>${escapeHtml(c.title||caseId)}</h3><p style="font-size:12px;color:#777;margin-top:5px">${escapeHtml(caseId)} · ${escapeHtml(((c.subject||{}).reference)||'-')}</p></div><span class="status-badge status-approved">${escapeHtml(c.status||'-')}</span></div>${renderWorkflowSteps(d.workflow)}`;
+ html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'; if(acts.can_analyze)html+=`<button class="btn btn-primary" onclick="workflowAnalyze('${escapeAttr(caseId)}')">Analyze</button>`;if(acts.can_review)html+=`<button class="btn btn-primary" onclick="workflowReview('${escapeAttr(caseId)}')">Engineer Confirm</button>`;if(acts.can_resolve)html+=`<button class="btn btn-outline" onclick="workflowResolve('${escapeAttr(caseId)}')">Resolve</button>`;if(acts.can_close)html+=`<button class="btn btn-outline" onclick="workflowClose('${escapeAttr(caseId)}')">Close</button>`;html+='</div></div>';
+ const hs=d.hypotheses||[];html+='<div class="card"><h3>Root Cause Hypotheses</h3>';if(!hs.length)html+='<p style="color:#888;font-size:13px;margin-top:10px">尚未执行 RCA Analyze。</p>';hs.slice(0,8).forEach((h,i)=>{html+=`<div class="hypothesis-card"><strong>#${i+1} ${escapeHtml(h.cause||h.cause_code||'-')}</strong><span style="float:right">${h.confidence==null?'':(Number(h.confidence)*100).toFixed(0)+'%'}</span><div style="font-size:12px;color:#777;margin-top:5px">Graph ${h.graph_score==null?'-':Number(h.graph_score).toFixed(2)} · Causal ${h.causal_claim_supported?'supported':'not proven'}</div></div>`});html+='</div>';
+ const ev=d.evidence||[];html+='<div class="card"><h3>Evidence Review</h3>';if(!ev.length)html+='<p style="color:#888;font-size:13px;margin-top:10px">暂无结构化 Evidence。</p>';ev.slice(0,30).forEach(e=>{html+=`<div class="evidence-card"><span class="workflow-chip">${escapeHtml(e.type||'evidence')}</span>${escapeHtml(e.statement||'-')}<div style="font-size:11px;color:#999;margin-top:4px">${escapeHtml(e.provenance||e.hypothesis||'')}</div></div>`});html+='</div>';
+ const ms=d.maintenance||[];html+='<div class="card"><h3>Maintenance Actions</h3>';if(!ms.length)html+='<p style="color:#888;font-size:13px;margin-top:10px">尚无关联维护候选。</p>';ms.forEach(m=>{html+=`<div class="failure-row"><strong>${escapeHtml(m.recommended_action||m.description||m.candidate_id||'-')}</strong> <span class="workflow-chip">${escapeHtml(m.status||'-')}</span><div style="font-size:12px;color:#777;margin-top:4px">${escapeHtml(m.priority||'')} · ${escapeHtml(m.external_work_order_id||'')}</div></div>`});html+='</div>';
+ el.innerHTML=html;}catch(e){el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`}
+}
+async function workflowAnalyze(id){try{await apiFetch('/rca/cases/'+encodeURIComponent(id)+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actor:'ui_engineer'})});await loadRCAWorkflowDetail(id);await loadRCAWorkflows()}catch(e){alert(e.message)}}
+async function workflowReview(id){const predicted=(prompt('确认根因编码/名称（留空表示接受当前 Top Hypothesis）','')||'').trim();try{const d=await apiFetch('/rca/cases/'+encodeURIComponent(id)+'/workflow');const h=(d.hypotheses||[])[0]||{};const cause=predicted||h.cause_code||h.cause||'';if(!cause){alert('当前没有可确认的根因');return;}await apiFetch('/rca/cases/'+encodeURIComponent(id)+'/review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accepted:true,predicted_cause:cause,actor:'ui_engineer'})});await loadRCAWorkflowDetail(id);await loadRCAWorkflows()}catch(e){alert(e.message)}}
+async function workflowResolve(id){const cause=(prompt('Confirmed Root Cause（可留空沿用 Review 结果）','')||'').trim();const action=(prompt('Resolution / Maintenance Action','inspection completed')||'').trim();try{await apiFetch('/rca/cases/'+encodeURIComponent(id)+'/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirmed_root_cause:cause,action,comment:action,actor:'ui_engineer'})});await loadRCAWorkflowDetail(id);await loadRCAWorkflows()}catch(e){alert(e.message)}}
+async function workflowClose(id){const comment=(prompt('关闭说明','verified after maintenance')||'').trim();try{await apiFetch('/rca/cases/'+encodeURIComponent(id)+'/close',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comment,actor:'ui_engineer'})});await loadRCAWorkflowDetail(id);await loadRCAWorkflows()}catch(e){alert(e.message)}}
+
+async function loadModelOps() {
+  const el=document.getElementById('modelops-overview');
+  el.innerHTML='<div class="loading">加载中...</div>';
+  try {
+    const [health, models, datasets, evals, deployments, monitoring] = await Promise.all([
+      apiFetch('/operations/health'), apiFetch('/models'), apiFetch('/model-datasets'), apiFetch('/model-evaluations'), apiFetch('/model-deployments'), apiFetch('/model-monitoring/events')
+    ]);
+    const mm=health.model_monitoring || {};
+    let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-bottom:20px">';
+    html+=statCard('平台版本','V'+health.version,'🏷️');
+    html+=statCard('已注册模型',(models.models||[]).length,'🧠');
+    html+=statCard('评测数据集',(datasets.datasets||[]).length,'🧪');
+    html+=statCard('离线评估',(evals.evaluations||[]).length,'📐');
+    html+=statCard('部署槽位',(deployments.deployments||[]).length,'🚀');
+    html+=statCard('漂移事件',mm.drift||0,'📉');
+    html+='</div>';
+    const deps=deployments.deployments||[];
+    html+='<div class="card"><h3>Champion / Challenger</h3>';
+    if(!deps.length) html+='<p style="color:#888;font-size:13px;margin-top:10px">尚未配置生产模型槽位。</p>';
+    deps.slice(0,20).forEach(d=>{ html+=`<div style="padding:9px 0;border-bottom:1px solid #eee;font-size:13px"><strong>${escapeHtml(d.slot||'default')}</strong> · Champion: ${escapeHtml(d.champion||'-')} · Challenger: ${escapeHtml(d.challenger||'-')}</div>`; });
+    html+='</div>';
+    const events=monitoring.events||[];
+    html+='<div class="card"><h3>最近模型监控</h3>';
+    if(!events.length) html+='<p style="color:#888;font-size:13px;margin-top:10px">暂无模型漂移监控事件。</p>';
+    events.slice(0,10).forEach(e=>{ html+=`<div style="padding:9px 0;border-bottom:1px solid #eee;font-size:13px"><strong>${escapeHtml(e.model_id||'-')}</strong> · ${escapeHtml(e.status||'-')} · ${escapeHtml(e.created_at||'')}</div>`; });
+    html+='</div>';
+    el.innerHTML=html;
+  } catch(e) { el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`; }
+}
+
+
+
+// --- V2.6 Authentication / SSO ---
+async function loadAuthConfig(){
+  const badge=document.getElementById('auth-mode-badge'), summary=document.getElementById('auth-config-summary');
+  try{
+    const cfg=await apiFetch('/auth/config');
+    if(badge){badge.textContent=cfg.enabled ? ('AUTH '+String(cfg.mode).toUpperCase()) : 'AUTH DISABLED'; badge.className='status-badge '+(cfg.enabled?'active':'');}
+    if(summary){summary.innerHTML=`Mode: <strong>${escapeHtml(cfg.mode||'disabled')}</strong> · Issuer: ${escapeHtml(cfg.issuer||'-')} · Audience: ${escapeHtml(cfg.audience||'-')} · Auto Provision: ${cfg.auto_provision?'ON':'OFF'}<br><span style="color:#777">生产 OIDC 推荐由企业 IdP/反向代理或 SPA PKCE 获取 Access Token；页面仅把 Token 保存在 sessionStorage，不持久化到服务器。</span>`;}
+    const input=document.getElementById('auth-token-input'); if(input && sessionStorage.getItem('enterprise_access_token')) input.value=sessionStorage.getItem('enterprise_access_token');
+  }catch(e){if(summary) summary.innerHTML=`<span class="error-msg">${escapeHtml(e.message)}</span>`;}
+}
+function saveAuthToken(){const el=document.getElementById('auth-token-input');const token=(el&&el.value||'').trim();if(token)sessionStorage.setItem('enterprise_access_token',token);else sessionStorage.removeItem('enterprise_access_token');loadAuthSession();}
+function clearAuthToken(){sessionStorage.removeItem('enterprise_access_token');const el=document.getElementById('auth-token-input');if(el)el.value='';const out=document.getElementById('auth-session');if(out)out.innerHTML='<span style="color:#777">Token 已清除。</span>'; }
+async function loadAuthSession(){const out=document.getElementById('auth-session');if(!out)return;out.innerHTML='<div class="loading">验证中...</div>';try{const me=await apiFetch('/auth/me');if(!me.authenticated){out.innerHTML='<span style="color:#777">认证未启用；当前为兼容单机模式。</span>';return;}const p=me.principal||{};const c=me.context||{};out.innerHTML=`<div style="font-size:13px;line-height:1.8"><strong>${escapeHtml(p.name||p.principal_id||'-')}</strong> · ${escapeHtml(p.principal_id||'-')}<br>Tenant: ${escapeHtml(c.tenant_id||p.tenant_id||'-')} · Roles: ${escapeHtml((c.roles||p.roles||[]).join(', '))}<br>Sites: ${escapeHtml((c.site_ids||[]).join(', ')||'*')} · Assets: ${escapeHtml((c.asset_ids||[]).join(', ')||'*')}</div>`;}catch(e){out.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`;}}
+
+// --- V2.5 Enterprise Identity ---
+async function loadEnterpriseIdentity(){
+  const overview=document.getElementById('identity-overview'), list=document.getElementById('identity-principals');
+  if(!overview||!list) return;
+  overview.innerHTML='<div class="loading">加载中...</div>';
+  try{
+    const [ops, principals, tenants, sites]=await Promise.all([apiFetch('/operations/health'),apiFetch('/enterprise/principals'),apiFetch('/enterprise/tenants'),apiFetch('/enterprise/sites')]);
+    const x=ops.enterprise_identity||{};
+    overview.innerHTML='<div class="workspace-grid">'+statCard('Tenant',x.tenants||0,'🏢')+statCard('Organization',x.organizations||0,'🧩')+statCard('Site',x.sites||0,'🏭')+statCard('Active Principal',x.active_principals||0,'👤')+statCard('Access Audit',x.access_audit||0,'🧾')+'</div>';
+    const rows=principals.principals||[];
+    if(!rows.length){list.innerHTML='<div style="color:#888;font-size:13px">暂无 Principal。默认单企业模式仍可正常使用。</div>';return;}
+    list.innerHTML=rows.map(p=>`<div style="padding:10px 0;border-bottom:1px solid #eee;font-size:13px"><strong>${escapeHtml(p.name||p.principal_id)}</strong> · ${escapeHtml(p.tenant_id||'default')} · Roles: ${escapeHtml((p.roles||[]).join(', '))}<br><span style="color:#777">Sites: ${escapeHtml((p.site_ids||[]).join(', ')||'*')} · Assets: ${escapeHtml((p.asset_ids||[]).join(', ')||'*')}</span></div>`).join('');
+  }catch(e){overview.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`;}
+}
+async function saveEnterprisePrincipal(){
+  const split=id=>document.getElementById(id).value.split(',').map(x=>x.trim()).filter(Boolean);
+  const payload={principal_id:document.getElementById('id-principal').value.trim(),name:document.getElementById('id-name').value.trim(),tenant_id:document.getElementById('id-tenant').value.trim()||'default',roles:split('id-roles'),site_ids:split('id-sites'),asset_ids:split('id-assets')};
+  if(!payload.principal_id||!payload.name){alert('请填写 Principal ID 和名称');return;}
+  try{await apiFetch('/enterprise/principals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});loadEnterpriseIdentity();}catch(e){alert(e.message);}
+}
+
+// --- V2.7 Secret Governance ---
+async function loadSecretOverview(){
+  const el=document.getElementById('secret-overview'); if(!el)return;
+  try{const [h,list]=await Promise.all([apiFetch('/health'),apiFetch('/secrets')]); const x=(h.secrets&&h.secrets.registry)||{}; const rows=list.secrets||[];
+    el.innerHTML=`<div style="font-size:13px;line-height:1.8">Registered: <strong>${x.registered||0}</strong> · Active: <strong>${x.active||0}</strong> · Providers: ${escapeHtml((x.providers||[]).join(', ')||'-')}<br><span style="color:#777">${rows.slice(0,6).map(r=>escapeHtml(r.secret_id)+' → '+escapeHtml(r.secret_ref)).join('<br>')||'暂无 Secret Metadata'}</span></div>`;
+  }catch(e){el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`;}
+}
+async function registerSecretRef(){
+  const payload={secret_id:document.getElementById('secret-id').value.trim(),secret_ref:document.getElementById('secret-ref').value.trim(),purpose:document.getElementById('secret-purpose').value.trim(),site_id:document.getElementById('secret-site').value.trim()};
+  if(!payload.secret_id||!payload.secret_ref){alert('Secret ID 和 Secret Ref 必填');return;}
+  try{await apiFetch('/secrets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});loadSecretOverview();}catch(e){alert(e.message);}
+}
+
 // --- Admin Panel ---
 async function loadAdmin() {
   const el = document.getElementById('admin-overview');
   el.innerHTML = '<div class="loading">加载中...</div>';
   try {
     const data = await apiFetch('/admin/overview');
+    const ops = await apiFetch('/operations/health');
     let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:20px">';
+    html += statCard('系统版本', 'V' + ops.version, '🏷️');
     html += statCard('实体数量', data.entities, '🔗');
     html += statCard('指标数量', data.metrics, '📊');
     html += statCard('数据源', data.datasources, '🗄️');
@@ -1434,12 +1751,46 @@ async function reviewCandidate(id, status) {
   }
 }
 
+async function loadDataBindings(){ loadIntegrationRuntimeSummary(); loadConnectorRuntime();
+  const el=document.getElementById('bindings-content'); el.innerHTML='<div class="loading">加载中...</div>';
+  try{ const d=await apiFetch('/data-bindings'); const rows=d.bindings||[];
+    if(!rows.length){el.innerHTML='<div class="card" style="color:#888">暂无绑定。建议先建立 Asset 主数据绑定，再建立 Sensor/Condition/Alarm/WorkOrder 绑定。</div>';return;}
+    el.innerHTML=rows.map(b=>`<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:12px"><div><strong>${escapeHtml(b.name)}</strong> <span class="workflow-chip">${escapeHtml(b.target)}</span> <span class="workflow-chip">${escapeHtml(b.source_type||'')}</span></div><span class="status-badge status-${b.status==='approved'?'approved':'pending'}">${escapeHtml(b.status)}</span></div><div style="font-size:12px;color:#777;margin-top:8px">${Object.entries(b.mappings||{}).map(([t,v])=>escapeHtml(v)+' → '+escapeHtml(t)).join(' · ')}</div><div style="margin-top:10px;display:flex;gap:8px">${b.status!=='approved'?`<button class="btn btn-success" onclick="approveBinding('${b.binding_id}')">✓ 批准</button>`:''}<button class="btn btn-outline" onclick="previewBinding('${b.binding_id}')">预览映射</button></div></div>`).join('');
+  }catch(e){el.innerHTML=`<div class="error-msg">${escapeHtml(e.message)}</div>`}
+}
+function showBindingForm(){
+  document.getElementById('binding-form-area').innerHTML=`<div class="card" style="margin-bottom:16px"><h3>新建数据绑定</h3><div class="form-row"><div class="form-field"><label>名称</label><input id="bind-name" placeholder="A101 Influx condition binding"></div><div class="form-field"><label>来源类型</label><select id="bind-source"><option>influxdb</option><option>historian</option><option>doris</option><option>mysql</option><option>postgresql</option><option>api</option><option>mqtt</option><option>csv</option></select></div><div class="form-field"><label>目标</label><select id="bind-target" onchange="bindingExample()"><option value="asset">Asset</option><option value="sensor_binding">Sensor Binding</option><option value="condition_series">Condition Series</option><option value="alarm">Alarm</option><option value="work_order">Work Order</option></select></div></div><div class="form-field"><label>字段映射 JSON（目标字段: 来源字段）</label><textarea id="bind-map" style="width:100%;height:100px;padding:8px;border:1px solid #ddd;border-radius:6px"></textarea></div><div class="form-actions"><button class="btn btn-primary" onclick="saveBinding()">保存 Draft</button><button class="btn btn-outline" onclick="document.getElementById('binding-form-area').innerHTML=''">取消</button></div></div>`; bindingExample();
+}
+function bindingExample(){const t=document.getElementById('bind-target')?.value, el=document.getElementById('bind-map');if(!el)return; const ex={asset:{asset_id:'deviceId',name:'deviceName',asset_type:'deviceType'},sensor_binding:{asset_id:'deviceId',sensor:'tagName',unit:'unit',source:'source'},condition_series:{asset_id:'deviceId',sensor:'tagName',value:'value',timestamp:'timestamp'},alarm:{asset_id:'deviceId',alarm:'alarmName',severity:'level',timestamp:'timestamp'},work_order:{asset_id:'deviceId',recommended_action:'action',priority:'priority'}};el.value=JSON.stringify(ex[t],null,2)}
+async function saveBinding(){try{await apiFetch('/data-bindings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('bind-name').value,source_type:document.getElementById('bind-source').value,target:document.getElementById('bind-target').value,mappings:JSON.parse(document.getElementById('bind-map').value)})});document.getElementById('binding-form-area').innerHTML='';loadDataBindings()}catch(e){alert('保存失败：'+e.message)}}
+async function approveBinding(id){try{await apiFetch(`/data-bindings/${id}/approve`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});loadDataBindings()}catch(e){alert(e.message)}}
+async function previewBinding(id){const raw=prompt('粘贴一条来源记录 JSON，用于映射预览：','{"deviceId":"A101","deviceName":"Compressor A101","deviceType":"compressor"}');if(!raw)return;try{const d=await apiFetch(`/data-bindings/${id}/preview`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:[JSON.parse(raw)]})});alert(JSON.stringify(d,null,2))}catch(e){alert('预览失败：'+e.message)}}
+
 function escapeHtml(s) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
 }
+
+
+async function loadConnectorRuntime(){
+  const summary=document.getElementById('connector-runtime-summary'), list=document.getElementById('connectors-content');
+  try{
+    const [c,a]=await Promise.all([apiFetch('/connectors'),apiFetch('/edge-agents')]);
+    const connectors=c.connectors||[], agents=a.agents||[];
+    if(summary) summary.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:18px"><div><strong>Connector SDK / Edge Agent</strong><div style="font-size:12px;color:#777;margin-top:4px">OT/Edge 负责厂商连接，平台消费标准 ConnectorBatch</div></div><div style="display:flex;gap:18px"><span>Connectors <b>${connectors.length}</b></span><span>Approved <b>${connectors.filter(x=>x.status==='approved').length}</b></span><span>Agents <b>${agents.length}</b></span><span>Online <b>${agents.filter(x=>x.status==='online').length}</b></span></div></div>`;
+    if(list) list.innerHTML=connectors.length?`<div class="card" style="margin-bottom:16px"><h3>Connectors</h3>${connectors.map(x=>`<div style="padding:8px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between"><span><strong>${escapeHtml(x.name)}</strong> · ${escapeHtml(x.connector_type)} · Binding ${escapeHtml(x.binding_id)}</span><span>${escapeHtml(x.status)}${x.last_cursor!=null?' · cursor '+escapeHtml(String(x.last_cursor)):''}</span></div>`).join('')}</div>`:'';
+  }catch(e){if(summary)summary.innerHTML='<div style="color:#999">Connector Runtime 状态暂不可用</div>'}
+}
+function showConnectorForm(){document.getElementById('connector-form-area').innerHTML=`<div class="card" style="margin-bottom:16px"><h3>新建 Connector</h3><div class="form-row"><div class="form-field"><label>名称</label><input id="conn-name" placeholder="F01 Edge Influx"></div><div class="form-field"><label>类型</label><select id="conn-type"><option>influxdb</option><option>jdbc</option><option>rest</option><option>mqtt</option><option>file</option></select></div><div class="form-field"><label>Binding ID</label><input id="conn-binding" placeholder="已批准 Binding ID"></div></div><div class="form-actions"><button class="btn btn-primary" onclick="saveConnector()">保存 Draft</button></div></div>`}
+async function saveConnector(){try{await apiFetch('/connectors',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('conn-name').value,connector_type:document.getElementById('conn-type').value,binding_id:document.getElementById('conn-binding').value})});document.getElementById('connector-form-area').innerHTML='';loadConnectorRuntime()}catch(e){alert('Connector 保存失败：'+e.message)}}
+function showEdgeAgentForm(){document.getElementById('connector-form-area').innerHTML=`<div class="card" style="margin-bottom:16px"><h3>注册 Edge Agent</h3><div class="form-row"><div class="form-field"><label>名称</label><input id="edge-name" placeholder="edge-f01-01"></div><div class="form-field"><label>Site</label><input id="edge-site" placeholder="F01"></div><div class="form-field"><label>版本</label><input id="edge-version" placeholder="1.0.0"></div></div><div class="form-actions"><button class="btn btn-primary" onclick="saveEdgeAgent()">注册</button></div></div>`}
+async function saveEdgeAgent(){try{await apiFetch('/edge-agents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('edge-name').value,site:document.getElementById('edge-site').value,version:document.getElementById('edge-version').value,capabilities:['influxdb','jdbc','rest','mqtt','file']})});document.getElementById('connector-form-area').innerHTML='';loadConnectorRuntime()}catch(e){alert('Edge Agent 注册失败：'+e.message)}}
+
+async function loadIntegrationRuntimeSummary(){const el=document.getElementById('integration-runtime-summary');if(!el)return;try{const d=await apiFetch('/integration/monitoring');el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>Integration Runtime</strong><div style="font-size:12px;color:#777;margin-top:4px">Watermark / Schema Drift / Data Quality / DLQ</div></div><div style="display:flex;gap:18px"><span>Bindings <b>${d.bindings||0}</b></span><span>Watermark <b>${d.with_watermark||0}</b></span><span>Quality Rules <b>${d.quality_rules||0}</b></span><span style="color:${(d.dlq_open||0)>0?'#c0392b':'#2e7d32'}">DLQ <b>${d.dlq_open||0}</b></span></div></div>`}catch(e){el.innerHTML='<div style="color:#999">Integration Runtime 状态暂不可用</div>'}}
+
 </script>
 <script src="/static/template-management.js"></script>
+
 </body>
 </html>

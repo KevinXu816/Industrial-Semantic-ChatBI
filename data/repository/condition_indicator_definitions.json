@@ -1,0 +1,16 @@
+{
+  "V16_TEMP_MEAN_TEST": {
+    "definition_id": "V16_TEMP_MEAN_TEST",
+    "indicator": "V16_TEMP_MEAN_TEST",
+    "sensor": "v16_temp",
+    "feature": "mean",
+    "warn": 70,
+    "critical": 90,
+    "updated_at": "2026-08-22T14:30:15.293205+00:00",
+    "updated_by": "reliability_engineer",
+    "status": "approved",
+    "window_points": 0,
+    "direction": "high",
+    "weight": 1.0
+  }
+}

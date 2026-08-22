@@ -1,0 +1,65 @@
+{
+  "b73fc615af01605280d8": {
+    "id": "b73fc615af01605280d8",
+    "source": "dabcb59e839b61c4",
+    "target": "db4444658609e37b",
+    "relation": "CAUSED_BY",
+    "properties": {},
+    "provenance": "FMEA-AIR-001@1.0",
+    "updated_at": "2026-08-22T14:05:32.511051+00:00"
+  },
+  "4a4dae10ea5f86ff3ab8": {
+    "id": "4a4dae10ea5f86ff3ab8",
+    "source": "dabcb59e839b61c4",
+    "target": "8f7a802c1b4c35ac",
+    "relation": "INDICATED_BY",
+    "properties": {},
+    "provenance": "FMEA-AIR-001@1.0",
+    "updated_at": "2026-08-22T14:05:32.511200+00:00"
+  },
+  "fef4b79a080014414b70": {
+    "id": "fef4b79a080014414b70",
+    "source": "dabcb59e839b61c4",
+    "target": "0584b9bb3a9398f7",
+    "relation": "DETECTED_BY",
+    "properties": {},
+    "provenance": "FMEA-AIR-001@1.0",
+    "updated_at": "2026-08-22T14:05:32.511400+00:00"
+  },
+  "ab7ea5afae059813a37c": {
+    "id": "ab7ea5afae059813a37c",
+    "source": "dabcb59e839b61c4",
+    "target": "87c6419496e18d9d",
+    "relation": "RESOLVED_BY",
+    "properties": {},
+    "provenance": "SOP-AIR-017@1.0",
+    "updated_at": "2026-08-22T14:05:32.511645+00:00"
+  },
+  "5a2c76b5c24817fb4e90": {
+    "id": "5a2c76b5c24817fb4e90",
+    "source": "95789f37438d50c3",
+    "target": "ba570853de4495d8",
+    "relation": "SUPPORTED_BY",
+    "properties": {},
+    "provenance": "knowledge:MANUAL-AIR-004:1.0:eb7fff8eba310b2e",
+    "updated_at": "2026-08-22T15:33:38.779188+00:00"
+  },
+  "3732e7d76f210cf2aa68": {
+    "id": "3732e7d76f210cf2aa68",
+    "source": "36e851389c5d5ef3",
+    "target": "8c9bef012fd784d7",
+    "relation": "SUPPORTED_BY",
+    "properties": {},
+    "provenance": "knowledge:SOP-AIR-017:1.0:6567be24cb3674c9",
+    "updated_at": "2026-08-22T15:33:38.779961+00:00"
+  },
+  "adc10937a15ea792a65c": {
+    "id": "adc10937a15ea792a65c",
+    "source": "95789f37438d50c3",
+    "target": "9811cddcde82fee4",
+    "relation": "SUPPORTED_BY",
+    "properties": {},
+    "provenance": "knowledge:FMEA-AIR-001:1.0:6476ee82a38ca1e2",
+    "updated_at": "2026-08-22T15:33:38.780805+00:00"
+  }
+}

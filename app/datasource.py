@@ -15,7 +15,8 @@ class DataSourceConfig(BaseModel):
     host: str = ""
     port: int = 0
     user: str = ""
-    password: str = ""
+    password: str = ""  # legacy/dev only; prefer credential_ref
+    credential_ref: str = ""
     database: Optional[str] = None
     enabled: bool = True
     extra: Dict[str, Any] = Field(default_factory=dict)
@@ -28,7 +29,8 @@ class DataSourceConfig(BaseModel):
 
 
 class DataSourceStore:
-    def __init__(self):
+    def __init__(self, secret_manager=None):
+        self.secret_manager = secret_manager
         self._lock = threading.Lock()
         STORE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -74,13 +76,33 @@ class DataSourceStore:
         except Exception as e:
             return {"success": False, "message": str(e)}
 
+
+    def _password(self, cfg: DataSourceConfig) -> str:
+        if cfg.credential_ref:
+            if not self.secret_manager:
+                raise RuntimeError("credential_ref configured but SecretManager is unavailable")
+            return self.secret_manager.resolve_ref(cfg.credential_ref, principal="datasource", purpose=f"datasource:{cfg.id}")
+        return cfg.password
+
+
+    def _resolved_headers(self, cfg: DataSourceConfig) -> Dict[str, str]:
+        out = {}
+        for k, v in (cfg.api_headers or {}).items():
+            if isinstance(v, str) and v.startswith("secret://"):
+                if not self.secret_manager:
+                    raise RuntimeError("secret reference configured but SecretManager is unavailable")
+                out[k] = self.secret_manager.resolve_ref(v, principal="datasource", purpose=f"datasource-header:{cfg.id}:{k}")
+            else:
+                out[k] = v
+        return out
+
     def _test_api(self, cfg: DataSourceConfig) -> Dict[str, Any]:
         import urllib.request
         url = cfg.api_url
         if not url:
             return {"success": False, "message": "API URL 未配置"}
         req = urllib.request.Request(url, method="HEAD")
-        for k, v in cfg.api_headers.items():
+        for k, v in self._resolved_headers(cfg).items():
             req.add_header(k, v)
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
@@ -89,7 +111,7 @@ class DataSourceStore:
             # HEAD might not be supported, try GET
             try:
                 req2 = urllib.request.Request(url, method="GET")
-                for k, v in cfg.api_headers.items():
+                for k, v in self._resolved_headers(cfg).items():
                     req2.add_header(k, v)
                 with urllib.request.urlopen(req2, timeout=10) as resp:
                     return {"success": True, "message": f"HTTP {resp.status} - 连接成功"}
@@ -115,11 +137,12 @@ class DataSourceStore:
                 import pymysql.cursors
             except ImportError as exc:
                 raise RuntimeError("PyMySQL 未安装，请 pip install PyMySQL") from exc
+            password = self._password(cfg)
             return pymysql.connect(
                 host=cfg.host,
                 port=cfg.port,
                 user=cfg.user,
-                password=cfg.password,
+                password=password,
                 database=cfg.database or None,
                 cursorclass=pymysql.cursors.DictCursor,
                 connect_timeout=5,
@@ -129,11 +152,12 @@ class DataSourceStore:
             try:
                 import psycopg2
                 import psycopg2.extras
+                password = self._password(cfg)
                 return psycopg2.connect(
                     host=cfg.host,
                     port=cfg.port,
                     user=cfg.user,
-                    password=cfg.password,
+                    password=password,
                     dbname=cfg.database or "postgres",
                     connect_timeout=5,
                 )
@@ -285,7 +309,7 @@ class DataSourceStore:
         if not url:
             raise ValueError("API URL 未配置")
         req = urllib.request.Request(url, method=cfg.api_method)
-        for k, v in cfg.api_headers.items():
+        for k, v in self._resolved_headers(cfg).items():
             req.add_header(k, v)
         with urllib.request.urlopen(req, timeout=15) as resp:
             body = json.loads(resp.read().decode("utf-8"))
