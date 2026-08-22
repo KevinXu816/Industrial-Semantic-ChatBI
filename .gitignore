@@ -4,6 +4,8 @@ workspace.xml
 .idea/
 .superpowers/
 
+/docs/superpowers/
+
 # Python cache
 __pycache__/
 *.py[cod]
