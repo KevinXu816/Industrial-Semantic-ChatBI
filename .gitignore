@@ -1,6 +1,8 @@
 # IDE / Workspace
 /shelf/
 workspace.xml
+.idea/
+.superpowers/
 
 # Python cache
 __pycache__/
@@ -8,3 +10,6 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Local user-managed templates
+/data/industry_templates.json

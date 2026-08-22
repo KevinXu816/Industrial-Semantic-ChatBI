@@ -110,8 +110,31 @@
 
 ### 🏭 行业模板
 - 制造业通用、能源管理、仓储物流三套预置模板
-- 一键应用：自动创建实体、关系、指标、别名
-- 不覆盖已有完整映射的实体
+- 卡片浏览和详情抽屉：查看实体、关系、指标、别名
+- 支持结构化新建/编辑模板，以及选择或拖放 JSON、YAML、YML 文件后预览创建
+- 内置模板可编辑并恢复预置版本；自定义模板可编辑和删除
+- 应用前展示新增/跳过影响，确认后安全合并，不覆盖任何同名配置
+- 用户模板和内置模板覆盖保存在 `data/industry_templates.json`
+
+模板文件示例：
+
+```yaml
+id: automotive-parts
+name: 汽车零部件
+description: 汽车零部件行业语义模板
+entities:
+  Machine:
+    description: 生产设备
+    properties:
+      machine_id:
+        type: string
+relationships: []
+metrics: {}
+aliases:
+  设备编号: machine_id
+```
+
+模板 ID 只允许小写字母、数字和连字符；上传文件必须使用 UTF-8 编码，最大 2 MiB。
 
 ### 🏷️ 字段别名与枚举映射
 - 统一不同系统的字段叫法（设备编号/资产编号 → machine_code）
@@ -163,7 +186,7 @@ uvicorn app.main:app --reload --port 8000
 
 1. 打开 Web UI
 2. (可选) 配置大模型：大模型配置 → 填写 API 地址 → 启用
-3. (可选) 应用行业模板：系统管理 → 行业模板
+3. (可选) 管理或应用行业模板：行业模板 → 查看详情 / 上传 / 新建 / 应用
 4. 配置数据源：数据源管理 → 新建 → 填写连接参数 → 测试 → 扫描
 5. 审核候选模型：候选模型审核 → 批准
 6. 开始提问：智能问答 → 输入自然语言问题
@@ -216,10 +239,15 @@ app/
   config_manager.py       # 配置导入导出 + 密码加密
   field_aliases.py        # 字段别名 + 枚举值映射
   templates.py            # 行业模板（制造/能源/物流）
+  template_models.py      # 行业模板校验模型
+  template_store.py       # 内置覆盖与自定义模板持久化
+  template_apply.py       # 模板应用预览与安全合并
   models.py               # Pydantic 数据模型
   static/
     index.html            # 主 Web UI
     graph-editor.html     # 图形化关系编辑器
+    template-management.css # 行业模板管理样式
+    template-management.js  # 行业模板管理交互
 config/
   ontology.yaml           # 基础工业本体
   metrics.yaml            # 基础指标定义
@@ -233,6 +261,7 @@ data/
   query_cache.json        # 查询缓存
   audit_log.json          # 审计日志
   field_aliases.json      # 字段别名
+  industry_templates.json # 用户模板与内置模板覆盖（首次保存后生成）
 ```
 
 ## API 概览
@@ -289,7 +318,14 @@ data/
 | GET/PUT | /llm/config | 大模型配置 |
 | POST | /llm/test | 测试连接 |
 | GET | /templates | 行业模板列表 |
-| POST | /templates/{id}/apply | 应用模板 |
+| POST | /templates/validate | 解析并校验 JSON/YAML 模板，不保存 |
+| POST | /templates | 创建自定义模板 |
+| GET | /templates/{id} | 模板详情 |
+| PUT | /templates/{id} | 编辑模板 |
+| DELETE | /templates/{id} | 删除自定义模板 |
+| POST | /templates/{id}/reset | 恢复内置模板预置版本 |
+| GET | /templates/{id}/apply-preview | 预览安全合并影响 |
+| POST | /templates/{id}/apply | 确认应用模板 |
 
 ### 系统管理
 | 方法 | 路径 | 说明 |
@@ -306,7 +342,9 @@ data/
 ## Smoke Test
 
 ```bash
-PYTHONPATH=. python tests/smoke_test.py
+pip install -r requirements-dev.txt
+python -m unittest discover -s tests -p 'test_*.py' -v
+python -m tests.smoke_test
 ```
 
 ## Screenshot 系统截图

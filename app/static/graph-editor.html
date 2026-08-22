@@ -198,61 +198,83 @@ function layoutNodes() {
   localStorage.setItem('graph-node-positions', JSON.stringify(nodePositions));
 }
 
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
+function createSvgElement(tagName, attributes = {}, text = null) {
+  const element = document.createElementNS(SVG_NAMESPACE, tagName);
+  Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, String(value)));
+  if (text !== null) element.textContent = String(text);
+  return element;
+}
+
 function render() {
   const edgesLayer = document.getElementById('edges-layer');
   const nodesLayer = document.getElementById('nodes-layer');
   const W = 160, H = 70;
-
-  // Render edges
-  let edgesHtml = '';
-  edges.forEach((e, i) => {
-    const f = nodePositions[e.from];
-    const t = nodePositions[e.to];
-    if (!f || !t) return;
-    const color = REL_COLORS[e.relation] || DEFAULT_REL_COLOR;
-    const markerMap = { 'HAS_ENERGY': 'blue', 'HAS_PRODUCTION': 'green', 'HAS_ALARM': 'red', 'HAS_WORK_ORDER': 'purple' };
-    const markerId = 'arrowhead-' + (markerMap[e.relation] || 'orange');
-    const mx = (f.x + t.x) / 2, my = (f.y + t.y) / 2;
-    const ang = Math.atan2(t.y - f.y, t.x - f.x);
-    const sx = f.x + Math.cos(ang) * (W/2 + 5);
-    const sy = f.y + Math.sin(ang) * (H/2 + 5);
-    const ex = t.x - Math.cos(ang) * (W/2 + 12);
-    const ey = t.y - Math.sin(ang) * (H/2 + 12);
-    edgesHtml += '<g class="edge-group" data-idx="' + i + '">'
-      + '<line class="edge-hit" x1="'+sx+'" y1="'+sy+'" x2="'+ex+'" y2="'+ey+'" />'
-      + '<line class="edge-line" x1="'+sx+'" y1="'+sy+'" x2="'+ex+'" y2="'+ey+'" stroke="'+color+'" marker-end="url(#'+markerId+')" />'
-      + '<rect class="edge-label-bg" x="'+(mx - e.relation.length*3.5 - 6)+'" y="'+(my-9)+'" width="'+(e.relation.length*7+12)+'" height="18" />'
-      + '<text class="edge-label" x="'+mx+'" y="'+(my+4)+'">'+e.relation+'</text>'
-      + (e.on ? '<text class="edge-on" x="'+mx+'" y="'+(my+18)+'">on: '+e.on+'</text>' : '')
-      + '</g>';
-  });
-
-  // Render nodes
-  let nodesHtml = '';
-  nodes.forEach((n, idx) => {
-    const pos = nodePositions[n.id];
-    if (!pos) return;
-    const color = COLORS[n.id] || DEFAULT_COLOR;
-    const cls = 'node' + (connectMode && connectSource === n.id ? ' connect-source' : '') + (connectMode && connectSource && connectSource !== n.id ? ' connect-target' : '');
-    nodesHtml += '<g class="'+cls+'" data-id="'+n.id+'" transform="translate('+(pos.x-W/2)+','+(pos.y-H/2)+')">'
-      + '<rect width="'+W+'" height="'+H+'" fill="'+color.fill+'" stroke="'+color.stroke+'" rx="12" ry="12" stroke-width="2" />'
-      + '<text class="icon" x="'+(W/2)+'" y="24">'+color.icon+'</text>'
-      + '<text class="label" x="'+(W/2)+'" y="45">'+n.id+'</text>'
-      + '<text class="desc" x="'+(W/2)+'" y="62">'+(n.description||'').slice(0,14)+'</text>'
-      + '</g>';
-  });
-
-  // Use a temporary SVG to parse and transplant content
-  const tmp = document.createElement('div');
-  tmp.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + edgesHtml + '</svg>';
-  const tmpEdges = tmp.querySelector('svg');
   edgesLayer.textContent = '';
-  while (tmpEdges.firstChild) edgesLayer.appendChild(tmpEdges.firstChild);
-
-  tmp.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + nodesHtml + '</svg>';
-  const tmpNodes = tmp.querySelector('svg');
   nodesLayer.textContent = '';
-  while (tmpNodes.firstChild) nodesLayer.appendChild(tmpNodes.firstChild);
+
+  edges.forEach((edge, index) => {
+    const fromPosition = nodePositions[edge.from];
+    const toPosition = nodePositions[edge.to];
+    if (!fromPosition || !toPosition) return;
+    const color = REL_COLORS[edge.relation] || DEFAULT_REL_COLOR;
+    const markerMap = { 'HAS_ENERGY': 'blue', 'HAS_PRODUCTION': 'green', 'HAS_ALARM': 'red', 'HAS_WORK_ORDER': 'purple' };
+    const markerId = 'arrowhead-' + (markerMap[edge.relation] || 'orange');
+    const middleX = (fromPosition.x + toPosition.x) / 2;
+    const middleY = (fromPosition.y + toPosition.y) / 2;
+    const angle = Math.atan2(toPosition.y - fromPosition.y, toPosition.x - fromPosition.x);
+    const startX = fromPosition.x + Math.cos(angle) * (W / 2 + 5);
+    const startY = fromPosition.y + Math.sin(angle) * (H / 2 + 5);
+    const endX = toPosition.x - Math.cos(angle) * (W / 2 + 12);
+    const endY = toPosition.y - Math.sin(angle) * (H / 2 + 12);
+    const group = createSvgElement('g', { class: 'edge-group', 'data-idx': index });
+    group.appendChild(createSvgElement('line', {
+      class: 'edge-hit', x1: startX, y1: startY, x2: endX, y2: endY,
+    }));
+    group.appendChild(createSvgElement('line', {
+      class: 'edge-line', x1: startX, y1: startY, x2: endX, y2: endY,
+      stroke: color, 'marker-end': `url(#${markerId})`,
+    }));
+    group.appendChild(createSvgElement('rect', {
+      class: 'edge-label-bg',
+      x: middleX - edge.relation.length * 3.5 - 6,
+      y: middleY - 9,
+      width: edge.relation.length * 7 + 12,
+      height: 18,
+    }));
+    group.appendChild(createSvgElement('text', {
+      class: 'edge-label', x: middleX, y: middleY + 4,
+    }, edge.relation));
+    if (edge.on) {
+      group.appendChild(createSvgElement('text', {
+        class: 'edge-on', x: middleX, y: middleY + 18,
+      }, `on: ${edge.on}`));
+    }
+    edgesLayer.appendChild(group);
+  });
+
+  nodes.forEach(node => {
+    const position = nodePositions[node.id];
+    if (!position) return;
+    const color = COLORS[node.id] || DEFAULT_COLOR;
+    const className = 'node'
+      + (connectMode && connectSource === node.id ? ' connect-source' : '')
+      + (connectMode && connectSource && connectSource !== node.id ? ' connect-target' : '');
+    const group = createSvgElement('g', {
+      class: className,
+      'data-id': node.id,
+      transform: `translate(${position.x - W / 2},${position.y - H / 2})`,
+    });
+    group.appendChild(createSvgElement('rect', {
+      width: W, height: H, fill: color.fill, stroke: color.stroke,
+      rx: 12, ry: 12, 'stroke-width': 2,
+    }));
+    group.appendChild(createSvgElement('text', { class: 'icon', x: W / 2, y: 24 }, color.icon));
+    group.appendChild(createSvgElement('text', { class: 'label', x: W / 2, y: 45 }, node.id));
+    group.appendChild(createSvgElement('text', { class: 'desc', x: W / 2, y: 62 }, (node.description || '').slice(0, 14)));
+    nodesLayer.appendChild(group);
+  });
 
   // Bind events on nodes
   nodesLayer.querySelectorAll('.node').forEach(g => {
@@ -345,9 +367,9 @@ function showRelationModal(from, to) {
     <div class="modal">
       <h3>添加关系</h3>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:14px;">
-        <strong style="color:#1976d2">${from}</strong>
+        <strong id="modal-from-label" style="color:#1976d2"></strong>
         <span style="color:#888">→</span>
-        <strong style="color:#1976d2">${to}</strong>
+        <strong id="modal-to-label" style="color:#1976d2"></strong>
       </div>
       <label>关系类型（点击选择或自定义输入）</label>
       <div class="rel-options" id="rel-options">
@@ -387,11 +409,16 @@ function showRelationModal(from, to) {
       <input id="modal-on" placeholder="例如：machine_id" />
       <div class="actions">
         <button class="btn btn-cancel" onclick="closeModal()">取消</button>
-        <button class="btn btn-primary" onclick="confirmAddRelation('${from}','${to}')">确认添加</button>
+        <button class="btn btn-primary" id="modal-confirm">确认添加</button>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
+  const fromLabel = overlay.querySelector('#modal-from-label');
+  const toLabel = overlay.querySelector('#modal-to-label');
+  fromLabel.textContent = from;
+  toLabel.textContent = to;
+  overlay.querySelector('#modal-confirm').addEventListener('click', () => confirmAddRelation(from, to));
   setTimeout(() => document.getElementById('modal-rel').focus(), 100);
 }
 
@@ -457,9 +484,9 @@ function showEditRelationModal(index, from, to, currentRel, currentOn) {
     <div class="modal">
       <h3>修改关系</h3>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:14px;">
-        <strong style="color:#1976d2">${from}</strong>
+        <strong id="modal-from-label" style="color:#1976d2"></strong>
         <span style="color:#888">→</span>
-        <strong style="color:#1976d2">${to}</strong>
+        <strong id="modal-to-label" style="color:#1976d2"></strong>
       </div>
       <label>关系类型（点击选择或自定义输入）</label>
       <div class="rel-options" id="rel-options">
@@ -493,17 +520,31 @@ function showEditRelationModal(index, from, to, currentRel, currentOn) {
         </div>
       </div>
       <div style="margin-top:8px">
-        <input id="modal-rel" value="${currentRel}" placeholder="或在此自定义输入关系类型" style="width:100%" />
+        <input id="modal-rel" placeholder="或在此自定义输入关系类型" style="width:100%" />
       </div>
       <label style="margin-top:12px">关联字段（可选）</label>
-      <input id="modal-on" value="${currentOn || ''}" placeholder="例如：machine_id" />
+      <input id="modal-on" placeholder="例如：machine_id" />
       <div class="actions">
         <button class="btn btn-cancel" onclick="closeModal()">取消</button>
-        <button class="btn btn-primary" onclick="confirmEditRelation(${index},'${from}','${to}')">确认修改</button>
+        <button class="btn btn-primary" id="modal-confirm">确认修改</button>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
+  const fromLabel = overlay.querySelector('#modal-from-label');
+  const toLabel = overlay.querySelector('#modal-to-label');
+  const relationInput = overlay.querySelector('#modal-rel');
+  fromLabel.textContent = from;
+  toLabel.textContent = to;
+  relationInput.value = currentRel;
+  overlay.querySelector('#modal-on').value = currentOn || '';
+  overlay.querySelectorAll('.rel-option').forEach(option => {
+    option.classList.toggle('selected', option.dataset.value === currentRel);
+  });
+  overlay.querySelector('#modal-confirm').addEventListener(
+    'click',
+    () => confirmEditRelation(index, from, to),
+  );
 }
 
 function confirmEditRelation(index, from, to) {

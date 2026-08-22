@@ -1,6 +1,7 @@
 import copy
 import os
 import re
+import tempfile
 from pathlib import Path
 import yaml
 from .models import SemanticIntent, MetricDefinition
@@ -9,6 +10,29 @@ ROOT = Path(__file__).resolve().parents[1]
 APPROVED_PATH = ROOT / "config" / "approved_semantic.yaml"
 CUSTOM_METRICS_PATH = ROOT / "config" / "custom_metrics.yaml"
 CUSTOM_ONTOLOGY_PATH = ROOT / "config" / "custom_ontology.yaml"
+
+
+def _atomic_write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_name = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary_name = handle.name
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_name, path)
+        temporary_name = None
+    finally:
+        if temporary_name:
+            Path(temporary_name).unlink(missing_ok=True)
 
 
 class SemanticRegistry:
@@ -34,10 +58,14 @@ class SemanticRegistry:
         self.metrics.setdefault("metrics", {}).update(custom["metrics"])
 
     def _save_custom_metrics(self, data: dict):
-        CUSTOM_METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        CUSTOM_METRICS_PATH.write_text(
-            yaml.dump({"metrics": data}, allow_unicode=True, default_flow_style=False, sort_keys=False),
-            encoding="utf-8",
+        _atomic_write_text(
+            CUSTOM_METRICS_PATH,
+            yaml.dump(
+                {"metrics": data},
+                allow_unicode=True,
+                default_flow_style=False,
+                sort_keys=False,
+            ),
         )
 
     def _load_custom_metrics(self) -> dict:
@@ -145,11 +173,63 @@ class SemanticRegistry:
             return {"entities": {}, "relationships": []}
 
     def _save_custom_ontology(self, data: dict):
-        CUSTOM_ONTOLOGY_PATH.parent.mkdir(parents=True, exist_ok=True)
-        CUSTOM_ONTOLOGY_PATH.write_text(
-            yaml.dump(data, allow_unicode=True, default_flow_style=False, sort_keys=False),
-            encoding="utf-8",
+        _atomic_write_text(
+            CUSTOM_ONTOLOGY_PATH,
+            yaml.dump(
+                data,
+                allow_unicode=True,
+                default_flow_style=False,
+                sort_keys=False,
+            ),
         )
+
+    @staticmethod
+    def _strict_yaml_mapping(path: Path, label: str) -> dict:
+        if not path.exists():
+            return {}
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, yaml.YAMLError) as exc:
+            raise RuntimeError(f"{label}读取失败：{exc}") from exc
+        if data is None:
+            return {}
+        if not isinstance(data, dict):
+            raise RuntimeError(f"{label}顶层必须是对象")
+        return data
+
+    def validate_custom_storage(self) -> None:
+        ontology = self._strict_yaml_mapping(
+            CUSTOM_ONTOLOGY_PATH, "自定义本体配置"
+        )
+        if "entities" in ontology and not isinstance(
+            ontology["entities"], dict
+        ):
+            raise RuntimeError("自定义本体 entities 必须是对象")
+        if "relationships" in ontology and not isinstance(
+            ontology["relationships"], list
+        ):
+            raise RuntimeError("自定义本体 relationships 必须是数组")
+
+        metrics = self._strict_yaml_mapping(
+            CUSTOM_METRICS_PATH, "自定义指标配置"
+        )
+        if "metrics" in metrics and not isinstance(metrics["metrics"], dict):
+            raise RuntimeError("自定义指标 metrics 必须是对象")
+
+    def snapshot_custom_state(self) -> dict[Path, bytes | None]:
+        self.validate_custom_storage()
+        return {
+            path: path.read_bytes() if path.exists() else None
+            for path in (CUSTOM_ONTOLOGY_PATH, CUSTOM_METRICS_PATH)
+        }
+
+    def restore_custom_state(self, snapshot: dict[Path, bytes | None]) -> None:
+        for path, content in snapshot.items():
+            if content is None:
+                path.unlink(missing_ok=True)
+            else:
+                _atomic_write_text(path, content.decode("utf-8"))
+        self.reload()
 
     def save_entity(self, name: str, cfg: dict) -> dict:
         """Create or update an entity in the custom ontology layer."""
@@ -186,10 +266,18 @@ class SemanticRegistry:
     def graph(self):
         nodes = []
         for name, cfg in self.ontology.get("entities", {}).items():
+            mapping = cfg.get("physical_mapping") or {}
+            table_parts = [
+                mapping.get("catalog"),
+                mapping.get("schema"),
+                mapping.get("table"),
+            ]
             nodes.append({
                 "id": name,
                 "description": cfg.get("description", ""),
-                "physical_table": self.table_ref(name),
+                "physical_table": (
+                    ".".join(table_parts) if all(table_parts) else "未配置"
+                ),
                 "properties": list(cfg.get("properties", {}).keys()),
             })
         edges = self.ontology.get("relationships", [])

@@ -1,8 +1,10 @@
 from typing import Dict, List
 from pathlib import Path
+import threading
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from pydantic import ValidationError
 from .models import ChatRequest, ChatResponse, QueryPlan, MetadataScanRequest, MetadataScanResponse, ReviewDecision, MetricDefinition, SemanticCandidate, FeedbackRequest
 from .semantic import SemanticRegistry
 from .planner import QueryPlanner
@@ -18,7 +20,16 @@ from .chat_session import ChatSessionStore, FeedbackStore
 from .observability import QueryStats
 from .config_manager import export_config, import_config
 from .field_aliases import FieldAliasStore
-from .templates import list_templates, get_template
+from .template_apply import TemplateApplier, TemplateApplyError
+from .template_models import TemplateUploadRequest
+from .template_store import (
+    TemplateConflictError,
+    TemplateNotFoundError,
+    TemplateOperationError,
+    TemplateStore,
+    TemplateStoreError,
+    TemplateValidationError,
+)
 from .join_path import JoinPathFinder
 from .cache_audit import QueryCache, AuditLog
 
@@ -36,6 +47,13 @@ session_store = ChatSessionStore()
 feedback_store = FeedbackStore()
 query_stats = QueryStats()
 alias_store = FieldAliasStore()
+semantic_write_lock = threading.RLock()
+template_store = TemplateStore()
+template_applier = TemplateApplier(
+    registry,
+    alias_store,
+    write_lock=semantic_write_lock,
+)
 query_cache = QueryCache(ttl_seconds=300)
 audit_log = AuditLog()
 
@@ -131,7 +149,8 @@ def semantic_graph():
 @app.put("/ontology/entities/{name}")
 def save_entity(name: str, cfg: dict):
     try:
-        return registry.save_entity(name, cfg)
+        with semantic_write_lock:
+            return registry.save_entity(name, cfg)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -139,7 +158,8 @@ def save_entity(name: str, cfg: dict):
 @app.delete("/ontology/entities/{name}")
 def delete_entity(name: str):
     try:
-        registry.delete_entity(name)
+        with semantic_write_lock:
+            registry.delete_entity(name)
         return {"deleted": name}
     except KeyError:
         raise HTTPException(status_code=404, detail="Entity not found in custom layer")
@@ -150,7 +170,8 @@ def delete_entity(name: str):
 @app.put("/ontology/relationships")
 def save_relationships(relationships: List[dict] = Body()):
     try:
-        return registry.save_relationships(relationships)
+        with semantic_write_lock:
+            return registry.save_relationships(relationships)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -163,7 +184,8 @@ def metrics():
 @app.post("/metrics")
 def create_metric(m: MetricDefinition):
     try:
-        return registry.add_metric(m)
+        with semantic_write_lock:
+            return registry.add_metric(m)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -171,7 +193,8 @@ def create_metric(m: MetricDefinition):
 @app.put("/metrics/{name}")
 def update_metric(name: str, m: MetricDefinition):
     try:
-        return registry.update_metric(name, m)
+        with semantic_write_lock:
+            return registry.update_metric(name, m)
     except KeyError:
         raise HTTPException(status_code=404, detail="Metric not found")
     except Exception as e:
@@ -181,7 +204,8 @@ def update_metric(name: str, m: MetricDefinition):
 @app.delete("/metrics/{name}")
 def delete_metric(name: str):
     try:
-        registry.delete_metric(name)
+        with semantic_write_lock:
+            registry.delete_metric(name)
         return {"deleted": name}
     except KeyError:
         raise HTTPException(status_code=404, detail="Metric not found (only custom metrics can be deleted)")
@@ -215,20 +239,21 @@ def semantic_candidates():
 @app.post("/semantic/candidates/{candidate_id:path}/review")
 def review_candidate(candidate_id: str, decision: ReviewDecision):
     try:
-        result = review_store.review(candidate_id, decision)
-        if decision.status == "approved":
-            review_store.export_approved_yaml()
-            # Auto-merge candidate metrics as custom metrics
-            for name, cfg in review_store.get_approved_metrics().items():
-                if name not in registry.metrics.get("metrics", {}):
-                    from .models import MetricDefinition
-                    registry.add_metric(MetricDefinition(
-                        name=name, expression=cfg["expression"],
-                        description=cfg.get("description", ""),
-                        entity=cfg.get("entity"), unit=cfg.get("unit"),
-                    ))
-            registry.reload()
-        return result
+        with semantic_write_lock:
+            result = review_store.review(candidate_id, decision)
+            if decision.status == "approved":
+                review_store.export_approved_yaml()
+                # Auto-merge candidate metrics as custom metrics
+                for name, cfg in review_store.get_approved_metrics().items():
+                    if name not in registry.metrics.get("metrics", {}):
+                        from .models import MetricDefinition
+                        registry.add_metric(MetricDefinition(
+                            name=name, expression=cfg["expression"],
+                            description=cfg.get("description", ""),
+                            entity=cfg.get("entity"), unit=cfg.get("unit"),
+                        ))
+                registry.reload()
+            return result
     except KeyError:
         raise HTTPException(status_code=404, detail="Candidate not found")
     except Exception as e:
@@ -238,8 +263,9 @@ def review_candidate(candidate_id: str, decision: ReviewDecision):
 @app.post("/semantic/merge")
 def semantic_merge():
     """Export all approved candidates to ontology and reload."""
-    yaml_text = review_store.export_approved_yaml()
-    registry.reload()
+    with semantic_write_lock:
+        yaml_text = review_store.export_approved_yaml()
+        registry.reload()
     return {"merged": True, "approved_yaml": yaml_text}
 
 
@@ -470,8 +496,9 @@ def admin_export():
 def admin_import(config: dict):
     """Import system configuration."""
     try:
-        result = import_config(config)
-        registry.reload()
+        with semantic_write_lock:
+            result = import_config(config)
+            registry.reload()
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -505,23 +532,27 @@ def get_aliases():
 
 @app.put("/aliases")
 def set_aliases(aliases: Dict[str, str] = Body()):
-    return alias_store.set_aliases(aliases)
+    with semantic_write_lock:
+        return alias_store.set_aliases(aliases)
 
 
 @app.delete("/aliases/{alias}")
 def delete_alias(alias: str):
-    alias_store.delete_alias(alias)
+    with semantic_write_lock:
+        alias_store.delete_alias(alias)
     return {"deleted": alias}
 
 
 @app.put("/enums/{entity_field}")
 def set_enum(entity_field: str, mappings: Dict[str, str] = Body()):
-    return alias_store.set_enum(entity_field, mappings)
+    with semantic_write_lock:
+        return alias_store.set_enum(entity_field, mappings)
 
 
 @app.delete("/enums/{entity_field}")
 def delete_enum(entity_field: str):
-    alias_store.delete_enum(entity_field)
+    with semantic_write_lock:
+        alias_store.delete_enum(entity_field)
     return {"deleted": entity_field}
 
 
@@ -529,44 +560,125 @@ def delete_enum(entity_field: str):
 
 @app.get("/templates")
 def list_industry_templates():
-    return list_templates()
+    try:
+        return template_store.list()
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+
+
+@app.post("/templates/validate")
+def validate_industry_template(req: object = Body()):
+    try:
+        try:
+            upload = TemplateUploadRequest.model_validate(req)
+        except ValidationError as exc:
+            errors = [
+                {
+                    "path": ".".join(str(part) for part in item["loc"]),
+                    "message": item["msg"],
+                }
+                for item in exc.errors()
+            ]
+            raise TemplateValidationError("上传请求格式无效", errors) from exc
+        template = template_store.parse_upload(upload.filename, upload.content)
+        existing_ids = {item["id"] for item in template_store.list()}
+        return {
+            "template": template,
+            "counts": {
+                "entities": len(template.get("entities", {})),
+                "relationships": len(template.get("relationships", [])),
+                "metrics": len(template.get("metrics", {})),
+                "aliases": len(template.get("aliases", {})),
+            },
+            "conflict": template["id"] in existing_ids,
+        }
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+
+
+@app.post("/templates", status_code=201)
+def create_industry_template(req: object = Body()):
+    try:
+        return template_store.create(req)
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
 
 
 @app.get("/templates/{template_id}")
 def get_industry_template(template_id: str):
-    t = get_template(template_id)
-    if not t:
-        raise HTTPException(status_code=404, detail="Template not found")
-    return t
+    try:
+        return template_store.get(template_id)
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+
+
+@app.put("/templates/{template_id}")
+def update_industry_template(template_id: str, req: object = Body()):
+    try:
+        return template_store.update(template_id, req)
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+
+
+@app.delete("/templates/{template_id}")
+def delete_industry_template(template_id: str):
+    try:
+        return template_store.delete(template_id)
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+
+
+@app.post("/templates/{template_id}/reset")
+def reset_industry_template(template_id: str):
+    try:
+        return template_store.reset(template_id)
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+
+
+@app.get("/templates/{template_id}/apply-preview")
+def preview_industry_template_apply(template_id: str):
+    try:
+        return template_applier.preview(template_store.get(template_id))
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+    except TemplateApplyError as exc:
+        raise_template_apply_http_error(exc)
 
 
 @app.post("/templates/{template_id}/apply")
 def apply_industry_template(template_id: str):
-    """Apply a template: only adds new entities, skips ones with existing physical_mapping."""
-    t = get_template(template_id)
-    if not t:
-        raise HTTPException(status_code=404, detail="Template not found")
-    added = 0
-    for name, cfg in t["entities"].items():
-        existing = registry.ontology.get("entities", {}).get(name)
-        if existing and "physical_mapping" in existing and existing["physical_mapping"].get("table"):
-            continue  # Don't overwrite entities that already have proper mappings
-        registry.save_entity(name, cfg)
-        added += 1
-    if t.get("relationships"):
-        registry.save_relationships(t["relationships"])
-    if t.get("metrics"):
-        from .models import MetricDefinition
-        for mname, mcfg in t["metrics"].items():
-            if mname not in registry.metrics.get("metrics", {}):
-                registry.add_metric(MetricDefinition(
-                    name=mname, description=mcfg.get("description", ""),
-                    expression=mcfg["expression"], unit=mcfg.get("unit"),
-                    synonyms=mcfg.get("synonyms", []),
-                ))
-    if t.get("aliases"):
-        alias_store.set_aliases(t["aliases"])
-    return {"applied": template_id, "entities_added": added, "entities_skipped": len(t["entities"]) - added}
+    try:
+        return template_applier.apply(template_store.get(template_id))
+    except TemplateStoreError as exc:
+        raise_template_http_error(exc)
+    except TemplateApplyError as exc:
+        raise_template_apply_http_error(exc)
+
+
+def raise_template_http_error(exc: TemplateStoreError):
+    if isinstance(exc, TemplateNotFoundError):
+        status = 404
+    elif isinstance(exc, TemplateConflictError):
+        status = 409
+    elif isinstance(exc, (TemplateValidationError, TemplateOperationError)):
+        status = 400
+    else:
+        status = 500
+    raise HTTPException(
+        status_code=status,
+        detail={
+            "message": str(exc),
+            "errors": getattr(exc, "errors", []),
+        },
+    )
+
+
+def raise_template_apply_http_error(exc: TemplateApplyError):
+    raise HTTPException(
+        status_code=500,
+        detail={"message": str(exc), "errors": []},
+    )
 
 
 # --- Chat History ---

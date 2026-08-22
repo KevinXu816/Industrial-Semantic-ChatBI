@@ -1,0 +1,24 @@
+id: automotive-parts
+name: 汽车零部件
+description: 用于验证行业模板上传、预览和结构化编辑流程。
+entities:
+  Part:
+    description: 汽车零部件
+    properties:
+      part_id:
+        type: string
+        description: 零部件编号
+      part_name:
+        type: string
+        description: 零部件名称
+      unit_cost:
+        type: number
+        description: 单件成本
+relationships: []
+metrics:
+  part_count:
+    name: 零部件数量
+    expression: COUNT(*)
+    unit: 件
+aliases:
+  零件编号: part_id
