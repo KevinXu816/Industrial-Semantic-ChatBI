@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from .models import ChatRequest, ChatResponse, QueryPlan, MetadataScanRequest, MetadataScanResponse, ReviewDecision, MetricDefinition, SemanticCandidate, FeedbackRequest
 from .semantic import SemanticRegistry
 from .planner import QueryPlanner
+from .rca import RCAEngine
 from .guardrail import SQLGuardrail
 from .executor import get_executor
 from .answer import AnswerComposer
@@ -38,6 +39,7 @@ _static = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=_static), name="static")
 registry = SemanticRegistry()
 planner = QueryPlanner(registry)
+rca_engine = RCAEngine()
 guardrail = SQLGuardrail()
 answer_composer = AnswerComposer()
 review_store = ReviewStore()
@@ -316,15 +318,8 @@ def chat(req: ChatRequest):
         for sql in plan.sql:
             guardrail.validate(sql)
 
-        # JOIN path info
-        join_paths = {}
-        if len(intent.related_entities) > 1:
-            finder = JoinPathFinder(registry.ontology)
-            base = intent.related_entities[0]
-            for entity in intent.related_entities[1:]:
-                path = finder.find_path(base, entity)
-                if path:
-                    join_paths[entity] = path
+        # JOIN paths are now produced by the semantic planner itself.
+        join_paths = plan.join_paths
 
         if req.preview_only:
             return {"session_id": sid, "intent": intent.model_dump(), "plan": plan.model_dump(),
@@ -332,6 +327,8 @@ def chat(req: ChatRequest):
 
         executor = get_executor()
         data = executor.execute_plan(plan.sql)
+        if intent.analysis_mode == "diagnostic":
+            data["rca"] = rca_engine.analyze(data)
         answer = answer_composer.compose(intent, data)
 
         # Prepend uncertainty warning if low confidence

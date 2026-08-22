@@ -106,5 +106,29 @@
     "detail": "A101空压机最近一周单位产量能耗为什么增加？",
     "user": "anonymous",
     "time": 1787383410.323499
+  },
+  {
+    "action": "chat",
+    "detail": "A101空压机最近一周单位产量能耗为什么增加？",
+    "user": "anonymous",
+    "time": 1787403504.041335
+  },
+  {
+    "action": "chat",
+    "detail": "3#风机昨天能耗多少？",
+    "user": "anonymous",
+    "time": 1787403506.7975628
+  },
+  {
+    "action": "chat",
+    "detail": "B202设备最近一个月产量趋势",
+    "user": "anonymous",
+    "time": 1787403508.650805
+  },
+  {
+    "action": "chat",
+    "detail": "A101空压机近7天告警情况",
+    "user": "anonymous",
+    "time": 1787403510.8569589
   }
 ]

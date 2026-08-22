@@ -523,5 +523,86 @@
         }
       }
     ]
+  },
+  "615ee11b8a2b": {
+    "created": 1787403504.040113,
+    "messages": [
+      {
+        "role": "user",
+        "content": "A101空压机最近一周单位产量能耗为什么增加？",
+        "time": 1787403504.040753
+      },
+      {
+        "role": "assistant",
+        "content": "A101 最近一周单位产量能耗约为 0.124 kWh/piece，相对基线 0.104 kWh/piece 上升 19.23%。结合告警和维修事件，最值得优先验证的原因是过滤器阻力增加导致压缩机负载上升。近期开启最多的异常为“Filter Differential Pressure High”，共 7 次；同时出现“Discharge Temperature High” 3 次；历史工单记录显示过滤器压差已上升，但当时仅检查、未更换。建议现场先检查过滤器压差、吸气阻力和排气温度，再与正常工况下的加载率/卸载率对比。",
+        "time": 1787403504.043224,
+        "metadata": {
+          "intent": {
+            "raw_question": "A101空压机最近一周单位产量能耗为什么增加？",
+            "machine_ref": "A101",
+            "metric": "specific_energy_consumption",
+            "time_window_days": 7,
+            "analysis_mode": "diagnostic",
+            "related_entities": [
+              "Machine",
+              "EnergyObservation",
+              "ProductionObservation",
+              "AlarmEvent",
+              "WorkOrder"
+            ]
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "3#风机昨天能耗多少？",
+        "time": 1787403506.7963579
+      },
+      {
+        "role": "assistant",
+        "content": "3#风机 最近一周单位产量能耗约为 0.124 kWh/piece，相对基线 0.104 kWh/piece 上升 19.23%。结合告警和维修事件，最值得优先验证的原因是过滤器阻力增加导致压缩机负载上升。近期开启最多的异常为“Filter Differential Pressure High”，共 7 次；同时出现“Discharge Temperature High” 3 次；历史工单记录显示过滤器压差已上升，但当时仅检查、未更换。建议现场先检查过滤器压差、吸气阻力和排气温度，再与正常工况下的加载率/卸载率对比。",
+        "time": 1787403506.799534,
+        "metadata": {
+          "intent": {
+            "raw_question": "3#风机昨天能耗多少？",
+            "machine_ref": "3#风机",
+            "metric": "energy_consumption",
+            "time_window_days": 1,
+            "analysis_mode": "descriptive",
+            "related_entities": [
+              "Machine",
+              "EnergyObservation"
+            ]
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "B202设备最近一个月产量趋势",
+        "time": 1787403508.649771
+      },
+      {
+        "role": "assistant",
+        "content": "B202 最近一周单位产量能耗约为 0.124 kWh/piece，相对基线 0.104 kWh/piece 上升 19.23%。结合告警和维修事件，最值得优先验证的原因是过滤器阻力增加导致压缩机负载上升。近期开启最多的异常为“Filter Differential Pressure High”，共 7 次；同时出现“Discharge Temperature High” 3 次；历史工单记录显示过滤器压差已上升，但当时仅检查、未更换。建议现场先检查过滤器压差、吸气阻力和排气温度，再与正常工况下的加载率/卸载率对比。",
+        "time": 1787403508.652554,
+        "metadata": {
+          "intent": {
+            "raw_question": "B202设备最近一个月产量趋势",
+            "machine_ref": "B202",
+            "metric": "production_output",
+            "time_window_days": 30,
+            "analysis_mode": "descriptive",
+            "related_entities": [
+              "Machine"
+            ]
+          }
+        }
+      },
+      {
+        "role": "user",
+        "content": "A101空压机近7天告警情况",
+        "time": 1787403510.855212
+      }
+    ]
   }
 }

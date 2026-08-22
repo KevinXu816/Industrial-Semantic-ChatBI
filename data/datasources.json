@@ -10,5 +10,21 @@
     "database": "production",
     "enabled": true,
     "extra": {}
+  },
+  "mysql": {
+    "id": "mysql",
+    "name": "mysql",
+    "type": "mysql",
+    "host": "192.168.123.161",
+    "port": 31046,
+    "user": "root",
+    "password": "xuholi",
+    "database": "production",
+    "enabled": true,
+    "extra": {},
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": null
   }
 }

@@ -55,7 +55,16 @@ class SemanticRegistry:
             return
         if not custom or "metrics" not in custom:
             return
-        self.metrics.setdefault("metrics", {}).update(custom["metrics"])
+        # Field-level overlay: custom edits must not erase governed execution
+        # metadata (entity/time_field/dependencies) that they do not redefine.
+        target = self.metrics.setdefault("metrics", {})
+        for name, override in custom["metrics"].items():
+            base = copy.deepcopy(target.get(name, {}))
+            if isinstance(override, dict):
+                base.update(override)
+                target[name] = base
+            else:
+                target[name] = override
 
     def _save_custom_metrics(self, data: dict):
         _atomic_write_text(

@@ -387,3 +387,11 @@ python -m tests.smoke_test
 ## License
 
 [Apache License 2.0](LICENSE) — 可自由使用、修改和分发，包括商业用途。
+
+---
+
+## V0.4 — Semantic Execution Core Upgrade
+
+This version introduces a governed metric dependency graph, ontology-driven required-entity/JOIN-path planning, field-level semantic override merging, an evidence-first RCA scaffold, and stricter read-only SQL guardrails.
+
+See [`docs/ARCHITECTURE_V0_4.md`](docs/ARCHITECTURE_V0_4.md) for the architecture and next-step roadmap.

@@ -33,6 +33,9 @@ class QueryPlan(BaseModel):
     intent: SemanticIntent
     sql: List[str]
     notes: List[str] = Field(default_factory=list)
+    metric_dependencies: List[str] = Field(default_factory=list)
+    required_entities: List[str] = Field(default_factory=list)
+    join_paths: Dict[str, List[Dict[str, Any]]] = Field(default_factory=dict)
 
 
 class ChatResponse(BaseModel):

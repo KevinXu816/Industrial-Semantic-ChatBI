@@ -151,11 +151,43 @@
       "intent_resolved": true,
       "error": "",
       "time": 1787383410.3258991
+    },
+    {
+      "question": "A101空压机最近一周单位产量能耗为什么增加？",
+      "success": true,
+      "duration_ms": 4.8,
+      "intent_resolved": true,
+      "error": "",
+      "time": 1787403504.043592
+    },
+    {
+      "question": "3#风机昨天能耗多少？",
+      "success": true,
+      "duration_ms": 4.8,
+      "intent_resolved": true,
+      "error": "",
+      "time": 1787403506.8002229
+    },
+    {
+      "question": "B202设备最近一个月产量趋势",
+      "success": true,
+      "duration_ms": 4.4,
+      "intent_resolved": true,
+      "error": "",
+      "time": 1787403508.65331
+    },
+    {
+      "question": "A101空压机近7天告警情况",
+      "success": false,
+      "duration_ms": 4.3,
+      "intent_resolved": true,
+      "error": "Unable to resolve a governed metric from the question",
+      "time": 1787403510.8582149
     }
   ],
   "summary": {
-    "total": 19,
-    "success": 10,
-    "failed": 9
+    "total": 23,
+    "success": 13,
+    "failed": 10
   }
 }
