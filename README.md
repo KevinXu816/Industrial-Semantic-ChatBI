@@ -369,3 +369,11 @@ Semantic Query、Ontology、FMEA/RCA、Asset Cockpit、Connector/Edge Agent、Id
 ## 18. 版本与许可证
 
 当前版本统一由 `app/version.py` 提供：`3.3.0`。前端版本号从 `/health` 读取。许可证以仓库根目录 `LICENSE` 文件为准。
+
+## 作者
+
+| | |
+|---|---|
+| **开发者** | 良晞 |
+| **邮箱** | xhongliang@163.com |
+| **GitHub** | [@KevinXu816](https://github.com/KevinXu816) |
