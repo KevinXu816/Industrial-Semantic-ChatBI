@@ -33,6 +33,6 @@ def test_feature_drift_monitoring(tmp_path):
 def test_v18_api_and_ui_version():
     from app.main import app
     c=TestClient(app)
-    assert c.get('/health').json()['version']=='2.9.0'
+    assert c.get('/health').json()['version']=='3.3.0'
     html=c.get('/').text
     assert 'sidebar-version' in html and 'topbar-version' in html and '模型运维' in html

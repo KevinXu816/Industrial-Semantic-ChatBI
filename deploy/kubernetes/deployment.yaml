@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: industrial-semantic
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: industrial-semantic
+  template:
+    metadata:
+      labels:
+        app: industrial-semantic
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: app
+          image: industrial-semantic:3.3.0
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: industrial-semantic-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: industrial-semantic-runtime
+                  key: database-url
+            - name: OIDC_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: industrial-semantic-runtime
+                  key: oidc-issuer
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: industrial-semantic-runtime
+                  key: oidc-client-id
+            - name: OIDC_AUDIENCE
+              valueFrom:
+                secretKeyRef:
+                  name: industrial-semantic-runtime
+                  key: oidc-audience
+            - name: DORIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: industrial-semantic-runtime
+                  key: doris-host
+            - name: DORIS_PASSWORD_REF
+              value: secret://file/doris-password
+            - name: QDRANT_URL
+              value: http://qdrant:6333
+            - name: QDRANT_API_KEY_REF
+              value: secret://file/qdrant-api-key
+          volumeMounts:
+            - name: runtime-secrets
+              mountPath: /run/secrets
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+      volumes:
+        - name: runtime-secrets
+          secret:
+            secretName: industrial-semantic-file-secrets

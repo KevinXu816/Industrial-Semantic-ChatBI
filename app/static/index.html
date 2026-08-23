@@ -192,6 +192,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
       <a href="#modelops" data-panel="modelops">🧠 模型运维</a>
       <a href="#identity" data-panel="identity">🪪 身份与租户</a>
       <a href="#auditcenter" data-panel="auditcenter">🛡️ 审计与合规</a>
+      <a href="#pilot" data-panel="pilot">🧪 企业 Pilot</a>
       <a href="#observability" data-panel="observability">📡 可观测性 / SRE</a>
       <a href="#admin" data-panel="admin">⚙️ 系统管理</a>
     </nav>
@@ -408,6 +409,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
       </div>
 
 
+      <!-- V3.1 Enterprise Pilot Pack -->
+      <div class="panel" id="panel-pilot">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <div><h3>企业 Pilot · 空压机能效异常 + 预测维修</h3><p style="font-size:13px;color:#777;margin-top:4px">Data onboarding → Reliability → RCA → Engineer acceptance → Business KPI</p></div>
+            <span class="status-badge" id="pilot-version">V3.3.0</span>
+          </div>
+          <div class="stats-grid" style="margin-top:14px">
+            <div class="stat-card"><div class="stat-value" id="pilot-ready">-</div><div class="stat-label">Pilot Readiness</div></div>
+            <div class="stat-card"><div class="stat-value" id="pilot-kpi-met">0/5</div><div class="stat-label">验收 KPI</div></div>
+            <div class="stat-card"><div class="stat-value">A101</div><div class="stat-label">Demo Asset</div></div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="pilotBootstrap()">初始化 Pilot</button>
+            <button class="btn btn-outline" onclick="pilotPrepareOnboarding()">生成客户数据绑定</button>
+            <button class="btn btn-outline" onclick="pilotRunDemo()">运行端到端 Demo</button>
+            <button class="btn btn-outline" onclick="pilotShowReport()">Pilot 验收报告</button>
+            <button class="btn btn-outline" onclick="pilotRefresh()">刷新状态</button>
+          </div>
+          <pre id="pilot-output" style="margin-top:14px;max-height:360px;overflow:auto;background:#111827;color:#e5e7eb;padding:12px;border-radius:8px">等待执行…</pre>
+        </div>
+      </div>
+
       <!-- V2.8 Audit, Compliance & Policy Center -->
       <div class="panel" id="panel-auditcenter">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
@@ -461,7 +485,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 
 <script>
 const API = '';
-const titles = { workspace: '可靠性工作台', chat: '智能问答', llm: '大模型配置', datasources: '数据源管理', bindings: '数据绑定', graph: '语义图谱', metrics: '指标注册表', scan: '元数据扫描', candidates: '候选模型审核', templates: '行业模板', assets: '资产可靠性', rcaworkflow: 'RCA 工作流', modelops: '模型运维', identity: '身份与租户', auditcenter: '审计与合规', observability: '可观测性 / SRE', admin: '系统管理' };
+const titles = { workspace: '可靠性工作台', chat: '智能问答', llm: '大模型配置', datasources: '数据源管理', bindings: '数据绑定', graph: '语义图谱', metrics: '指标注册表', scan: '元数据扫描', candidates: '候选模型审核', templates: '行业模板', assets: '资产可靠性', rcaworkflow: 'RCA 工作流', modelops: '模型运维', identity: '身份与租户', auditcenter: '审计与合规', pilot: '企业 Pilot', observability: '可观测性 / SRE', admin: '系统管理' };
 const samples = [
   'A101空压机最近一周单位产量能耗为什么增加？',
   '3#风机昨天能耗多少？',
@@ -504,6 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (panel === 'modelops') loadModelOps();
       if (panel === 'identity') { loadEnterpriseIdentity(); loadAuthConfig(); loadSecretOverview(); }
       if (panel === 'auditcenter') loadAuditCenter();
+      if (panel === 'pilot') pilotRefresh();
       if (panel === 'observability') loadObservability();
       if (panel === 'admin') loadAdmin();
     });
@@ -1873,5 +1898,18 @@ async function resolveSREAlert(id){await apiFetch('/sre/alerts/'+encodeURICompon
 async function loadTrace(){const id=document.getElementById('obs-trace-id').value.trim();if(!id)return;try{const d=await apiFetch('/observability/traces/'+encodeURIComponent(id)).then(x=>x.json());document.getElementById('obs-trace').innerHTML=(d.spans||[]).map(x=>`<div class="failure-row"><strong>${escAudit(x.name||x.span_id)}</strong><div style="font-size:12px;color:#777">${escAudit(x.service)} · ${escAudit(x.kind)} · ${escAudit(x.duration_ms)} ms · ${escAudit(x.status)}</div><div style="font-size:12px;color:#666">span ${escAudit(x.span_id)} parent ${escAudit(x.parent_span_id||'-')}</div></div>`).join('')||'<div style="color:#888">Trace 不存在</div>';}catch(e){document.getElementById('obs-trace').innerHTML=`<div class="error-msg">${escAudit(e.message||e)}</div>`;}}
 </script>
 
+
+<script>
+async function pilotRefresh(){
+  const r=await apiFetch('/pilot/readiness'); const j=await r.json();
+  document.getElementById('pilot-ready').textContent=j.status;
+  const k=j.kpis||{}; document.getElementById('pilot-kpi-met').textContent=`${k.met||0}/${(k.targets||[]).length||5}`;
+  document.getElementById('pilot-output').textContent=JSON.stringify(j,null,2);
+}
+async function pilotBootstrap(){const r=await apiFetch('/pilot/scenarios/air-compressor-energy-maintenance/bootstrap',{method:'POST'});document.getElementById('pilot-output').textContent=JSON.stringify(await r.json(),null,2);await pilotRefresh();}
+async function pilotRunDemo(){const r=await apiFetch('/pilot/run-demo',{method:'POST'});document.getElementById('pilot-output').textContent=JSON.stringify(await r.json(),null,2);await pilotRefresh();}
+async function pilotPrepareOnboarding(){const r=await apiFetch('/pilot/onboarding/prepare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site_id:'F01'})});document.getElementById('pilot-output').textContent=JSON.stringify(await r.json(),null,2);await pilotRefresh();}
+async function pilotShowReport(){const r=await apiFetch('/pilot/report');document.getElementById('pilot-output').textContent=JSON.stringify(await r.json(),null,2);}
+</script>
 </body>
 </html>

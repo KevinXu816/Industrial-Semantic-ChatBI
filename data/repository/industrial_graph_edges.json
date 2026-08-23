@@ -42,7 +42,7 @@
     "relation": "SUPPORTED_BY",
     "properties": {},
     "provenance": "knowledge:MANUAL-AIR-004:1.0:eb7fff8eba310b2e",
-    "updated_at": "2026-08-22T23:46:34.264866+00:00"
+    "updated_at": "2026-08-23T00:31:54.881065+00:00"
   },
   "3732e7d76f210cf2aa68": {
     "id": "3732e7d76f210cf2aa68",
@@ -51,7 +51,7 @@
     "relation": "SUPPORTED_BY",
     "properties": {},
     "provenance": "knowledge:SOP-AIR-017:1.0:6567be24cb3674c9",
-    "updated_at": "2026-08-22T23:46:34.265620+00:00"
+    "updated_at": "2026-08-23T00:31:54.881838+00:00"
   },
   "adc10937a15ea792a65c": {
     "id": "adc10937a15ea792a65c",
@@ -60,6 +60,60 @@
     "relation": "SUPPORTED_BY",
     "properties": {},
     "provenance": "knowledge:FMEA-AIR-001:1.0:6476ee82a38ca1e2",
-    "updated_at": "2026-08-22T23:46:34.266274+00:00"
+    "updated_at": "2026-08-23T00:31:54.882528+00:00"
+  },
+  "246777e9a9fe0da4b67e": {
+    "id": "246777e9a9fe0da4b67e",
+    "source": "2056a27b7c7a8142",
+    "target": "b345ae737119b769",
+    "relation": "HAS_COMPONENT",
+    "properties": {},
+    "provenance": "fmea:V21-FMEA-WINDOW@1.0",
+    "updated_at": "2026-08-23T00:31:54.883274+00:00"
+  },
+  "55a016c843f50130f098": {
+    "id": "55a016c843f50130f098",
+    "source": "b345ae737119b769",
+    "target": "95789f37438d50c3",
+    "relation": "HAS_FAILURE_MODE",
+    "properties": {},
+    "provenance": "fmea:V21-FMEA-WINDOW@1.0",
+    "updated_at": "2026-08-23T00:31:54.883753+00:00"
+  },
+  "b0212e0ed5f3ba26490d": {
+    "id": "b0212e0ed5f3ba26490d",
+    "source": "95789f37438d50c3",
+    "target": "2baee7fbf0914a59",
+    "relation": "CAUSED_BY",
+    "properties": {},
+    "provenance": "fmea:V21-FMEA-WINDOW@1.0",
+    "updated_at": "2026-08-23T00:31:54.884300+00:00"
+  },
+  "73b44d1ea07ac1425cfb": {
+    "id": "73b44d1ea07ac1425cfb",
+    "source": "95789f37438d50c3",
+    "target": "e00d6ce8fad190ab",
+    "relation": "HAS_EFFECT",
+    "properties": {},
+    "provenance": "fmea:V21-FMEA-WINDOW@1.0",
+    "updated_at": "2026-08-23T00:31:54.884817+00:00"
+  },
+  "0efbb1436c1dc0bd0891": {
+    "id": "0efbb1436c1dc0bd0891",
+    "source": "95789f37438d50c3",
+    "target": "449d4ce6cf15f3ce",
+    "relation": "DETECTED_BY",
+    "properties": {},
+    "provenance": "fmea:V21-FMEA-WINDOW@1.0",
+    "updated_at": "2026-08-23T00:31:54.885361+00:00"
+  },
+  "686ed419709bdb88a015": {
+    "id": "686ed419709bdb88a015",
+    "source": "95789f37438d50c3",
+    "target": "7db6a84357a8bd3d",
+    "relation": "RESOLVED_BY",
+    "properties": {},
+    "provenance": "fmea:V21-FMEA-WINDOW@1.0",
+    "updated_at": "2026-08-23T00:31:54.886003+00:00"
   }
 }

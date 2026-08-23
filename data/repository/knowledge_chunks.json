@@ -86,11 +86,11 @@
       "pressure"
     ],
     "status": "approved",
-    "knowledge_digest": "b1337bc668dcea0e",
-    "citation": "SOP-V11-TEST@1.0#b1337bc668dcea0e",
-    "provenance": "knowledge:SOP-V11-TEST:1.0:b1337bc668dcea0e",
-    "parent_citation": "SOP-V11-TEST@1.0#b1337bc668dcea0e",
-    "parent_provenance": "knowledge:SOP-V11-TEST:1.0:b1337bc668dcea0e",
+    "knowledge_digest": "a4b48f90b6e78ac2",
+    "citation": "SOP-V11-TEST@1.0#a4b48f90b6e78ac2",
+    "provenance": "knowledge:SOP-V11-TEST:1.0:a4b48f90b6e78ac2",
+    "parent_citation": "SOP-V11-TEST@1.0#a4b48f90b6e78ac2",
+    "parent_provenance": "knowledge:SOP-V11-TEST:1.0:a4b48f90b6e78ac2",
     "effective_from": null,
     "effective_to": null,
     "source_case_id": null

@@ -6,7 +6,7 @@
     "feature": "mean",
     "warn": 70,
     "critical": 90,
-    "updated_at": "2026-08-22T14:30:15.293205+00:00",
+    "updated_at": "2026-08-23T00:02:27.023069+00:00",
     "updated_by": "reliability_engineer",
     "status": "approved",
     "window_points": 0,

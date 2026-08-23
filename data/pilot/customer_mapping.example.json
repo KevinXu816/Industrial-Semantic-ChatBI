@@ -1,0 +1,36 @@
+{
+  "site_id": "F01",
+  "mapping_overrides": {
+    "asset_master": {
+      "asset_id": "equipment_code",
+      "name": "equipment_name",
+      "asset_type": "equipment_type",
+      "parent_asset_id": "line_code"
+    },
+    "iot_condition_series": {
+      "asset_id": "device_id",
+      "sensor": "tag_name",
+      "value": "tag_value",
+      "timestamp": "event_time"
+    },
+    "mes_production_series": {
+      "asset_id": "equipment_code",
+      "value": "good_qty",
+      "timestamp": "bucket_time"
+    },
+    "cmms_alarm": {
+      "asset_id": "equipment_code",
+      "alarm": "alarm_text",
+      "severity": "alarm_level",
+      "timestamp": "alarm_time",
+      "status": "alarm_status"
+    },
+    "cmms_work_order": {
+      "asset_id": "equipment_code",
+      "component": "component_name",
+      "failure_mode": "failure_mode",
+      "priority": "priority",
+      "recommended_action": "action_text"
+    }
+  }
+}

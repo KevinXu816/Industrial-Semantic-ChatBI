@@ -21,7 +21,10 @@ services:
       - qdrantdata:/qdrant/storage
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_EXTRAS: ${INSTALL_EXTRAS:-postgres,governance,auth}
     ports: ["8000:8000"]
     environment:
       PERSISTENCE_BACKEND: postgres
@@ -35,8 +38,26 @@ services:
       AUTH_JWT_SECRET_REF: ${AUTH_JWT_SECRET_REF:-}
       SECRETS_DEFAULT_PROVIDER: ${SECRETS_DEFAULT_PROVIDER:-env}
       SECRETS_FILE_ROOT: /run/secrets
-      EXECUTION_MODE: mock
-      KNOWLEDGE_BACKEND: local
+      EXECUTION_MODE: ${EXECUTION_MODE:-mock}
+      DORIS_HOST: ${DORIS_HOST:-}
+      DORIS_PORT: ${DORIS_PORT:-9030}
+      DORIS_USER: ${DORIS_USER:-root}
+      DORIS_DATABASE: ${DORIS_DATABASE:-industrial_ai}
+      DORIS_PASSWORD_REF: ${DORIS_PASSWORD_REF:-}
+      DORIS_PASSWORD: ${DORIS_PASSWORD:-}
+      KNOWLEDGE_BACKEND: ${KNOWLEDGE_BACKEND:-local}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-industrial_knowledge}
+      QDRANT_API_KEY_REF: ${QDRANT_API_KEY_REF:-}
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
+      DEPLOYMENT_ENV: ${DEPLOYMENT_ENV:-development}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     depends_on:
       postgres:
         condition: service_healthy

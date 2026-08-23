@@ -53,7 +53,7 @@ def test_v11_knowledge_api_and_health():
     client = TestClient(app)
     h = client.get("/health")
     assert h.status_code == 200
-    assert h.json()["version"] == "2.9.0"
+    assert h.json()["version"] == "3.3.0"
     created = client.post("/knowledge/documents", json={
         "id": "SOP-V11-TEST", "version": "1.0", "type": "SOP",
         "title": "过滤器检查流程", "content": "检查过滤器压差，必要时更换滤芯。",

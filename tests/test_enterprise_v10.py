@@ -45,7 +45,7 @@ def test_v10_health_and_case_api():
     client = TestClient(app)
     h = client.get("/health")
     assert h.status_code == 200
-    assert h.json()["version"] == "2.9.0"
+    assert h.json()["version"] == "3.3.0"
     created = client.post("/rca/cases", json={"question": "test enterprise case", "actor": "tester"})
     assert created.status_code == 200
     case_id = created.json()["case_id"]

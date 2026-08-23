@@ -1,9 +1,10 @@
 from typing import Dict, List
 from pathlib import Path
 import threading
+from contextlib import asynccontextmanager
 from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from pydantic import ValidationError
 from .models import ChatRequest, ChatResponse, QueryPlan, MetadataScanRequest, MetadataScanResponse, ReviewDecision, MetricDefinition, SemanticCandidate, FeedbackRequest, SemanticIntent
 from .semantic import SemanticRegistry
@@ -79,8 +80,21 @@ from .secrets import SecretRegistry, SecretManager, reject_inline_secrets
 from .audit_center import AuditCenter
 from .sre_observability import TelemetryStore, DependencyHealthService, parse_traceparent, traceparent, new_trace_id, new_span_id
 from .version import APP_VERSION, APP_NAME
+from .production_runtime import ProductionLifecycle, BackupManager, UpgradeAdvisor
+from .pilot_pack import PilotPackService
+from .pilot_delivery import PilotDeliveryService
+from .pilot_validation import PilotCustomerDataValidator
 
-app = FastAPI(title=APP_NAME, version=APP_VERSION)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # production_lifecycle is initialized below during module construction.
+    production_lifecycle.startup()
+    try:
+        yield
+    finally:
+        production_lifecycle.shutdown()
+
+app = FastAPI(title=APP_NAME, version=APP_VERSION, lifespan=lifespan)
 _static = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=_static), name="static")
 registry = SemanticRegistry()
@@ -139,17 +153,43 @@ model_evaluator = ModelEvaluationService(repository, model_registry, model_datas
 model_deployments = ModelDeploymentManager(repository, model_registry)
 model_monitoring = ModelMonitoringService(repository)
 asset_registry = AssetRegistry(repository)
+pilot_pack = PilotPackService(repository, asset_registry, fmea_store, failure_sensor_mappings, reliability_service, rca_case_store)
 asset_cockpit = AssetReliabilityCockpitService(asset_registry, reliability_service, fmea_store, rca_case_store, cmms_candidates, model_deployments, model_registry, rul_adapter)
 product_workspace = ProductWorkspaceService(asset_cockpit, rca_case_store, cmms_candidates)
 rca_workflow = RCAWorkflowService(rca_case_store, cmms_candidates, asset_registry)
 data_bindings = DataBindingStore(repository)
 integration_runtime = IntegrationRuntimeService(repository, data_bindings)
+pilot_delivery = PilotDeliveryService(repository, data_bindings, integration_runtime, rca_case_store)
+pilot_customer_validator = PilotCustomerDataValidator(repository, data_bindings, integration_runtime)
 edge_agents = EdgeAgentRegistry(repository)
 connectors = ConnectorRegistry(repository, data_bindings)
 connector_batches = ConnectorBatchProcessor(connectors, integration_runtime, edge_agents)
 enterprise_identity = EnterpriseIdentityStore(repository)
 enterprise_scope = EnterpriseScopeEngine(enterprise_identity)
 auth_service = AuthenticationService(enterprise_identity)
+
+def _production_dependency_probe():
+    def doris_probe():
+        import os, time
+        if os.getenv("EXECUTION_MODE", "mock").lower() != "doris":
+            return {"status":"disabled","mode":"mock"}
+        executor=get_executor(); started=time.perf_counter(); conn=executor.pymysql.connect(**executor.cfg)
+        try:
+            with conn.cursor() as cur: cur.execute("SELECT 1"); cur.fetchone()
+            return {"status":"ok","mode":"doris","latency_ms":round((time.perf_counter()-started)*1000,2)}
+        finally: conn.close()
+    probes={
+        "persistence": repository.health, "knowledge": knowledge_retriever.health, "doris": doris_probe,
+        "authentication": auth_service.health, "secrets": secret_manager.health,
+        "edge_agents": lambda: {"status":"ok", **edge_agents.health()},
+        "connectors": lambda: {"status":"ok", **connectors.summary()},
+        "integration_runtime": lambda: {"status":"ok", **integration_runtime.monitoring()},
+    }
+    return dependency_health.check(probes)
+
+production_lifecycle = ProductionLifecycle(repository, _production_dependency_probe, secret_manager, auth_service)
+backup_manager = BackupManager(repository)
+upgrade_advisor = UpgradeAdvisor(production_lifecycle.migrations, production_lifecycle.validator)
 # Normalize existing V2.x audit/history stores into the unified V2.8 view.
 # Import is idempotent and legacy stores remain intact for backward compatibility.
 try:
@@ -215,7 +255,7 @@ def _snapshot_semantic(action: str, actor: str = "system", detail: str = ""):
 
 # --- V2.6 Authentication / SSO middleware ---
 _AUTH_PUBLIC_PREFIXES = ("/static/",)
-_AUTH_PUBLIC_PATHS = {"/", "/health", "/auth/config", "/auth/dev/token", "/docs", "/redoc", "/openapi.json"}
+_AUTH_PUBLIC_PATHS = {"/", "/health", "/health/live", "/health/ready", "/health/startup", "/auth/config", "/auth/dev/token", "/docs", "/redoc", "/openapi.json"}
 
 @app.middleware("http")
 async def enterprise_authentication_middleware(request: Request, call_next):
@@ -268,6 +308,22 @@ async def enterprise_authentication_middleware(request: Request, call_next):
                           detail={"status_code":status_code,"duration_ms":duration_ms,"trace_id":trace_id,"span_id":span_id}, source="http_middleware")
     return response
 
+@app.get("/health/live")
+def health_live():
+    return production_lifecycle.live()
+
+@app.get("/health/startup")
+def health_startup():
+    result=production_lifecycle.startup_probe()
+    if result.get("status") != "ok": return JSONResponse(status_code=503, content=result)
+    return result
+
+@app.get("/health/ready")
+def health_ready():
+    result=production_lifecycle.ready()
+    if result.get("status") != "ok": return JSONResponse(status_code=503, content=result)
+    return result
+
 @app.get("/")
 def root():
     return FileResponse(_static / "index.html")
@@ -275,7 +331,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "version": APP_VERSION, "persistence": repository.health(), "knowledge": knowledge_retriever.health(), "knowledge_graph": {"nodes": len(industrial_graph.nodes()), "edges": len(industrial_graph.edges())}, "assets": asset_registry.stats(), "authentication": auth_service.health(), "secrets": secret_manager.health(), "observability": {"status": "ok", "trace_context": "w3c", "slo": telemetry.evaluate_slos()}}
+    return {"status": "ok", "version": APP_VERSION, "persistence": repository.health(), "knowledge": knowledge_retriever.health(), "knowledge_graph": {"nodes": len(industrial_graph.nodes()), "edges": len(industrial_graph.edges())}, "assets": asset_registry.stats(), "authentication": auth_service.health(), "secrets": secret_manager.health(), "observability": {"status": "ok", "trace_context": "w3c", "slo": telemetry.evaluate_slos()}, "production": {"configuration": production_lifecycle.validator.validate(), "migrations": production_lifecycle.migrations.status()}}
 
 
 # --- LLM configuration ---
@@ -1825,6 +1881,43 @@ def audit_export(request: Request, format: str = "json", category: str = "", ten
     media="text/csv" if format.lower()=="csv" else "application/json"
     return PlainTextResponse(content,media_type=media)
 
+@app.get("/production/config/validate")
+def production_validate_config(request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return production_lifecycle.validator.validate()
+
+@app.get("/production/migrations")
+def production_migrations(request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return production_lifecycle.migrations.status()
+
+@app.post("/production/migrations/apply")
+def production_apply_migrations(request: Request):
+    principal=_require_tenant_admin(request) if auth_service.config.mode != "disabled" else {"principal_id":"system_admin"}
+    return production_lifecycle.migrations.migrate(actor=str(principal.get("principal_id") or "system_admin"))
+
+@app.post("/production/backups")
+def production_backup(request: Request, payload: dict = Body(default={})):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return backup_manager.create(destination=str(payload.get("destination") or "") or None)
+
+@app.post("/production/backups/inspect")
+def production_backup_inspect(request: Request, payload: dict = Body(...)):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    try: return backup_manager.inspect(str(payload.get("path") or ""))
+    except (FileNotFoundError,ValueError) as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/production/backups/restore")
+def production_backup_restore(request: Request, payload: dict = Body(...)):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    try: return backup_manager.restore_json(str(payload.get("path") or ""), confirm=bool(payload.get("confirm",False)))
+    except (FileNotFoundError,ValueError,RuntimeError) as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/production/upgrade/check")
+def production_upgrade_check(request: Request, from_version: str = ""):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    return upgrade_advisor.check(from_version)
+
 @app.get("/operations/health")
 def operations_health():
     return {
@@ -1857,7 +1950,94 @@ def operations_health():
         "enterprise_identity": enterprise_identity.summary(),
         "authentication": auth_service.health(),
         "observability_sre": telemetry.summary(),
+        "production": {"configuration": production_lifecycle.validator.validate(), "migrations": production_lifecycle.migrations.status(), "live": production_lifecycle.live()},
+        "enterprise_pilot": {**pilot_pack.readiness(), "data_onboarding": pilot_delivery.onboarding_status()},
     }
+
+
+# --- V3.1 Enterprise Pilot Pack ---
+@app.get("/pilot/scenarios")
+def pilot_scenarios():
+    return {"items": pilot_pack.scenarios()}
+
+@app.get("/pilot/scenarios/{scenario_id}")
+def pilot_scenario(scenario_id: str):
+    try: return pilot_pack.get_scenario(scenario_id)
+    except KeyError: raise HTTPException(status_code=404, detail="pilot scenario not found")
+
+@app.post("/pilot/scenarios/{scenario_id}/bootstrap")
+def pilot_bootstrap(scenario_id: str, request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    try: return pilot_pack.bootstrap(scenario_id, actor="pilot_admin")
+    except (KeyError,ValueError) as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/scenarios/{scenario_id}/sample-data")
+def pilot_sample_data(scenario_id: str, points: int = 96):
+    try: pilot_pack.get_scenario(scenario_id)
+    except KeyError: raise HTTPException(status_code=404, detail="pilot scenario not found")
+    return pilot_pack.synthetic_series(points)
+
+@app.post("/pilot/run-demo")
+def pilot_run_demo(request: Request):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    try: return pilot_pack.run_demo(actor="pilot_engineer")
+    except (KeyError,ValueError) as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/pilot/kpis")
+def pilot_record_kpi(request: Request, payload: dict = Body(...)):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    try: return pilot_pack.record_kpi(payload, actor="pilot_owner")
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/kpis")
+def pilot_kpis():
+    return pilot_pack.kpis()
+
+@app.get("/pilot/readiness")
+def pilot_readiness():
+    return pilot_pack.readiness()
+
+@app.get("/pilot/data-contract")
+def pilot_data_contract():
+    return pilot_delivery.data_contract()
+
+@app.post("/pilot/onboarding/prepare")
+def pilot_prepare_onboarding(request: Request, payload: dict = Body(default={})):
+    if auth_service.config.mode != "disabled": _require_tenant_admin(request)
+    try: return pilot_delivery.prepare_bindings(payload, actor="pilot_data_engineer")
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/onboarding/status")
+def pilot_onboarding_status():
+    return pilot_delivery.onboarding_status()
+
+@app.get("/pilot/evidence-quality")
+def pilot_evidence_quality():
+    return pilot_delivery.latest_rca_quality()
+
+@app.post("/pilot/customer-data/{binding_id}/validate")
+def pilot_validate_customer_data(binding_id: str, payload: dict = Body(...)):
+    try: return pilot_customer_validator.validate(binding_id, payload.get("records") or [], actor=str(payload.get("actor", "pilot_data_engineer")))
+    except KeyError: raise HTTPException(status_code=404, detail="data binding not found")
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/pilot/customer-data/{binding_id}/dry-run")
+def pilot_customer_data_dry_run(binding_id: str, payload: dict = Body(...)):
+    try: return pilot_customer_validator.dry_run(binding_id, payload.get("records") or [], actor=str(payload.get("actor", "pilot_data_engineer")))
+    except KeyError: raise HTTPException(status_code=404, detail="data binding not found")
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/customer-data/validation")
+def pilot_customer_data_validation(binding_id: str = ""):
+    return pilot_customer_validator.latest(binding_id=binding_id)
+
+@app.get("/pilot/report")
+def pilot_acceptance_report():
+    return pilot_delivery.report(pilot_pack.readiness(), pilot_pack.kpis())
+
+@app.get("/pilot/report.md", response_class=PlainTextResponse)
+def pilot_acceptance_report_markdown():
+    return pilot_delivery.report_markdown(pilot_pack.readiness(), pilot_pack.kpis())
 
 
 # --- V2.9 Observability & SRE Control Plane ---

@@ -1,0 +1,870 @@
+{
+  "scenario_id": "air-compressor-energy-maintenance",
+  "points": [
+    {
+      "index": 0,
+      "load_pct": 72.0,
+      "production_output": 100.0,
+      "filter_dp": 5.5,
+      "discharge_temp": 72.0,
+      "active_power": 100.0,
+      "specific_energy": 1.0
+    },
+    {
+      "index": 1,
+      "load_pct": 72.75,
+      "production_output": 100.36,
+      "filter_dp": 5.58,
+      "discharge_temp": 72.22,
+      "active_power": 100.19,
+      "specific_energy": 0.9982
+    },
+    {
+      "index": 2,
+      "load_pct": 73.48,
+      "production_output": 100.72,
+      "filter_dp": 5.66,
+      "discharge_temp": 72.44,
+      "active_power": 100.37,
+      "specific_energy": 0.9965
+    },
+    {
+      "index": 3,
+      "load_pct": 74.2,
+      "production_output": 101.08,
+      "filter_dp": 5.74,
+      "discharge_temp": 72.65,
+      "active_power": 100.55,
+      "specific_energy": 0.9948
+    },
+    {
+      "index": 4,
+      "load_pct": 74.88,
+      "production_output": 101.42,
+      "filter_dp": 5.81,
+      "discharge_temp": 72.86,
+      "active_power": 100.72,
+      "specific_energy": 0.9931
+    },
+    {
+      "index": 5,
+      "load_pct": 75.51,
+      "production_output": 101.76,
+      "filter_dp": 5.87,
+      "discharge_temp": 73.05,
+      "active_power": 100.88,
+      "specific_energy": 0.9914
+    },
+    {
+      "index": 6,
+      "load_pct": 76.09,
+      "production_output": 102.08,
+      "filter_dp": 5.92,
+      "discharge_temp": 73.24,
+      "active_power": 101.02,
+      "specific_energy": 0.9897
+    },
+    {
+      "index": 7,
+      "load_pct": 76.61,
+      "production_output": 102.38,
+      "filter_dp": 5.96,
+      "discharge_temp": 73.4,
+      "active_power": 101.15,
+      "specific_energy": 0.988
+    },
+    {
+      "index": 8,
+      "load_pct": 77.05,
+      "production_output": 102.66,
+      "filter_dp": 5.99,
+      "discharge_temp": 73.55,
+      "active_power": 101.26,
+      "specific_energy": 0.9864
+    },
+    {
+      "index": 9,
+      "load_pct": 77.41,
+      "production_output": 102.92,
+      "filter_dp": 6.0,
+      "discharge_temp": 73.68,
+      "active_power": 101.35,
+      "specific_energy": 0.9848
+    },
+    {
+      "index": 10,
+      "load_pct": 77.69,
+      "production_output": 103.16,
+      "filter_dp": 6.0,
+      "discharge_temp": 73.79,
+      "active_power": 101.42,
+      "specific_energy": 0.9832
+    },
+    {
+      "index": 11,
+      "load_pct": 77.89,
+      "production_output": 103.37,
+      "filter_dp": 5.98,
+      "discharge_temp": 73.88,
+      "active_power": 101.47,
+      "specific_energy": 0.9817
+    },
+    {
+      "index": 12,
+      "load_pct": 77.98,
+      "production_output": 103.55,
+      "filter_dp": 5.95,
+      "discharge_temp": 73.94,
+      "active_power": 101.5,
+      "specific_energy": 0.9802
+    },
+    {
+      "index": 13,
+      "load_pct": 77.99,
+      "production_output": 103.7,
+      "filter_dp": 5.91,
+      "discharge_temp": 73.98,
+      "active_power": 101.5,
+      "specific_energy": 0.9788
+    },
+    {
+      "index": 14,
+      "load_pct": 77.9,
+      "production_output": 103.82,
+      "filter_dp": 5.86,
+      "discharge_temp": 74.0,
+      "active_power": 101.48,
+      "specific_energy": 0.9774
+    },
+    {
+      "index": 15,
+      "load_pct": 77.72,
+      "production_output": 103.91,
+      "filter_dp": 5.8,
+      "discharge_temp": 73.99,
+      "active_power": 101.43,
+      "specific_energy": 0.9761
+    },
+    {
+      "index": 16,
+      "load_pct": 77.46,
+      "production_output": 103.97,
+      "filter_dp": 5.73,
+      "discharge_temp": 73.96,
+      "active_power": 101.36,
+      "specific_energy": 0.9749
+    },
+    {
+      "index": 17,
+      "load_pct": 77.1,
+      "production_output": 104.0,
+      "filter_dp": 5.65,
+      "discharge_temp": 73.9,
+      "active_power": 101.28,
+      "specific_energy": 0.9738
+    },
+    {
+      "index": 18,
+      "load_pct": 76.67,
+      "production_output": 103.99,
+      "filter_dp": 5.57,
+      "discharge_temp": 73.82,
+      "active_power": 101.17,
+      "specific_energy": 0.9728
+    },
+    {
+      "index": 19,
+      "load_pct": 76.16,
+      "production_output": 103.95,
+      "filter_dp": 5.49,
+      "discharge_temp": 73.72,
+      "active_power": 101.04,
+      "specific_energy": 0.972
+    },
+    {
+      "index": 20,
+      "load_pct": 75.59,
+      "production_output": 103.88,
+      "filter_dp": 5.4,
+      "discharge_temp": 73.59,
+      "active_power": 100.9,
+      "specific_energy": 0.9713
+    },
+    {
+      "index": 21,
+      "load_pct": 74.96,
+      "production_output": 103.77,
+      "filter_dp": 5.32,
+      "discharge_temp": 73.45,
+      "active_power": 100.74,
+      "specific_energy": 0.9708
+    },
+    {
+      "index": 22,
+      "load_pct": 74.29,
+      "production_output": 103.64,
+      "filter_dp": 5.25,
+      "discharge_temp": 73.28,
+      "active_power": 100.57,
+      "specific_energy": 0.9704
+    },
+    {
+      "index": 23,
+      "load_pct": 73.58,
+      "production_output": 103.47,
+      "filter_dp": 5.18,
+      "discharge_temp": 73.11,
+      "active_power": 100.4,
+      "specific_energy": 0.9703
+    },
+    {
+      "index": 24,
+      "load_pct": 72.85,
+      "production_output": 103.28,
+      "filter_dp": 5.12,
+      "discharge_temp": 72.91,
+      "active_power": 100.21,
+      "specific_energy": 0.9703
+    },
+    {
+      "index": 25,
+      "load_pct": 72.1,
+      "production_output": 103.05,
+      "filter_dp": 5.07,
+      "discharge_temp": 72.71,
+      "active_power": 100.02,
+      "specific_energy": 0.9706
+    },
+    {
+      "index": 26,
+      "load_pct": 71.35,
+      "production_output": 102.81,
+      "filter_dp": 5.04,
+      "discharge_temp": 72.5,
+      "active_power": 99.84,
+      "specific_energy": 0.9711
+    },
+    {
+      "index": 27,
+      "load_pct": 70.61,
+      "production_output": 102.54,
+      "filter_dp": 5.01,
+      "discharge_temp": 72.28,
+      "active_power": 99.65,
+      "specific_energy": 0.9719
+    },
+    {
+      "index": 28,
+      "load_pct": 69.9,
+      "production_output": 102.25,
+      "filter_dp": 5.0,
+      "discharge_temp": 72.06,
+      "active_power": 99.47,
+      "specific_energy": 0.9729
+    },
+    {
+      "index": 29,
+      "load_pct": 69.21,
+      "production_output": 101.94,
+      "filter_dp": 5.0,
+      "discharge_temp": 71.84,
+      "active_power": 99.3,
+      "specific_energy": 0.9742
+    },
+    {
+      "index": 30,
+      "load_pct": 68.57,
+      "production_output": 101.61,
+      "filter_dp": 5.02,
+      "discharge_temp": 71.62,
+      "active_power": 99.14,
+      "specific_energy": 0.9757
+    },
+    {
+      "index": 31,
+      "load_pct": 67.98,
+      "production_output": 101.27,
+      "filter_dp": 5.05,
+      "discharge_temp": 71.4,
+      "active_power": 99.0,
+      "specific_energy": 0.9775
+    },
+    {
+      "index": 32,
+      "load_pct": 67.46,
+      "production_output": 100.92,
+      "filter_dp": 5.09,
+      "discharge_temp": 71.2,
+      "active_power": 98.86,
+      "specific_energy": 0.9796
+    },
+    {
+      "index": 33,
+      "load_pct": 67.01,
+      "production_output": 100.56,
+      "filter_dp": 5.15,
+      "discharge_temp": 71.0,
+      "active_power": 98.75,
+      "specific_energy": 0.982
+    },
+    {
+      "index": 34,
+      "load_pct": 66.63,
+      "production_output": 100.2,
+      "filter_dp": 5.21,
+      "discharge_temp": 70.81,
+      "active_power": 98.66,
+      "specific_energy": 0.9846
+    },
+    {
+      "index": 35,
+      "load_pct": 66.34,
+      "production_output": 99.84,
+      "filter_dp": 5.28,
+      "discharge_temp": 70.64,
+      "active_power": 98.58,
+      "specific_energy": 0.9874
+    },
+    {
+      "index": 36,
+      "load_pct": 66.13,
+      "production_output": 99.48,
+      "filter_dp": 5.36,
+      "discharge_temp": 70.49,
+      "active_power": 98.53,
+      "specific_energy": 0.9905
+    },
+    {
+      "index": 37,
+      "load_pct": 66.02,
+      "production_output": 99.12,
+      "filter_dp": 5.44,
+      "discharge_temp": 70.35,
+      "active_power": 98.51,
+      "specific_energy": 0.9938
+    },
+    {
+      "index": 38,
+      "load_pct": 66.0,
+      "production_output": 98.77,
+      "filter_dp": 5.53,
+      "discharge_temp": 70.24,
+      "active_power": 98.5,
+      "specific_energy": 0.9973
+    },
+    {
+      "index": 39,
+      "load_pct": 66.08,
+      "production_output": 98.43,
+      "filter_dp": 5.61,
+      "discharge_temp": 70.14,
+      "active_power": 98.52,
+      "specific_energy": 1.0009
+    },
+    {
+      "index": 40,
+      "load_pct": 66.25,
+      "production_output": 98.1,
+      "filter_dp": 5.69,
+      "discharge_temp": 70.07,
+      "active_power": 98.56,
+      "specific_energy": 1.0047
+    },
+    {
+      "index": 41,
+      "load_pct": 66.5,
+      "production_output": 97.79,
+      "filter_dp": 5.76,
+      "discharge_temp": 70.02,
+      "active_power": 98.63,
+      "specific_energy": 1.0086
+    },
+    {
+      "index": 42,
+      "load_pct": 66.85,
+      "production_output": 97.5,
+      "filter_dp": 5.83,
+      "discharge_temp": 70.0,
+      "active_power": 98.71,
+      "specific_energy": 1.0125
+    },
+    {
+      "index": 43,
+      "load_pct": 67.27,
+      "production_output": 97.22,
+      "filter_dp": 5.89,
+      "discharge_temp": 70.0,
+      "active_power": 98.82,
+      "specific_energy": 1.0164
+    },
+    {
+      "index": 44,
+      "load_pct": 67.77,
+      "production_output": 96.97,
+      "filter_dp": 5.93,
+      "discharge_temp": 70.03,
+      "active_power": 98.94,
+      "specific_energy": 1.0203
+    },
+    {
+      "index": 45,
+      "load_pct": 68.33,
+      "production_output": 96.75,
+      "filter_dp": 5.97,
+      "discharge_temp": 70.08,
+      "active_power": 99.08,
+      "specific_energy": 1.0241
+    },
+    {
+      "index": 46,
+      "load_pct": 68.95,
+      "production_output": 96.55,
+      "filter_dp": 5.99,
+      "discharge_temp": 70.16,
+      "active_power": 99.24,
+      "specific_energy": 1.0278
+    },
+    {
+      "index": 47,
+      "load_pct": 69.62,
+      "production_output": 96.38,
+      "filter_dp": 6.0,
+      "discharge_temp": 70.25,
+      "active_power": 99.4,
+      "specific_energy": 1.0314
+    },
+    {
+      "index": 48,
+      "load_pct": 70.32,
+      "production_output": 96.24,
+      "filter_dp": 5.99,
+      "discharge_temp": 70.37,
+      "active_power": 99.58,
+      "specific_energy": 1.0347
+    },
+    {
+      "index": 49,
+      "load_pct": 71.05,
+      "production_output": 96.13,
+      "filter_dp": 5.98,
+      "discharge_temp": 70.51,
+      "active_power": 99.76,
+      "specific_energy": 1.0378
+    },
+    {
+      "index": 50,
+      "load_pct": 71.8,
+      "production_output": 96.06,
+      "filter_dp": 5.94,
+      "discharge_temp": 70.67,
+      "active_power": 99.95,
+      "specific_energy": 1.0405
+    },
+    {
+      "index": 51,
+      "load_pct": 72.55,
+      "production_output": 96.01,
+      "filter_dp": 5.9,
+      "discharge_temp": 70.84,
+      "active_power": 100.14,
+      "specific_energy": 1.043
+    },
+    {
+      "index": 52,
+      "load_pct": 73.29,
+      "production_output": 96.0,
+      "filter_dp": 5.84,
+      "discharge_temp": 71.03,
+      "active_power": 100.32,
+      "specific_energy": 1.045
+    },
+    {
+      "index": 53,
+      "load_pct": 74.01,
+      "production_output": 96.02,
+      "filter_dp": 5.92,
+      "discharge_temp": 71.41,
+      "active_power": 100.82,
+      "specific_energy": 1.0499
+    },
+    {
+      "index": 54,
+      "load_pct": 74.7,
+      "production_output": 96.08,
+      "filter_dp": 6.03,
+      "discharge_temp": 71.85,
+      "active_power": 101.41,
+      "specific_energy": 1.0555
+    },
+    {
+      "index": 55,
+      "load_pct": 75.35,
+      "production_output": 96.16,
+      "filter_dp": 6.14,
+      "discharge_temp": 72.3,
+      "active_power": 101.99,
+      "specific_energy": 1.0606
+    },
+    {
+      "index": 56,
+      "load_pct": 75.94,
+      "production_output": 96.28,
+      "filter_dp": 6.25,
+      "discharge_temp": 72.76,
+      "active_power": 102.56,
+      "specific_energy": 1.0652
+    },
+    {
+      "index": 57,
+      "load_pct": 76.48,
+      "production_output": 96.43,
+      "filter_dp": 6.35,
+      "discharge_temp": 73.21,
+      "active_power": 103.12,
+      "specific_energy": 1.0693
+    },
+    {
+      "index": 58,
+      "load_pct": 76.94,
+      "production_output": 96.61,
+      "filter_dp": 6.46,
+      "discharge_temp": 73.67,
+      "active_power": 103.66,
+      "specific_energy": 1.0729
+    },
+    {
+      "index": 59,
+      "load_pct": 77.32,
+      "production_output": 96.82,
+      "filter_dp": 6.56,
+      "discharge_temp": 74.12,
+      "active_power": 104.17,
+      "specific_energy": 1.076
+    },
+    {
+      "index": 60,
+      "load_pct": 77.63,
+      "production_output": 97.05,
+      "filter_dp": 6.68,
+      "discharge_temp": 74.56,
+      "active_power": 104.67,
+      "specific_energy": 1.0785
+    },
+    {
+      "index": 61,
+      "load_pct": 77.84,
+      "production_output": 97.31,
+      "filter_dp": 6.8,
+      "discharge_temp": 75.0,
+      "active_power": 105.15,
+      "specific_energy": 1.0805
+    },
+    {
+      "index": 62,
+      "load_pct": 77.97,
+      "production_output": 97.59,
+      "filter_dp": 6.93,
+      "discharge_temp": 75.42,
+      "active_power": 105.6,
+      "specific_energy": 1.0821
+    },
+    {
+      "index": 63,
+      "load_pct": 78.0,
+      "production_output": 97.89,
+      "filter_dp": 7.07,
+      "discharge_temp": 75.83,
+      "active_power": 106.03,
+      "specific_energy": 1.0831
+    },
+    {
+      "index": 64,
+      "load_pct": 77.94,
+      "production_output": 98.21,
+      "filter_dp": 7.23,
+      "discharge_temp": 76.22,
+      "active_power": 106.43,
+      "specific_energy": 1.0838
+    },
+    {
+      "index": 65,
+      "load_pct": 77.78,
+      "production_output": 98.54,
+      "filter_dp": 7.39,
+      "discharge_temp": 76.6,
+      "active_power": 106.81,
+      "specific_energy": 1.084
+    },
+    {
+      "index": 66,
+      "load_pct": 77.54,
+      "production_output": 98.88,
+      "filter_dp": 7.57,
+      "discharge_temp": 76.95,
+      "active_power": 107.17,
+      "specific_energy": 1.0838
+    },
+    {
+      "index": 67,
+      "load_pct": 77.2,
+      "production_output": 99.24,
+      "filter_dp": 7.77,
+      "discharge_temp": 77.28,
+      "active_power": 107.51,
+      "specific_energy": 1.0834
+    },
+    {
+      "index": 68,
+      "load_pct": 76.79,
+      "production_output": 99.6,
+      "filter_dp": 7.98,
+      "discharge_temp": 77.6,
+      "active_power": 107.83,
+      "specific_energy": 1.0827
+    },
+    {
+      "index": 69,
+      "load_pct": 76.3,
+      "production_output": 99.96,
+      "filter_dp": 8.2,
+      "discharge_temp": 77.88,
+      "active_power": 108.13,
+      "specific_energy": 1.0817
+    },
+    {
+      "index": 70,
+      "load_pct": 75.75,
+      "production_output": 100.32,
+      "filter_dp": 8.43,
+      "discharge_temp": 78.15,
+      "active_power": 108.41,
+      "specific_energy": 1.0806
+    },
+    {
+      "index": 71,
+      "load_pct": 75.13,
+      "production_output": 100.68,
+      "filter_dp": 8.67,
+      "discharge_temp": 78.38,
+      "active_power": 108.68,
+      "specific_energy": 1.0794
+    },
+    {
+      "index": 72,
+      "load_pct": 74.47,
+      "production_output": 101.04,
+      "filter_dp": 8.93,
+      "discharge_temp": 78.6,
+      "active_power": 108.93,
+      "specific_energy": 1.0782
+    },
+    {
+      "index": 73,
+      "load_pct": 73.77,
+      "production_output": 101.38,
+      "filter_dp": 9.19,
+      "discharge_temp": 78.79,
+      "active_power": 109.18,
+      "specific_energy": 1.0769
+    },
+    {
+      "index": 74,
+      "load_pct": 73.04,
+      "production_output": 101.72,
+      "filter_dp": 9.45,
+      "discharge_temp": 78.95,
+      "active_power": 109.42,
+      "specific_energy": 1.0757
+    },
+    {
+      "index": 75,
+      "load_pct": 72.3,
+      "production_output": 102.04,
+      "filter_dp": 9.72,
+      "discharge_temp": 79.1,
+      "active_power": 109.65,
+      "specific_energy": 1.0746
+    },
+    {
+      "index": 76,
+      "load_pct": 71.55,
+      "production_output": 102.34,
+      "filter_dp": 9.99,
+      "discharge_temp": 79.22,
+      "active_power": 109.89,
+      "specific_energy": 1.0737
+    },
+    {
+      "index": 77,
+      "load_pct": 70.81,
+      "production_output": 102.63,
+      "filter_dp": 10.26,
+      "discharge_temp": 79.32,
+      "active_power": 110.12,
+      "specific_energy": 1.073
+    },
+    {
+      "index": 78,
+      "load_pct": 70.08,
+      "production_output": 102.89,
+      "filter_dp": 10.53,
+      "discharge_temp": 79.4,
+      "active_power": 110.36,
+      "specific_energy": 1.0726
+    },
+    {
+      "index": 79,
+      "load_pct": 69.39,
+      "production_output": 103.13,
+      "filter_dp": 10.79,
+      "discharge_temp": 79.46,
+      "active_power": 110.61,
+      "specific_energy": 1.0725
+    },
+    {
+      "index": 80,
+      "load_pct": 68.74,
+      "production_output": 103.34,
+      "filter_dp": 11.04,
+      "discharge_temp": 79.51,
+      "active_power": 110.87,
+      "specific_energy": 1.0728
+    },
+    {
+      "index": 81,
+      "load_pct": 68.13,
+      "production_output": 103.53,
+      "filter_dp": 11.28,
+      "discharge_temp": 79.55,
+      "active_power": 111.14,
+      "specific_energy": 1.0735
+    },
+    {
+      "index": 82,
+      "load_pct": 67.59,
+      "production_output": 103.69,
+      "filter_dp": 11.51,
+      "discharge_temp": 79.58,
+      "active_power": 111.42,
+      "specific_energy": 1.0746
+    },
+    {
+      "index": 83,
+      "load_pct": 67.12,
+      "production_output": 103.81,
+      "filter_dp": 11.73,
+      "discharge_temp": 79.6,
+      "active_power": 111.73,
+      "specific_energy": 1.0763
+    },
+    {
+      "index": 84,
+      "load_pct": 66.72,
+      "production_output": 103.91,
+      "filter_dp": 11.94,
+      "discharge_temp": 79.61,
+      "active_power": 112.05,
+      "specific_energy": 1.0784
+    },
+    {
+      "index": 85,
+      "load_pct": 66.41,
+      "production_output": 103.97,
+      "filter_dp": 12.13,
+      "discharge_temp": 79.62,
+      "active_power": 112.39,
+      "specific_energy": 1.081
+    },
+    {
+      "index": 86,
+      "load_pct": 66.18,
+      "production_output": 104.0,
+      "filter_dp": 12.31,
+      "discharge_temp": 79.63,
+      "active_power": 112.76,
+      "specific_energy": 1.0842
+    },
+    {
+      "index": 87,
+      "load_pct": 66.04,
+      "production_output": 103.99,
+      "filter_dp": 12.47,
+      "discharge_temp": 79.65,
+      "active_power": 113.14,
+      "specific_energy": 1.088
+    },
+    {
+      "index": 88,
+      "load_pct": 66.0,
+      "production_output": 103.96,
+      "filter_dp": 12.62,
+      "discharge_temp": 79.67,
+      "active_power": 113.55,
+      "specific_energy": 1.0923
+    },
+    {
+      "index": 89,
+      "load_pct": 66.05,
+      "production_output": 103.89,
+      "filter_dp": 12.76,
+      "discharge_temp": 79.7,
+      "active_power": 113.99,
+      "specific_energy": 1.0972
+    },
+    {
+      "index": 90,
+      "load_pct": 66.19,
+      "production_output": 103.79,
+      "filter_dp": 12.89,
+      "discharge_temp": 79.74,
+      "active_power": 114.44,
+      "specific_energy": 1.1027
+    },
+    {
+      "index": 91,
+      "load_pct": 66.43,
+      "production_output": 103.65,
+      "filter_dp": 13.01,
+      "discharge_temp": 79.8,
+      "active_power": 114.92,
+      "specific_energy": 1.1087
+    },
+    {
+      "index": 92,
+      "load_pct": 66.75,
+      "production_output": 103.49,
+      "filter_dp": 13.12,
+      "discharge_temp": 79.87,
+      "active_power": 115.42,
+      "specific_energy": 1.1153
+    },
+    {
+      "index": 93,
+      "load_pct": 67.15,
+      "production_output": 103.3,
+      "filter_dp": 13.23,
+      "discharge_temp": 79.95,
+      "active_power": 115.95,
+      "specific_energy": 1.1224
+    },
+    {
+      "index": 94,
+      "load_pct": 67.63,
+      "production_output": 103.08,
+      "filter_dp": 13.33,
+      "discharge_temp": 80.06,
+      "active_power": 116.49,
+      "specific_energy": 1.13
+    },
+    {
+      "index": 95,
+      "load_pct": 68.17,
+      "production_output": 102.84,
+      "filter_dp": 13.44,
+      "discharge_temp": 80.19,
+      "active_power": 117.04,
+      "specific_energy": 1.1381
+    }
+  ],
+  "degradation_starts_near": 53
+}

@@ -36,7 +36,7 @@ def test_v26_oidc_contract_default_disabled(monkeypatch):
     cfg=m.auth_service.reload()
     assert cfg['mode']=='disabled'
     c=TestClient(m.app)
-    assert c.get('/health').json()['version']=='2.9.0'
+    assert c.get('/health').json()['version']=='3.3.0'
     auth=c.get('/auth/config').json()
     assert auth['enabled'] is False
 

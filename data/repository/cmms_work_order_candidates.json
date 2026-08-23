@@ -52,5 +52,113 @@
         "actor": "system"
       }
     ]
+  },
+  "WO-CAND-8AFECEBD8ED8": {
+    "asset": "V16-A",
+    "priority": "P2-high",
+    "failure_mode": "bearing",
+    "recommended_action": "inspect",
+    "candidate_id": "WO-CAND-8AFECEBD8ED8",
+    "status": "draft",
+    "created_at": "2026-08-22T15:57:25.176669+00:00",
+    "created_by": "system",
+    "updated_at": "2026-08-22T15:57:25.176675+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T15:57:25.176682+00:00",
+        "action": "created",
+        "actor": "system"
+      }
+    ]
+  },
+  "WO-CAND-7F723CC22CCE": {
+    "asset": "V21-MAINT-ASSET",
+    "failure_mode": "bearing_overheat",
+    "priority": "P2-high",
+    "recommended_action": "inspect bearing",
+    "candidate_id": "WO-CAND-7F723CC22CCE",
+    "status": "draft",
+    "created_at": "2026-08-22T15:57:26.193205+00:00",
+    "created_by": "test",
+    "updated_at": "2026-08-22T15:57:26.193208+00:00",
+    "history": [
+      {
+        "at": "2026-08-22T15:57:26.193213+00:00",
+        "action": "created",
+        "actor": "test"
+      }
+    ]
+  },
+  "WO-CAND-D0ACC249AE77": {
+    "asset": "V16-A",
+    "priority": "P2-high",
+    "failure_mode": "bearing",
+    "recommended_action": "inspect",
+    "candidate_id": "WO-CAND-D0ACC249AE77",
+    "status": "draft",
+    "created_at": "2026-08-23T00:01:26.387684+00:00",
+    "created_by": "system",
+    "updated_at": "2026-08-23T00:01:26.387686+00:00",
+    "history": [
+      {
+        "at": "2026-08-23T00:01:26.387690+00:00",
+        "action": "created",
+        "actor": "system"
+      }
+    ]
+  },
+  "WO-CAND-00F6CB5465F6": {
+    "asset": "V21-MAINT-ASSET",
+    "failure_mode": "bearing_overheat",
+    "priority": "P2-high",
+    "recommended_action": "inspect bearing",
+    "candidate_id": "WO-CAND-00F6CB5465F6",
+    "status": "draft",
+    "created_at": "2026-08-23T00:01:26.999690+00:00",
+    "created_by": "test",
+    "updated_at": "2026-08-23T00:01:26.999692+00:00",
+    "history": [
+      {
+        "at": "2026-08-23T00:01:26.999695+00:00",
+        "action": "created",
+        "actor": "test"
+      }
+    ]
+  },
+  "WO-CAND-590C41932B84": {
+    "asset": "V16-A",
+    "priority": "P2-high",
+    "failure_mode": "bearing",
+    "recommended_action": "inspect",
+    "candidate_id": "WO-CAND-590C41932B84",
+    "status": "draft",
+    "created_at": "2026-08-23T00:02:27.044049+00:00",
+    "created_by": "system",
+    "updated_at": "2026-08-23T00:02:27.044051+00:00",
+    "history": [
+      {
+        "at": "2026-08-23T00:02:27.044055+00:00",
+        "action": "created",
+        "actor": "system"
+      }
+    ]
+  },
+  "WO-CAND-44126B7B98CA": {
+    "asset": "V21-MAINT-ASSET",
+    "failure_mode": "bearing_overheat",
+    "priority": "P2-high",
+    "recommended_action": "inspect bearing",
+    "candidate_id": "WO-CAND-44126B7B98CA",
+    "status": "draft",
+    "created_at": "2026-08-23T00:02:27.720533+00:00",
+    "created_by": "test",
+    "updated_at": "2026-08-23T00:02:27.720535+00:00",
+    "history": [
+      {
+        "at": "2026-08-23T00:02:27.720538+00:00",
+        "action": "created",
+        "actor": "test"
+      }
+    ]
   }
 }

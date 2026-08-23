@@ -77,11 +77,11 @@
       "pressure"
     ],
     "status": "approved",
-    "created_at": "2026-08-22T14:30:15.826876+00:00",
-    "updated_at": "2026-08-22T14:30:15.826892+00:00",
+    "created_at": "2026-08-23T00:02:27.402281+00:00",
+    "updated_at": "2026-08-23T00:02:27.402288+00:00",
     "updated_by": "tester",
-    "knowledge_digest": "b1337bc668dcea0e",
-    "citation": "SOP-V11-TEST@1.0#b1337bc668dcea0e",
-    "provenance": "knowledge:SOP-V11-TEST:1.0:b1337bc668dcea0e"
+    "knowledge_digest": "a4b48f90b6e78ac2",
+    "citation": "SOP-V11-TEST@1.0#a4b48f90b6e78ac2",
+    "provenance": "knowledge:SOP-V11-TEST:1.0:a4b48f90b6e78ac2"
   }
 }

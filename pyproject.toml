@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "industrial-semantic-chatbi"
-version = "2.9.0"
+version = "3.3.0"
 description = "Governed industrial semantic analytics, federation and reasoning engine"
 requires-python = ">=3.10"
 

@@ -30,7 +30,7 @@ def test_v27_api_secret_metadata_never_returns_value(monkeypatch):
     monkeypatch.setenv('AUTH_MODE','disabled'); m.auth_service.reload()
     monkeypatch.setenv('V27_API_SECRET','do-not-return-me')
     c=TestClient(m.app)
-    assert c.get('/health').json()['version']=='2.9.0'
+    assert c.get('/health').json()['version']=='3.3.0'
     r=c.post('/secrets',json={'secret_id':'V27-API','secret_ref':'secret://env/V27_API_SECRET','purpose':'api-test'})
     assert r.status_code==200
     body=c.get('/secrets').json()

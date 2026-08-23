@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: industrial-semantic-config
+data:
+  DEPLOYMENT_ENV: production
+  PERSISTENCE_BACKEND: postgres
+  EXECUTION_MODE: doris
+  KNOWLEDGE_BACKEND: qdrant
+  AUTH_MODE: oidc
+  AUTH_AUTO_PROVISION: "false"
+  AUTO_MIGRATE: "true"
+  SECRETS_DEFAULT_PROVIDER: file
+  SECRETS_FILE_ROOT: /run/secrets
