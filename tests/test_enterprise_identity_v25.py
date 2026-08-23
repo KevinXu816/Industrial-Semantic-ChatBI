@@ -47,7 +47,7 @@ def test_connector_edge_agent_tenant_site_isolation(tmp_path):
 def test_v25_api_contract():
     from app.main import app
     c=TestClient(app)
-    assert c.get('/health').json()['version']=='3.3.0'
+    assert c.get('/health').json()['version']=='4.9.0'
     contract=c.get('/enterprise/contract')
     assert contract.status_code==200
     assert 'tenant_admin' in contract.json()['roles']

@@ -23,3 +23,8 @@ data/semantic_snapshots/
 
 # Runtime persistence
 data/repository/
+
+# V4.9 quickstart runtime secrets
+/deploy/quickstart/.env.production
+/deploy/quickstart/runtime-secrets/
+/deploy/quickstart/bootstrap-admin.token

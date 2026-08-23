@@ -1,0 +1,14 @@
+.git
+.gitignore
+.pytest_cache
+__pycache__
+*.pyc
+.venv
+venv
+backups
+*.zip
+
+# V4.9 quickstart secrets must never enter Docker build context
+/deploy/quickstart/.env.production
+/deploy/quickstart/runtime-secrets/
+/deploy/quickstart/bootstrap-admin.token

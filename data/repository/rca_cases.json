@@ -648,5 +648,951 @@
         "status": "open"
       }
     ]
+  },
+  "RCA-20260823-CE767865": {
+    "case_id": "RCA-20260823-CE767865",
+    "status": "closed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-RCA-ASSET"
+    },
+    "title": "filter pressure abnormal",
+    "question": "filter pressure abnormal",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:05:52.583067+00:00",
+    "updated_at": "2026-08-23T00:05:52.602663+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:05:52.583067+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T00:05:52.601035+00:00",
+        "actor": "test",
+        "action": "force_resolved_for_test",
+        "status": "resolved"
+      },
+      {
+        "at": "2026-08-23T00:05:52.602663+00:00",
+        "actor": "test",
+        "action": "closed",
+        "status": "closed"
+      }
+    ],
+    "closed_at": "2026-08-23T00:05:52.602560+00:00",
+    "close_comment": "verified"
+  },
+  "RCA-20260823-A28FC708": {
+    "case_id": "RCA-20260823-A28FC708",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-MAINT-ASSET"
+    },
+    "title": "bearing risk",
+    "question": "bearing risk",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:05:52.609346+00:00",
+    "updated_at": "2026-08-23T00:05:52.609346+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:05:52.609346+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
+  },
+  "RCA-20260823-3C034900": {
+    "case_id": "RCA-20260823-3C034900",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-23T00:06:14.891830+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-23T00:06:14.876667+00:00",
+    "updated_at": "2026-08-23T00:06:14.892037+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:06:14.876667+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T00:06:14.892037+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260823-7FEF3DD4": {
+    "case_id": "RCA-20260823-7FEF3DD4",
+    "status": "closed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-RCA-ASSET"
+    },
+    "title": "filter pressure abnormal",
+    "question": "filter pressure abnormal",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:06:15.498901+00:00",
+    "updated_at": "2026-08-23T00:06:15.517613+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:06:15.498901+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T00:06:15.515424+00:00",
+        "actor": "test",
+        "action": "force_resolved_for_test",
+        "status": "resolved"
+      },
+      {
+        "at": "2026-08-23T00:06:15.517613+00:00",
+        "actor": "test",
+        "action": "closed",
+        "status": "closed"
+      }
+    ],
+    "closed_at": "2026-08-23T00:06:15.517504+00:00",
+    "close_comment": "verified"
+  },
+  "RCA-20260823-6AE403B3": {
+    "case_id": "RCA-20260823-6AE403B3",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-MAINT-ASSET"
+    },
+    "title": "bearing risk",
+    "question": "bearing risk",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:06:15.525369+00:00",
+    "updated_at": "2026-08-23T00:06:15.525369+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:06:15.525369+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
+  },
+  "RCA-20260823-1D08E514": {
+    "case_id": "RCA-20260823-1D08E514",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-23T00:25:32.083498+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-23T00:25:32.065893+00:00",
+    "updated_at": "2026-08-23T00:25:32.083665+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:25:32.065893+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T00:25:32.083665+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260823-0BBF8E5E": {
+    "case_id": "RCA-20260823-0BBF8E5E",
+    "status": "closed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-RCA-ASSET"
+    },
+    "title": "filter pressure abnormal",
+    "question": "filter pressure abnormal",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:25:32.862979+00:00",
+    "updated_at": "2026-08-23T00:25:32.993463+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:25:32.862979+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T00:25:32.990998+00:00",
+        "actor": "test",
+        "action": "force_resolved_for_test",
+        "status": "resolved"
+      },
+      {
+        "at": "2026-08-23T00:25:32.993463+00:00",
+        "actor": "test",
+        "action": "closed",
+        "status": "closed"
+      }
+    ],
+    "closed_at": "2026-08-23T00:25:32.993337+00:00",
+    "close_comment": "verified"
+  },
+  "RCA-20260823-10E756E9": {
+    "case_id": "RCA-20260823-10E756E9",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-MAINT-ASSET"
+    },
+    "title": "bearing risk",
+    "question": "bearing risk",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:25:33.002621+00:00",
+    "updated_at": "2026-08-23T00:25:33.002621+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:25:33.002621+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
+  },
+  "RCA-20260823-7AFB66BE": {
+    "case_id": "RCA-20260823-7AFB66BE",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-23T00:29:30.767060+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-23T00:29:30.747648+00:00",
+    "updated_at": "2026-08-23T00:29:30.767230+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:29:30.747648+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T00:29:30.767230+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260823-FEABB227": {
+    "case_id": "RCA-20260823-FEABB227",
+    "status": "closed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-RCA-ASSET"
+    },
+    "title": "filter pressure abnormal",
+    "question": "filter pressure abnormal",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:29:31.497722+00:00",
+    "updated_at": "2026-08-23T00:29:31.520845+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:29:31.497722+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T00:29:31.519002+00:00",
+        "actor": "test",
+        "action": "force_resolved_for_test",
+        "status": "resolved"
+      },
+      {
+        "at": "2026-08-23T00:29:31.520845+00:00",
+        "actor": "test",
+        "action": "closed",
+        "status": "closed"
+      }
+    ],
+    "closed_at": "2026-08-23T00:29:31.520717+00:00",
+    "close_comment": "verified"
+  },
+  "RCA-20260823-1290025E": {
+    "case_id": "RCA-20260823-1290025E",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-MAINT-ASSET"
+    },
+    "title": "bearing risk",
+    "question": "bearing risk",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T00:29:31.531099+00:00",
+    "updated_at": "2026-08-23T00:29:31.531099+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T00:29:31.531099+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
+  },
+  "RCA-20260823-07A0B464": {
+    "case_id": "RCA-20260823-07A0B464",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-23T02:25:24.984547+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-23T02:25:24.946832+00:00",
+    "updated_at": "2026-08-23T02:25:24.984880+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:24.946832+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:24.984880+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260823-B2B5F038": {
+    "case_id": "RCA-20260823-B2B5F038",
+    "status": "analyzed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "A101"
+    },
+    "title": "A101 同工况对标异常 RCA",
+    "question": "为什么 A101 在同工况 Peer 中 specific_energy 显著偏高？",
+    "time_window": {},
+    "metrics": [
+      "specific_energy"
+    ],
+    "analysis": {
+      "source": "peer_benchmark",
+      "assessment_id": "PB-2B6D7B73ABD9",
+      "evidence": [
+        {
+          "type": "peer_benchmark",
+          "statement": "同工况 Peer 中位数 10.0，当前值 12.0",
+          "source": "Peer Benchmark",
+          "provenance": "PB-2B6D7B73ABD9"
+        },
+        {
+          "type": "operating_context",
+          "statement": "P1 · auto · high-load · normal",
+          "source": "Operating Context",
+          "provenance": "PB-2B6D7B73ABD9"
+        },
+        {
+          "type": "priority",
+          "statement": "P1 / 100.0",
+          "source": "Peer Benchmark",
+          "provenance": "PB-2B6D7B73ABD9"
+        }
+      ],
+      "hypotheses": []
+    },
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:26.012383+00:00",
+    "updated_at": "2026-08-23T02:25:26.013457+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:26.012383+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:26.013457+00:00",
+        "actor": "test",
+        "action": "analysis_attached",
+        "status": "analyzed"
+      }
+    ]
+  },
+  "RCA-20260823-EB970587": {
+    "case_id": "RCA-20260823-EB970587",
+    "status": "resolved",
+    "subject": {
+      "entity": "Machine",
+      "reference": "A101"
+    },
+    "title": "why",
+    "question": "why",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": {
+      "confirmed_root_cause": "filter_restriction",
+      "action": "replace_filter",
+      "resolved_by": "test",
+      "resolved_at": "2026-08-23T02:25:26.043632+00:00"
+    },
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:26.043036+00:00",
+    "updated_at": "2026-08-23T02:25:26.043869+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:26.043036+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:26.043869+00:00",
+        "actor": "test",
+        "action": "resolved",
+        "status": "resolved"
+      }
+    ]
+  },
+  "RCA-20260823-B292C7C5": {
+    "case_id": "RCA-20260823-B292C7C5",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "A201"
+    },
+    "title": "why",
+    "question": "why",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:26.046512+00:00",
+    "updated_at": "2026-08-23T02:25:26.046512+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:26.046512+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
+  },
+  "RCA-20260823-31E39653": {
+    "case_id": "RCA-20260823-31E39653",
+    "status": "closed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-RCA-ASSET"
+    },
+    "title": "filter pressure abnormal",
+    "question": "filter pressure abnormal",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:26.269307+00:00",
+    "updated_at": "2026-08-23T02:25:26.304940+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:26.269307+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:26.302115+00:00",
+        "actor": "test",
+        "action": "force_resolved_for_test",
+        "status": "resolved"
+      },
+      {
+        "at": "2026-08-23T02:25:26.304940+00:00",
+        "actor": "test",
+        "action": "closed",
+        "status": "closed"
+      }
+    ],
+    "closed_at": "2026-08-23T02:25:26.304737+00:00",
+    "close_comment": "verified"
+  },
+  "RCA-20260823-57BE9A11": {
+    "case_id": "RCA-20260823-57BE9A11",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-MAINT-ASSET"
+    },
+    "title": "bearing risk",
+    "question": "bearing risk",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:26.319194+00:00",
+    "updated_at": "2026-08-23T02:25:26.319194+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:26.319194+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
+  },
+  "RCA-20260823-16CC4F0B": {
+    "case_id": "RCA-20260823-16CC4F0B",
+    "status": "reviewed",
+    "subject": {},
+    "title": "test enterprise case",
+    "question": "test enterprise case",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "demo",
+    "resolution": null,
+    "review": {
+      "accepted": true,
+      "predicted_cause": "demo",
+      "reviewed_by": "engineer",
+      "reviewed_at": "2026-08-23T02:25:53.755125+00:00"
+    },
+    "created_by": "tester",
+    "created_at": "2026-08-23T02:25:53.716696+00:00",
+    "updated_at": "2026-08-23T02:25:53.755409+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:53.716696+00:00",
+        "actor": "tester",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:53.755409+00:00",
+        "actor": "engineer",
+        "action": "reviewed",
+        "status": "reviewed"
+      }
+    ]
+  },
+  "RCA-20260823-8B0D7937": {
+    "case_id": "RCA-20260823-8B0D7937",
+    "status": "analyzed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "A101"
+    },
+    "title": "A101 同工况对标异常 RCA",
+    "question": "为什么 A101 在同工况 Peer 中 specific_energy 显著偏高？",
+    "time_window": {},
+    "metrics": [
+      "specific_energy"
+    ],
+    "analysis": {
+      "source": "peer_benchmark",
+      "assessment_id": "PB-13A2AC462A8B",
+      "evidence": [
+        {
+          "type": "peer_benchmark",
+          "statement": "同工况 Peer 中位数 10.0，当前值 12.0",
+          "source": "Peer Benchmark",
+          "provenance": "PB-13A2AC462A8B"
+        },
+        {
+          "type": "operating_context",
+          "statement": "P1 · auto · high-load · normal",
+          "source": "Operating Context",
+          "provenance": "PB-13A2AC462A8B"
+        },
+        {
+          "type": "priority",
+          "statement": "P1 / 100.0",
+          "source": "Peer Benchmark",
+          "provenance": "PB-13A2AC462A8B"
+        }
+      ],
+      "hypotheses": []
+    },
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:54.964813+00:00",
+    "updated_at": "2026-08-23T02:25:54.965790+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:54.964813+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:54.965790+00:00",
+        "actor": "test",
+        "action": "analysis_attached",
+        "status": "analyzed"
+      }
+    ]
+  },
+  "RCA-20260823-A264DADF": {
+    "case_id": "RCA-20260823-A264DADF",
+    "status": "resolved",
+    "subject": {
+      "entity": "Machine",
+      "reference": "A101"
+    },
+    "title": "why",
+    "question": "why",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": {
+      "confirmed_root_cause": "filter_restriction",
+      "action": "replace_filter",
+      "resolved_by": "test",
+      "resolved_at": "2026-08-23T02:25:55.002434+00:00"
+    },
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:55.001781+00:00",
+    "updated_at": "2026-08-23T02:25:55.002679+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:55.001781+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:55.002679+00:00",
+        "actor": "test",
+        "action": "resolved",
+        "status": "resolved"
+      }
+    ]
+  },
+  "RCA-20260823-50AF74D4": {
+    "case_id": "RCA-20260823-50AF74D4",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "A201"
+    },
+    "title": "why",
+    "question": "why",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:55.006143+00:00",
+    "updated_at": "2026-08-23T02:25:55.006143+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:55.006143+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
+  },
+  "RCA-20260823-F0272AC1": {
+    "case_id": "RCA-20260823-F0272AC1",
+    "status": "closed",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-RCA-ASSET"
+    },
+    "title": "filter pressure abnormal",
+    "question": "filter pressure abnormal",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": "filter_restriction",
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:55.310825+00:00",
+    "updated_at": "2026-08-23T02:25:55.352909+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:55.310825+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      },
+      {
+        "at": "2026-08-23T02:25:55.349810+00:00",
+        "actor": "test",
+        "action": "force_resolved_for_test",
+        "status": "resolved"
+      },
+      {
+        "at": "2026-08-23T02:25:55.352909+00:00",
+        "actor": "test",
+        "action": "closed",
+        "status": "closed"
+      }
+    ],
+    "closed_at": "2026-08-23T02:25:55.352664+00:00",
+    "close_comment": "verified"
+  },
+  "RCA-20260823-5E08EBD2": {
+    "case_id": "RCA-20260823-5E08EBD2",
+    "status": "open",
+    "subject": {
+      "entity": "Machine",
+      "reference": "V21-MAINT-ASSET"
+    },
+    "title": "bearing risk",
+    "question": "bearing risk",
+    "time_window": {},
+    "metrics": [],
+    "analysis": null,
+    "evidence_graph": null,
+    "hypotheses": [],
+    "confirmed_root_cause": null,
+    "resolution": null,
+    "review": null,
+    "created_by": "test",
+    "created_at": "2026-08-23T02:25:55.369664+00:00",
+    "updated_at": "2026-08-23T02:25:55.369664+00:00",
+    "tenant_id": "default",
+    "org_id": "",
+    "site_id": "",
+    "history": [
+      {
+        "at": "2026-08-23T02:25:55.369664+00:00",
+        "actor": "test",
+        "action": "created",
+        "status": "open"
+      }
+    ]
   }
 }

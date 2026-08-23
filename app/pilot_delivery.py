@@ -53,7 +53,7 @@ class PilotDeliveryService:
 
     def data_contract(self) -> Dict[str, Any]:
         return {
-            "contract_version": "3.3",
+            "contract_version": "3.4",
             "scenario": "air-compressor-energy-maintenance",
             "recommended_shape": "Normalize time-series to asset_id/sensor/value/timestamp before platform ingestion.",
             "required_signals": ["active_power", "production_output", "filter_dp", "discharge_temp", "load_pct"],
@@ -119,7 +119,7 @@ class PilotDeliveryService:
         if missing: blockers.append("business KPI measurements are incomplete")
         decision="GO" if kpis.get("pilot_go") and not blockers else "NO_GO"
         return {
-            "report_version":"3.3", "scenario_id":"air-compressor-energy-maintenance", "generated_at":_now(),
+            "report_version":"3.4", "scenario_id":"air-compressor-energy-maintenance", "generated_at":_now(),
             "decision":decision, "pilot_go":decision=="GO", "blockers":blockers,
             "readiness":pilot_readiness, "data_onboarding":onboarding, "rca_evidence_quality":evidence, "business_kpis":kpis,
             "acceptance_rule":"GO requires technical readiness, approved customer-data bindings, acceptable RCA evidence when measured, and all five business KPI measurements meeting target.",

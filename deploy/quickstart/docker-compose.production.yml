@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-industrial_semantic}
+      POSTGRES_USER: ${POSTGRES_USER:-industrial_semantic}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - v49_pgdata:/var/lib/postgresql/data
+      - ../postgres/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-industrial_semantic} -d ${POSTGRES_DB:-industrial_semantic}"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks: [platform]
+
+  app:
+    build:
+      context: ../..
+      args:
+        INSTALL_EXTRAS: ${INSTALL_EXTRAS:-postgres,governance,auth}
+    restart: unless-stopped
+    environment:
+      DEPLOYMENT_ENV: production
+      PERSISTENCE_BACKEND: postgres
+      DATABASE_URL: postgresql://${POSTGRES_USER:-industrial_semantic}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-industrial_semantic}
+      DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-default}
+      AUTH_MODE: jwt
+      AUTH_AUTO_PROVISION: "true"
+      AUTH_JWT_SECRET_REF: secret://file/auth_jwt_secret
+      SECRETS_DEFAULT_PROVIDER: file
+      SECRETS_FILE_ROOT: /run/secrets
+      AUTO_MIGRATE: "true"
+      EXECUTION_MODE: ${EXECUTION_MODE:-mock}
+      DORIS_HOST: ${DORIS_HOST:-}
+      DORIS_PORT: ${DORIS_PORT:-9030}
+      DORIS_USER: ${DORIS_USER:-root}
+      DORIS_DATABASE: ${DORIS_DATABASE:-industrial_ai}
+      DORIS_PASSWORD_REF: ${DORIS_PASSWORD_REF:-}
+      KNOWLEDGE_BACKEND: ${KNOWLEDGE_BACKEND:-local}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-industrial_knowledge}
+      ALLOW_PRIVATE_API_PULL: "false"
+      ALLOW_INSECURE_API_HTTP: "false"
+    volumes:
+      - ./runtime-secrets:/run/secrets:ro
+    expose: ["8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 25s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [platform]
+
+  qdrant:
+    image: qdrant/qdrant:v1.15.3
+    profiles: ["qdrant"]
+    restart: unless-stopped
+    volumes: ["v49_qdrant:/qdrant/storage"]
+    networks: [platform]
+
+  gateway:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      PLATFORM_DOMAIN: ${PLATFORM_DOMAIN:-:80}
+      TLS_DIRECTIVE: ${TLS_DIRECTIVE:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - v49_caddy_data:/data
+      - v49_caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    networks: [platform]
+
+volumes:
+  v49_pgdata:
+  v49_qdrant:
+  v49_caddy_data:
+  v49_caddy_config:
+networks:
+  platform:

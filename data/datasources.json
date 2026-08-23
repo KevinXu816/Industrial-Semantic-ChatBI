@@ -26,5 +26,165 @@
     "api_method": "GET",
     "api_headers": {},
     "file_path": null
+  },
+  "DS-15cf8709f38f": {
+    "id": "DS-15cf8709f38f",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-5514792313efbfcd"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v48work/Industrial-Semantic-ChatBI-V4.7/data/uploads/b7476beac7-assets.xlsx"
+  },
+  "DS-9f2aa67f18e2": {
+    "id": "DS-9f2aa67f18e2",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-5162e435d8d46b0e"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v48work/Industrial-Semantic-ChatBI-V4.7/data/uploads/e4c5d6a7ad-assets.xlsx"
+  },
+  "DS-4d320a3207a2": {
+    "id": "DS-4d320a3207a2",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-5a307f96351f473b"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v48work/Industrial-Semantic-ChatBI-V4.7/data/uploads/64cd9ebd29-assets.xlsx"
+  },
+  "DS-2d58b77dca66": {
+    "id": "DS-2d58b77dca66",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-6ab991e33ac2e090"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v48work/Industrial-Semantic-ChatBI-V4.7/data/uploads/00746459be-assets.xlsx"
+  },
+  "DS-87fbff6dfe6d": {
+    "id": "DS-87fbff6dfe6d",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-3078cb4d2b057986"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v48work/Industrial-Semantic-ChatBI-V4.7/data/uploads/f30678d1e7-assets.xlsx"
+  },
+  "DS-520b3f562270": {
+    "id": "DS-520b3f562270",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-7be50ed4c6d37628"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v49work/Industrial-Semantic-ChatBI-V4.9/data/uploads/4c66f3538d-assets.xlsx"
+  },
+  "DS-6dde26734fb9": {
+    "id": "DS-6dde26734fb9",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-e8ea6e29abf1668b"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v49work/Industrial-Semantic-ChatBI-V4.9/data/uploads/705f2425d3-assets.xlsx"
+  },
+  "DS-e9afa6379ef7": {
+    "id": "DS-e9afa6379ef7",
+    "name": "V48 Excel Assets",
+    "type": "excel",
+    "host": "",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "credential_ref": "",
+    "database": null,
+    "enabled": true,
+    "extra": {
+      "sheet": "Assets",
+      "onboarding_session_id": "ONB-3ab861092ffe6ad3"
+    },
+    "api_url": null,
+    "api_method": "GET",
+    "api_headers": {},
+    "file_path": "/mnt/data/v49work/Industrial-Semantic-ChatBI-V4.9/data/uploads/994e544ef6-assets.xlsx"
   }
 }

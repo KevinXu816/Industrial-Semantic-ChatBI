@@ -4,7 +4,7 @@ from app.main import app
 client=TestClient(app)
 
 def test_v22_version_and_binding_governance():
-    assert client.get('/health').json()['version']=='3.3.0'
+    assert client.get('/health').json()['version']=='4.9.0'
     payload={"name":"asset-import-v22","target":"asset","source_type":"api","mappings":{"asset_id":"id","name":"label","asset_type":"type"}}
     row=client.post('/data-bindings',json=payload).json(); bid=row['binding_id']
     preview=client.post(f'/data-bindings/{bid}/preview',json={"records":[{"id":"V22-A1","label":"Pump A1","type":"pump"}]}).json()

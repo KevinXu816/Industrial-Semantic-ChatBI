@@ -46,11 +46,11 @@ def test_v30_health_probes(monkeypatch):
     import app.main as m
     m.auth_service.reload()
     with TestClient(m.app) as client:
-        assert client.get('/health').json()['version'] == '3.3.0'
+        assert client.get('/health').json()['version'] == '4.9.0'
         assert client.get('/health/live').status_code == 200
         assert client.get('/health/startup').status_code == 200
         assert client.get('/health/ready').status_code == 200
         assert client.get('/production/migrations').json()['up_to_date'] is True
         check=client.get('/production/upgrade/check', params={'from_version':'2.9.0'}).json()
-        assert check['current_version']=='3.3.0'
+        assert check['current_version']=='4.9.0'
         assert check['major_upgrade'] is True

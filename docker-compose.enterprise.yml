@@ -30,6 +30,8 @@ services:
       PERSISTENCE_BACKEND: postgres
       DATABASE_URL: postgresql://industrial_semantic:industrial_semantic@postgres:5432/industrial_semantic
       DEFAULT_TENANT_ID: ${DEFAULT_TENANT_ID:-default}
+      ALLOW_PRIVATE_API_PULL: ${ALLOW_PRIVATE_API_PULL:-false}
+      ALLOW_INSECURE_API_HTTP: ${ALLOW_INSECURE_API_HTTP:-false}
       AUTH_MODE: ${AUTH_MODE:-disabled}
       AUTH_AUTO_PROVISION: ${AUTH_AUTO_PROVISION:-false}
       OIDC_ISSUER: ${OIDC_ISSUER:-}

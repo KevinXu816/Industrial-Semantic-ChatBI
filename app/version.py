@@ -1,2 +1,2 @@
-APP_VERSION = "3.3.0"
-APP_NAME = "Industrial Semantic Intelligence Platform"
+APP_VERSION = "4.9.0"
+APP_NAME = "工业语义智能平台"

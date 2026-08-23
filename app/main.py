@@ -2,7 +2,7 @@ from typing import Dict, List
 from pathlib import Path
 import threading
 from contextlib import asynccontextmanager
-from fastapi import Body, FastAPI, HTTPException, Request
+from fastapi import Body, FastAPI, HTTPException, Request, UploadFile, File, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from pydantic import ValidationError
@@ -69,6 +69,11 @@ from .model_registry import PredictiveModelRegistry
 from .model_monitoring import ModelDatasetRegistry, ModelEvaluationService, ModelDeploymentManager, ModelMonitoringService
 from .asset_reliability import AssetRegistry, AssetReliabilityCockpitService
 from .product_workspace import ProductWorkspaceService
+from .workspace_productivity import WorkspaceProductivityService
+from .team_collaboration import TeamCollaborationService, CollaborationEscalationService
+from .shift_handover import ShiftHandoverService
+from .operations_reporting import OperationsReportService
+from .enterprise_onboarding import EnterpriseOnboardingService
 from .reliability_workflow import RCAWorkflowService
 from .data_binding import DataBindingStore
 from .integration_runtime import IntegrationRuntimeService
@@ -84,6 +89,11 @@ from .production_runtime import ProductionLifecycle, BackupManager, UpgradeAdvis
 from .pilot_pack import PilotPackService
 from .pilot_delivery import PilotDeliveryService
 from .pilot_validation import PilotCustomerDataValidator
+from .pilot_data_alignment import PilotDataAlignmentService
+from .pilot_timeseries_quality import PilotTimeSeriesQualityService
+from .operating_context import OperatingContextService
+from .peer_benchmark import PeerBenchmarkService
+from .peer_outcome import PeerOutcomeService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -96,6 +106,50 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=APP_NAME, version=APP_VERSION, lifespan=lifespan)
 _static = Path(__file__).parent / "static"
+
+
+# --- V4.8 Two-step Enterprise Data Onboarding ---
+@app.get("/onboarding/contract")
+def onboarding_contract():
+    return enterprise_onboarding.contract()
+
+@app.post("/onboarding/excel/discover")
+async def onboarding_excel_discover(file: UploadFile = File(...), target: str = Form("asset"), sheet: str = Form("")):
+    try:
+        content = await file.read()
+        if len(content) > 25 * 1024 * 1024:
+            raise ValueError("文件不能超过 25MB；大文件请使用 Edge Agent/批量导入")
+        return enterprise_onboarding.discover_excel(file.filename or "upload.xlsx", content, target=target, sheet=sheet)
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/onboarding/api/discover")
+def onboarding_api_discover(payload: dict = Body(...)):
+    try:
+        return enterprise_onboarding.discover_api(payload)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/onboarding/edge/discover")
+def onboarding_edge_discover(payload: dict = Body(...)):
+    try:
+        return enterprise_onboarding.discover_edge(payload)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/onboarding/{session_id}/confirm")
+def onboarding_confirm(session_id: str, payload: dict = Body(default={})):
+    try:
+        return enterprise_onboarding.confirm(session_id, payload)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="onboarding session not found")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/onboarding/sessions")
+def onboarding_sessions(limit: int = 100):
+    return {"sessions": enterprise_onboarding.list(limit=limit)}
+
 app.mount("/static", StaticFiles(directory=_static), name="static")
 registry = SemanticRegistry()
 planner = QueryPlanner(registry)
@@ -161,8 +215,18 @@ data_bindings = DataBindingStore(repository)
 integration_runtime = IntegrationRuntimeService(repository, data_bindings)
 pilot_delivery = PilotDeliveryService(repository, data_bindings, integration_runtime, rca_case_store)
 pilot_customer_validator = PilotCustomerDataValidator(repository, data_bindings, integration_runtime)
+pilot_data_alignment = PilotDataAlignmentService(repository)
+pilot_timeseries_quality = PilotTimeSeriesQualityService(repository)
+operating_context = OperatingContextService(repository)
+peer_benchmark = PeerBenchmarkService(repository)
+peer_outcomes = PeerOutcomeService(repository, peer_benchmark, rca_case_store)
 edge_agents = EdgeAgentRegistry(repository)
 connectors = ConnectorRegistry(repository, data_bindings)
+workspace_productivity = WorkspaceProductivityService(asset_registry, asset_cockpit, rca_case_store, cmms_candidates, fmea_store, model_registry, connectors, edge_agents, repository=repository)
+team_collaboration = TeamCollaborationService(repository)
+collaboration_escalation = CollaborationEscalationService(repository, team_collaboration)
+shift_handover = ShiftHandoverService(repository, team_collaboration, collaboration_escalation)
+operations_reporting = OperationsReportService(repository, shift_handover, team_collaboration, collaboration_escalation, rca_case_store, cmms_candidates, peer_benchmark)
 connector_batches = ConnectorBatchProcessor(connectors, integration_runtime, edge_agents)
 enterprise_identity = EnterpriseIdentityStore(repository)
 enterprise_scope = EnterpriseScopeEngine(enterprise_identity)
@@ -218,6 +282,7 @@ rca_engine = RCAEngine(knowledge=knowledge_retriever, calibrator=rca_calibrator,
 answer_composer = AnswerComposer()
 review_store = ReviewStore()
 datasource_store = DataSourceStore(secret_manager)
+enterprise_onboarding = EnterpriseOnboardingService(repository, datasource_store, data_bindings)
 llm_service = LLMService(secret_manager)
 session_store = ChatSessionStore()
 feedback_store = FeedbackStore()
@@ -1776,7 +1841,219 @@ def reliability_fleet(limit: int = 100):
 def workspace_home(role: str = "reliability_engineer", limit: int = 12):
     return product_workspace.home(role=role, limit=limit)
 
+@app.get("/workspace/search")
+def workspace_search(q: str = "", limit: int = 20):
+    return workspace_productivity.search(q, limit=limit)
+
+@app.get("/workspace/inbox")
+def workspace_inbox(limit: int = 30):
+    return workspace_productivity.inbox(limit=limit)
+
+@app.get("/workspace/quick-actions")
+def workspace_quick_actions():
+    return workspace_productivity.quick_actions()
+
+@app.get("/workspace/personalized")
+def workspace_personalized(role: str = "reliability_engineer", principal_id: str = "local-user", limit: int = 8):
+    return workspace_productivity.personalized_home(role=role, principal_id=principal_id, limit=limit)
+
+@app.get("/workspace/preferences")
+def workspace_preferences(principal_id: str = "local-user"):
+    return workspace_productivity.preferences(principal_id)
+
+@app.post("/workspace/preferences")
+def workspace_update_preferences(payload: dict = Body(default={})):
+    principal_id=str(payload.pop("principal_id","local-user"))
+    return workspace_productivity.update_preferences(principal_id,payload)
+
+@app.post("/workspace/preferences/recent")
+def workspace_record_recent(payload: dict = Body(default={})):
+    principal_id=str(payload.pop("principal_id","local-user"))
+    return workspace_productivity.record_recent(principal_id,payload)
+
+@app.post("/workspace/preferences/favorite")
+def workspace_toggle_favorite(payload: dict = Body(default={})):
+    principal_id=str(payload.pop("principal_id","local-user"))
+    return workspace_productivity.toggle_favorite(principal_id,payload)
+
+@app.get("/workspace/context")
+def workspace_context(asset_id: str = "", case_id: str = ""):
+    return workspace_productivity.context(asset_id=asset_id,case_id=case_id)
+
+@app.get("/workspace/dashboard")
+def workspace_dashboard(principal_id: str = "local-user", role: str = "reliability_engineer"):
+    return workspace_productivity.dashboard(principal_id,role)
+
+@app.post("/workspace/dashboard")
+def workspace_update_dashboard(payload: dict = Body(default={})):
+    principal_id=str(payload.pop("principal_id","local-user")); role=str(payload.pop("role","reliability_engineer"))
+    return workspace_productivity.update_dashboard(principal_id,role,payload)
+
+@app.get("/workspace/action-center")
+def workspace_action_center(role: str = "reliability_engineer", principal_id: str = "local-user", limit: int = 20):
+    return workspace_productivity.action_center(role,principal_id,limit)
+
+@app.post("/workspace/preferences/pin-action")
+def workspace_pin_action(payload: dict = Body(default={})):
+    try: return workspace_productivity.pin_action(str(payload.get("principal_id","local-user")),str(payload.get("action_id","")))
+    except ValueError as exc: raise HTTPException(status_code=400,detail=str(exc))
+
+# --- V4.4 Team Collaboration & Accountability ---
+def _collab_actor(request: Request, payload: dict) -> str:
+    if auth_service.config.mode == "disabled":
+        return str(payload.get("actor") or payload.get("principal_id") or "local-user")
+    principal = _authenticated_principal(request)
+    return str(principal.get("principal_id") or "")
+
+@app.get("/collaboration/board")
+def collaboration_board(request: Request, principal_id: str = "local-user", limit: int = 100):
+    pid = _effective_principal_id(request, principal_id) if auth_service.config.mode != "disabled" else principal_id
+    return team_collaboration.board(pid, limit=limit)
+
+@app.get("/collaboration/resources/{resource_type}/{resource_id}")
+def collaboration_thread(resource_type: str, resource_id: str, limit: int = 200):
+    try: return team_collaboration.thread(resource_type, resource_id, limit=limit)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/collaboration/resources/{resource_type}/{resource_id}/assign")
+def collaboration_assign(resource_type: str, resource_id: str, request: Request, payload: dict = Body(default={})):
+    actor = _collab_actor(request, payload)
+    try:
+        return team_collaboration.assign(resource_type, resource_id, str(payload.get("assignee") or ""), actor, title=str(payload.get("title") or ""), asset_id=str(payload.get("asset_id") or ""))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/collaboration/resources/{resource_type}/{resource_id}/handoff")
+def collaboration_handoff(resource_type: str, resource_id: str, request: Request, payload: dict = Body(default={})):
+    actor = _collab_actor(request, payload)
+    try: return team_collaboration.handoff(resource_type, resource_id, str(payload.get("to_principal") or ""), actor, note=str(payload.get("note") or ""))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/collaboration/resources/{resource_type}/{resource_id}/watch")
+def collaboration_watch(resource_type: str, resource_id: str, request: Request, payload: dict = Body(default={})):
+    actor = _collab_actor(request, payload)
+    principal_id = actor if auth_service.config.mode != "disabled" else str(payload.get("principal_id") or actor or "local-user")
+    try: return team_collaboration.watch(resource_type, resource_id, principal_id, enabled=bool(payload.get("enabled", True)), actor=actor)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/collaboration/resources/{resource_type}/{resource_id}/sla")
+def collaboration_sla(resource_type: str, resource_id: str, request: Request, payload: dict = Body(default={})):
+    actor = _collab_actor(request, payload)
+    try: return team_collaboration.set_sla(resource_type, resource_id, actor, due_at=str(payload.get("due_at") or ""), sla_hours=payload.get("sla_hours"))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/collaboration/resources/{resource_type}/{resource_id}/comments")
+def collaboration_comment(resource_type: str, resource_id: str, request: Request, payload: dict = Body(default={})):
+    actor = _collab_actor(request, payload)
+    try: return team_collaboration.add_comment(resource_type, resource_id, actor, str(payload.get("body") or ""))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
 # --- V2.7 Secret Registry / Credential Management ---
+
+@app.get("/collaboration/sla-policies")
+def collaboration_sla_policies():
+    return {"items": collaboration_escalation.policies()}
+
+@app.post("/collaboration/sla-policies")
+def collaboration_sla_policy_upsert(request: Request, payload: dict = Body(default={})):
+    actor = str(payload.get("actor") or getattr(request.state, "principal_id", "") or "local-user")
+    try: return collaboration_escalation.upsert_policy(payload, actor)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/collaboration/oncall")
+def collaboration_oncall():
+    return {"items": collaboration_escalation.oncall()}
+
+@app.post("/collaboration/oncall")
+def collaboration_oncall_set(request: Request, payload: dict = Body(default={})):
+    actor = str(payload.get("actor") or getattr(request.state, "principal_id", "") or "local-user")
+    try: return collaboration_escalation.set_oncall(payload, actor)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/collaboration/notifications/contract")
+def collaboration_notification_contract():
+    return collaboration_escalation.notification_contract()
+
+@app.get("/collaboration/notifications")
+def collaboration_notifications(recipient: str = ""):
+    return {"items": collaboration_escalation.notifications(recipient)}
+
+@app.post("/collaboration/escalations/evaluate")
+def collaboration_escalations_evaluate(request: Request, payload: dict = Body(default={})):
+    actor = str(payload.get("actor") or getattr(request.state, "principal_id", "") or "local-user")
+    return collaboration_escalation.evaluate(actor)
+
+@app.get("/collaboration/escalations")
+def collaboration_escalations(status: str = ""):
+    return {"items": collaboration_escalation.escalations(status)}
+
+
+# V4.6 Shift Handover & Operations Logbook
+@app.get("/operations/shifts")
+def operations_shifts():
+    return {"items": shift_handover.shifts()}
+
+@app.post("/operations/shifts")
+def operations_shift_upsert(request: Request, payload: dict = Body(default={})):
+    actor = str(payload.get("actor") or getattr(request.state, "principal_id", "") or "local-user")
+    try: return shift_handover.upsert_shift(payload, actor)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/operations/logbook")
+def operations_logbook(site_id: str = "", shift_id: str = "", limit: int = 200):
+    return {"items": shift_handover.logs(site_id=site_id, shift_id=shift_id, limit=limit)}
+
+@app.post("/operations/logbook")
+def operations_logbook_add(request: Request, payload: dict = Body(default={})):
+    actor = str(payload.get("actor") or getattr(request.state, "principal_id", "") or "local-user")
+    try: return shift_handover.add_log(payload, actor)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/operations/handovers")
+def operations_handovers(site_id: str = "", status: str = "", limit: int = 100):
+    return {"items": shift_handover.handovers(site_id=site_id, status=status, limit=limit)}
+
+@app.post("/operations/handovers")
+def operations_handover_create(request: Request, payload: dict = Body(default={})):
+    actor = str(payload.get("actor") or getattr(request.state, "principal_id", "") or "local-user")
+    try: return shift_handover.create_handover(payload, actor)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/operations/handovers/{handover_id}/acknowledge")
+def operations_handover_ack(handover_id: str, request: Request, payload: dict = Body(default={})):
+    actor = str(payload.get("actor") or getattr(request.state, "principal_id", "") or "local-user")
+    principal_id = str(payload.get("principal_id") or actor)
+    try: return shift_handover.acknowledge(handover_id, principal_id, actor, str(payload.get("note") or ""))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/operations/handover-dashboard")
+def operations_handover_dashboard(site_id: str = ""):
+    return shift_handover.dashboard(site_id=site_id)
+
+@app.post("/operations/reports/generate")
+def operations_report_generate(request: Request, payload: dict = Body(default={})):
+    actor = _collab_actor(request, payload)
+    try:
+        return operations_reporting.generate(payload, actor)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/operations/reports")
+def operations_reports(kind: str = "", site_id: str = "", limit: int = 100):
+    return {"items": operations_reporting.list_reports(kind=kind, site_id=site_id, limit=limit)}
+
+@app.get("/operations/reports/{report_id}")
+def operations_report_get(report_id: str):
+    row = operations_reporting.get(report_id)
+    if not row: raise HTTPException(status_code=404, detail="report not found")
+    return row
+
+@app.get("/operations/reports/{report_id}/markdown")
+def operations_report_markdown(report_id: str):
+    try:
+        return PlainTextResponse(operations_reporting.markdown(report_id), media_type="text/markdown; charset=utf-8")
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
 @app.get("/secrets/contract")
 def secret_contract():
     return {"version":"1.0","reference":"secret://<provider>/<name>","providers":["env","file","vault","azure-key-vault"],"rules":["secret values are never returned by API","registry persists metadata/reference only","runtime resolves secrets at point of use"]}
@@ -2030,6 +2307,162 @@ def pilot_customer_data_dry_run(binding_id: str, payload: dict = Body(...)):
 @app.get("/pilot/customer-data/validation")
 def pilot_customer_data_validation(binding_id: str = ""):
     return pilot_customer_validator.latest(binding_id=binding_id)
+
+@app.post("/pilot/data-alignment/asset-aliases")
+def pilot_upsert_asset_alias(payload: dict = Body(...)):
+    try: return pilot_data_alignment.upsert_asset_alias(payload)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/data-alignment/asset-aliases")
+def pilot_asset_aliases():
+    return {"items": pilot_data_alignment.aliases()}
+
+@app.post("/pilot/data-alignment/failure-codes")
+def pilot_upsert_failure_code(payload: dict = Body(...)):
+    try: return pilot_data_alignment.upsert_failure_code(payload)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/data-alignment/failure-codes")
+def pilot_failure_codes():
+    return {"items": pilot_data_alignment.failure_codes()}
+
+@app.post("/pilot/data-alignment/normalize")
+def pilot_normalize_customer_records(payload: dict = Body(...)):
+    return pilot_data_alignment.normalize_records(payload.get("records") or [], source_system=str(payload.get("source_system") or ""), asset_field=str(payload.get("asset_field") or "asset_id"), timestamp_field=str(payload.get("timestamp_field") or "timestamp"), source_timezone=str(payload.get("source_timezone") or "UTC"))
+
+@app.post("/pilot/data-alignment/assess-series")
+def pilot_assess_customer_series(payload: dict = Body(...)):
+    try:
+        return pilot_data_alignment.assess_series(payload.get("records") or [], bucket_minutes=int(payload.get("bucket_minutes") or 5), min_load_pct=float(payload.get("min_load_pct") or 20.0))
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+# --- V3.5 工业时序数据质量与对账 ---
+@app.post("/pilot/data-quality/policies")
+def pilot_upsert_timeseries_quality_policy(payload: dict = Body(...)):
+    try: return pilot_timeseries_quality.upsert_policy(payload)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/data-quality/policies")
+def pilot_timeseries_quality_policies():
+    return {"items": pilot_timeseries_quality.policies()}
+
+@app.post("/pilot/data-quality/maintenance-windows")
+def pilot_add_maintenance_window(payload: dict = Body(...)):
+    try: return pilot_timeseries_quality.add_maintenance_window(payload)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/data-quality/maintenance-windows")
+def pilot_maintenance_windows(asset_id: str = ""):
+    return {"items": pilot_timeseries_quality.maintenance_windows(asset_id)}
+
+@app.post("/pilot/data-quality/assess")
+def pilot_timeseries_quality_assess(payload: dict = Body(...)):
+    try:
+        return pilot_timeseries_quality.assess(
+            payload.get("records") or [],
+            policy_id=str(payload.get("policy_id") or "pilot-default"),
+            asset_id=str(payload.get("asset_id") or ""),
+        )
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.post("/pilot/data-quality/reconcile")
+def pilot_timeseries_quality_reconcile(payload: dict = Body(...)):
+    try:
+        out = pilot_timeseries_quality.assess(
+            payload.get("records") or [],
+            policy_id=str(payload.get("policy_id") or "pilot-default"),
+            asset_id=str(payload.get("asset_id") or ""),
+        )
+        return {
+            "assessment_id": out["assessment_id"],
+            "quality_score": out["quality_score"],
+            "ready_for_baseline": out["ready_for_baseline"],
+            "records": out["reconciled_records"],
+            "excluded": sum(1 for r in out["reconciled_records"] if not r.get("baseline_eligible", True)),
+        }
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/data-quality/assessments")
+def pilot_timeseries_quality_assessments(asset_id: str = "", limit: int = 200):
+    return {"items": pilot_timeseries_quality.assessments(asset_id=asset_id, limit=limit)}
+
+# --- V3.6 工况上下文与可比基线 ---
+@app.post("/pilot/operating-context/policies")
+def operating_context_policy(payload: dict = Body(...)):
+    try: return operating_context.upsert_policy(payload)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/operating-context/policies")
+def operating_context_policies():
+    return {"items": operating_context.policies()}
+
+@app.post("/pilot/operating-context/assess")
+def operating_context_assess(payload: dict = Body(...)):
+    try: return operating_context.assess(payload)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/operating-context/assessments")
+def operating_context_assessments(limit: int = 200):
+    return {"items": operating_context.assessments(limit=limit)}
+
+# --- V3.7 自动工况分群与同类设备对标 ---
+@app.post("/pilot/peer-benchmark/assess")
+def peer_benchmark_assess(payload: dict = Body(...)):
+    try: return peer_benchmark.assess(payload)
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/peer-benchmark/assessments")
+def peer_benchmark_assessments(limit: int = 200):
+    return {"items": peer_benchmark.assessments(limit=limit)}
+
+@app.post("/pilot/peer-benchmark/{assessment_id}/promote-to-rca")
+def peer_benchmark_promote_to_rca(assessment_id: str, payload: dict = Body(default={})): 
+    assessment = peer_benchmark.get(assessment_id)
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Peer Benchmark assessment 不存在")
+    if not assessment.get("ready"):
+        raise HTTPException(status_code=400, detail="可比样本不足，不能进入 RCA")
+    asset_id = assessment.get("current_asset") or str(payload.get("asset_id") or "")
+    if not asset_id:
+        raise HTTPException(status_code=400, detail="缺少 current_asset/asset_id")
+    actor = str(payload.get("actor") or "peer_benchmark")
+    evidence = [
+        {"type":"peer_benchmark","statement":f"同工况 Peer 中位数 {assessment.get('peer_median')}，当前值 {assessment.get('current_value')}","source":"Peer Benchmark","provenance":assessment_id},
+        {"type":"operating_context","statement":assessment.get("cluster"),"source":"Operating Context","provenance":assessment_id},
+        {"type":"priority","statement":f"{assessment.get('priority')} / {assessment.get('priority_score')}","source":"Peer Benchmark","provenance":assessment_id},
+    ]
+    case = rca_case_store.create({
+        "title": f"{asset_id} 同工况对标异常 RCA",
+        "question": f"为什么 {asset_id} 在同工况 Peer 中 {assessment.get('metric')} 显著偏高？",
+        "subject": {"entity":"Machine","reference":asset_id},
+        "metrics": [assessment.get("metric")],
+        "analysis": {"source":"peer_benchmark","assessment_id":assessment_id,"evidence":evidence,"hypotheses":[]},
+        "hypotheses": [],
+    }, actor=actor)
+    case = rca_case_store.attach_analysis(case["case_id"], {"source":"peer_benchmark","assessment_id":assessment_id,"evidence":evidence,"hypotheses":[]}, actor=actor)
+    assessment["rca_case_id"] = case["case_id"]
+    assessment["promoted_to_rca_at"] = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()
+    repository.put(peer_benchmark.ASSESSMENTS, assessment_id, assessment)
+    return {"assessment":assessment,"rca_case":case}
+
+# --- V3.9 Peer Benchmark 维护后效果验证闭环 ---
+@app.get("/pilot/peer-outcomes/policy")
+def peer_outcome_policy():
+    return peer_outcomes.policy()
+
+@app.post("/pilot/peer-outcomes/policy")
+def peer_outcome_policy_update(payload: dict = Body(...)):
+    return peer_outcomes.upsert_policy(payload)
+
+@app.post("/pilot/peer-benchmark/{assessment_id}/verify-outcome")
+def peer_benchmark_verify_outcome(assessment_id: str, payload: dict = Body(...)):
+    try: return peer_outcomes.verify(assessment_id, payload)
+    except KeyError: raise HTTPException(status_code=404, detail="Peer Benchmark assessment 不存在")
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc))
+
+@app.get("/pilot/peer-outcomes")
+def peer_outcome_list(limit: int = 200):
+    return {"items": peer_outcomes.list(limit=limit)}
 
 @app.get("/pilot/report")
 def pilot_acceptance_report():

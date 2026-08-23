@@ -47,7 +47,7 @@ def test_v16_api_end_to_end(monkeypatch, tmp_path):
     from fastapi.testclient import TestClient
     from app.main import app
     client=TestClient(app)
-    assert client.get('/health').json()['version']=='3.3.0'
+    assert client.get('/health').json()['version']=='4.9.0'
     ind='V16_TEMP_MEAN_TEST'
     r=client.post('/condition/definitions',json={"definition_id":ind,"indicator":ind,"sensor":"v16_temp","feature":"mean","warn":70,"critical":90})
     assert r.status_code==200

@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: app
-          image: industrial-semantic:3.3.0
+          image: industrial-semantic:4.9.0
           ports:
             - containerPort: 8000
           envFrom:
